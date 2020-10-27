@@ -17,7 +17,7 @@ data class Feed(
     val id: String,
     val title: String,
     val updated: Date?,
-    val author: Author?,
+    val author: Author? = null,
 
     @JacksonXmlProperty(localName = "link")
     @JacksonXmlElementWrapper(useWrapping = false)
@@ -35,18 +35,18 @@ data class Author(
 
 data class Link(
     @JacksonXmlProperty(isAttribute = true)
-    val type: String,
+    val type: String = "application/atom+xml;profile=opds-catalog;",
     @JacksonXmlProperty(isAttribute = true)
-    val title: String?,
+    val title: String? = null,
     @JacksonXmlProperty(isAttribute = true)
-    val rel: String,
+    val rel: String? = null,
     @JacksonXmlProperty(isAttribute = true)
     val href: String
 )
 
 data class Entry(
-    val title: String,
     val id: String,
+    val title: String,
     val updated: Date,
     val content: String,
     val link: Link
