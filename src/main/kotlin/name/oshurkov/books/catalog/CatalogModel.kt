@@ -1,6 +1,7 @@
 package name.oshurkov.books.catalog
 
 import com.fasterxml.jackson.dataformat.xml.annotation.*
+import java.util.*
 
 @JacksonXmlRootElement(localName = "feed")
 data class Feed(
@@ -13,30 +14,40 @@ data class Feed(
     @JacksonXmlProperty(isAttribute = true) val xmlns: String = "http://www.w3.org/2005/Atom",
     @JacksonXmlProperty(isAttribute = true, localName = "xml:lang") val lang: String = "en",
 
-    val id: String?,
-    val title: String?,
-    val updated: String?,
+    val id: String,
+    val title: String,
+    val updated: Date?,
     val author: Author?,
-    val link: List<Link>?,
-    val entry: List<Entry>?
+
+    @JacksonXmlProperty(localName = "link")
+    @JacksonXmlElementWrapper(useWrapping = false)
+    val links: List<Link>?,
+
+    @JacksonXmlProperty(localName = "entry")
+    @JacksonXmlElementWrapper(useWrapping = false)
+    val entries: List<Entry>?
 )
 
 data class Author(
-    val name: String?,
+    val name: String,
     val uri: String?
 )
 
 data class Link(
-    val type: String?,
+    @JacksonXmlProperty(isAttribute = true)
+    val type: String,
+    @JacksonXmlProperty(isAttribute = true)
     val title: String?,
-    val rel: String?,
-    val href: String?
+    @JacksonXmlProperty(isAttribute = true)
+    val rel: String,
+    @JacksonXmlProperty(isAttribute = true)
+    val href: String
 )
 
 data class Entry(
-    val title: String?,
-    val id: String?,
-    val updated: String?,
-    val content: String?,
-    val link: Link?
+    val title: String,
+    val id: String,
+    val updated: Date,
+    val content: String,
+    val link: Link
 )
