@@ -2,7 +2,9 @@ package name.oshurkov.books.catalog
 
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
-import java.util.*
+import java.io.*
+import java.nio.file.*
+import java.util.Date
 
 @RestControllerAdvice
 @RequestMapping("/catalog")
@@ -25,22 +27,22 @@ class CatalogController {
                     id = "tag:root:featured",
                     title = "Рекомендуемые",
                     updated = Date(),
-                    content = "Рекомендуемые книги",
-                    link = Link(href = "catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition")
+                    content = Content("Рекомендуемые книги"),
+                    links = listOf(Link(href = "catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"))
                 ),
                 Entry(
                     id = "tag:root:authors",
                     title = "По авторам",
                     updated = Date(),
-                    content = "Поиск книг по авторам",
-                    link = Link(href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation")
+                    content = Content("Поиск книг по авторам"),
+                    links = listOf(Link(href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation"))
                 ),
                 Entry(
                     id = "tag:root:genre",
                     title = "По жанрам",
                     updated = Date(),
-                    content = "Поиск книг по жанрам",
-                    link = Link(href = "catalog/genres", type = "application/atom+xml;profile=opds-catalog;kind=navigation")
+                    content = Content("Поиск книг по жанрам"),
+                    links = listOf(Link(href = "catalog/genres", type = "application/atom+xml;profile=opds-catalog;kind=navigation"))
                 )
             )
         )
