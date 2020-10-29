@@ -147,6 +147,36 @@ class CatalogController {
 
     @GetMapping("authors", produces = [APPLICATION_XML_VALUE])
     fun authors() = run {
+
+        val authorsEntries = authorRepository.findAll().map {
+            Entry(
+                id = "tag:authors:${it.id}",
+                title = it.toString(),
+                updated = it.updated,
+                content = null,
+                summary = null,
+                authors = null,
+                rights = null,
+                language = null,
+                issued = null,
+                publisher = null,
+                sources = listOf(),
+                links = null
+            )
+        }
+
+        Feed(
+            id = "tag:authors",
+            title = "По авторам",
+            updated = Date(),
+            links = listOf(
+                Link(rel = "self", href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "start", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "up", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "http://opds-spec.org/crawlable", href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+            ),
+            entries = authorsEntries
+        )
     }
 
     @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
@@ -155,4 +185,7 @@ class CatalogController {
 
     @Autowired
     private lateinit var bookRepository: BookRepository
+
+    @Autowired
+    private lateinit var authorRepository: AuthorRepository
 }
