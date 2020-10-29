@@ -10,7 +10,6 @@ class Author(
     @Id
     @GeneratedValue(strategy = AUTO)
     val id: Int? = null,
-
     val firstName: String?,
     val middleName: String?,
     val lastName: String,

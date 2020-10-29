@@ -60,12 +60,7 @@ class StorageController {
                     }
                     .toSet()
 
-                val genres = book.description.titleInfo.genres.map {
-                    Genre(
-                        term = it,
-                        scheme = null
-                    )
-                }
+                val genres = book.description.titleInfo.genres.map { Genre(value = it) }
 
                 val binary = book.binaries[book.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
 
@@ -73,7 +68,6 @@ class StorageController {
                     title = book.title,
                     content = null,
                     summary = null,
-                    authors = bookAuthors,
                     rights = null,
                     language = when (book.lang.toLowerCase()) {
                         "ru" -> "ru-RU"
@@ -88,7 +82,9 @@ class StorageController {
                         FB2 -> "application/xml"
                         FBZ -> "application/zip"
                         EPUB -> "application/epub+zip"
-                    }
+                    },
+                    authors = bookAuthors,
+                    genres = emptySet()
                 )
             }
 

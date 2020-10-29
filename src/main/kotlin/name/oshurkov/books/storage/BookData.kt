@@ -1,9 +1,11 @@
 package name.oshurkov.books.storage
 
+import org.hibernate.annotations.*
 import org.springframework.data.jpa.repository.*
 import java.util.*
 import javax.persistence.*
 import javax.persistence.CascadeType.*
+import javax.persistence.Entity
 import javax.persistence.GenerationType.*
 
 @Entity
@@ -12,13 +14,10 @@ class Book(
     @GeneratedValue(strategy = AUTO)
     val id: Int = 0,
     val title: String,
-    val updated: Date = Date(),
+    @UpdateTimestamp
+    val updated: Date = Date(0),
     val content: String?,
     val summary: String?,
-
-    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
-    val authors: Set<Author>,
-
     val rights: String?,
     val language: String?,
     val issued: String?,
@@ -26,8 +25,15 @@ class Book(
     @Lob
     val cover: ByteArray?,
     val coverContentType: String?,
+    @Column(unique = true)
     val file: String,
     val fileContentType: String,
+
+    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    val authors: Set<Author>,
+
+    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    val genres: Set<Genre>,
 )
 
 interface BookRepository : JpaRepository<Book, Int>

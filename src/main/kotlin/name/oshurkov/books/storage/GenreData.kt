@@ -8,7 +8,5 @@ class Genre(
     @Id
     @GeneratedValue(strategy = AUTO)
     val id: Int = 0,
-
-    val term: String,
-    val scheme: String?
+    val value: String,
 )
