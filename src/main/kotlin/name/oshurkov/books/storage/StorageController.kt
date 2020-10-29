@@ -1,12 +1,12 @@
 package name.oshurkov.books.storage
 
+import name.oshurkov.books.*
 import name.oshurkov.books.storage.BookExt.*
 import org.apache.tomcat.util.codec.binary.*
 import org.aspectj.util.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.data.domain.*
 import org.springframework.web.bind.annotation.*
-import java.io.*
 
 @RestControllerAdvice
 @RequestMapping("/storage")
@@ -14,8 +14,6 @@ class StorageController {
 
     @PostMapping("rebuild")
     fun rebuild() {
-
-        val booksDir = File("/home/dmitry/yandex.disk/Книги")
 
         val files = FileUtil.listFiles(booksDir) { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") }
             .groupBy {
@@ -30,7 +28,7 @@ class StorageController {
         val fb2 = fictionBookService.parse(files)
 
         val authors = fb2
-            .flatMap { (book, _) -> book.description.titleInfo.authors }
+            .flatMap { (book, _, _) -> book.description.titleInfo.authors }
             .map {
                 Author(
                     firstName = it.firstName,
@@ -44,7 +42,7 @@ class StorageController {
         authorRepository.saveAll(authors)
 
         val fb2Books = fb2
-            .map { (book, file) ->
+            .map { (book, file, ext) ->
 
                 val bookAuthors = book.description.titleInfo.authors
                     .mapNotNull {
@@ -85,7 +83,12 @@ class StorageController {
                     publisher = null,
                     cover = binary?.binary?.let { Base64.decodeBase64(it) },
                     coverContentType = binary?.contentType,
-                    file = file.relativeTo(booksDir).path
+                    file = file.relativeTo(booksDir).path,
+                    fileContentType = when (ext) {
+                        FB2 -> "application/xml"
+                        FBZ -> "application/zip"
+                        EPUB -> "application/epub+zip"
+                    }
                 )
             }
 

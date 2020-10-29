@@ -63,7 +63,7 @@ data class Entry(
     @JacksonXmlProperty(localName = "dc:language")
     val language: String? = null,
     @JacksonXmlProperty(localName = "dc:issued")
-    val issued: Date? = null,
+    val issued: String? = null,
     @JacksonXmlProperty(localName = "dc:publisher")
     val publisher: String? = null,
 

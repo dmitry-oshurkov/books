@@ -1,13 +1,14 @@
 package name.oshurkov.books.catalog
 
-import com.kursx.parser.fb2.*
+import name.oshurkov.books.storage.*
 import nl.siegmann.epublib.epub.*
-import org.apache.tomcat.util.codec.binary.Base64
+import org.springframework.beans.factory.annotation.*
+import org.springframework.data.domain.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
 import java.io.*
 import java.nio.file.*
-import java.util.Date
+import java.util.*
 
 @RestControllerAdvice
 @RequestMapping("/catalog")
@@ -54,17 +55,31 @@ class CatalogController {
     @GetMapping("featured", produces = [APPLICATION_XML_VALUE])
     fun featured() = run {
 
-        val fb2 = FictionBook(File("/home/dmitry/Загрузки/Пикник на обочине.fb2"))
-        val s = fb2.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')
-        val binary = fb2.binaries[s]
-        if (binary != null) {
-
-            when (binary.contentType) {
-                "image/jpeg" -> {
-                    val bytes = Base64.decodeBase64(binary.binary)
-                    Files.write(Path.of("/home/dmitry/Загрузки/Пикник на обочине.fb2.jpeg"), bytes)
-                }
-            }
+        val fb2Entries = bookRepository.findAll(PageRequest.of(1, 100)).map {
+            Entry(
+                id = "tag:books:${it.id}",
+                title = it.title,
+                updated = Date(),
+                content = null,
+                summary = null,
+                authors = it.authors.map { a -> Author(name = a.toString(), uri = null) },
+//                categories = it.genres.map {
+//                    Category(
+//                        scheme = null,
+//                        term = it
+//                    )
+//                },
+                rights = null,
+                language = it.language,
+                issued = it.issued,
+                publisher = null,
+                sources = listOf(),
+                links = listOf(
+                    Link(rel = "http://opds-spec.org/image", href = "image/${it.id}", type = it.coverContentType ?: ""),
+                    Link(rel = "http://opds-spec.org/image/thumbnail", href = "image/thumbnail/${it.id}", type = it.coverContentType ?: ""),
+                    Link(rel = "http://opds-spec.org/acquisition/open-access", href = "file/${it.id}", type = it.fileContentType, title = it.title)
+                )
+            )
         }
 
         val epub = EpubReader().readEpub(FileInputStream("/home/dmitry/Загрузки/qq.epub"))
@@ -81,36 +96,7 @@ class CatalogController {
                 Link(rel = "up", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
                 Link(rel = "http://opds-spec.org/crawlable", href = "catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
             ),
-            entries = listOf(
-                Entry(
-                    id = "1",
-                    title = fb2.title,
-                    updated = Date(),
-                    content = null,
-                    summary = null,
-                    authors = fb2.description.titleInfo.authors.map {
-                        Author(
-                            name = "${it.firstName} ${it.middleName} ${it.lastName}",
-                            uri = null
-                        )
-                    },
-                    categories = fb2.description.titleInfo.genres.map {
-                        Category(
-                            scheme = null,
-                            term = it
-                        )
-                    },
-                    rights = null,
-                    language = fb2.lang,
-//                    issued = fb2.description.titleInfo.date,
-                    publisher = null,
-                    sources = listOf(),
-                    links = listOf(
-                        Link(rel = "http://opds-spec.org/image", href = "file:///home/dmitry/Загрузки/Пикник на обочине.fb2.jpeg", type = "image/jpeg"),
-                        Link(rel = "http://opds-spec.org/image/thumbnail", href = "file:///home/dmitry/Загрузки/Пикник на обочине.fb2.jpeg", type = "image/jpeg"),
-                        Link(rel = "http://opds-spec.org/acquisition/open-access", href = "rowland-smith.epub", type = "application/epub+zip", title = "Recommended compatible epub")
-                    )
-                ),
+            entries = fb2Entries + listOf(
                 Entry(
                     id = "2",
                     title = epub.metadata.titles[0],
@@ -166,4 +152,7 @@ class CatalogController {
     @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
     fun genres() = run {
     }
+
+    @Autowired
+    private lateinit var bookRepository: BookRepository
 }

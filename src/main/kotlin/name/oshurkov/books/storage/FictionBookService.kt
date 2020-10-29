@@ -1,6 +1,7 @@
 package name.oshurkov.books.storage
 
 import com.kursx.parser.fb2.*
+import name.oshurkov.books.*
 import name.oshurkov.books.storage.BookExt.*
 import org.springframework.stereotype.*
 import java.io.*
@@ -17,13 +18,13 @@ class FictionBookService {
                 try {
                     ZipFile(file.absolutePath).use {
                         val entry = it.entries().toList().first()
-                        it.getInputStream(entry).use {
+                        it.getInputStream(entry).use { stream ->
 
-                            val bytes = it.readAllBytes()
+                            val bytes = stream.readAllBytes()
                             val tmp = File.createTempFile("temp", null)
                             try {
                                 tmp.writeBytes(bytes)
-                                FictionBook(tmp) to file
+                                FictionBook(tmp) to file and FBZ
                             } catch (e: Exception) {
                                 null
                             } finally {
@@ -37,7 +38,7 @@ class FictionBookService {
             }
 
         val fb2plain = files[FB2].orEmpty()
-            .map { FictionBook(it) to it }
+            .map { FictionBook(it) to it and FB2 }
 
         fb2plain + fbz
     }

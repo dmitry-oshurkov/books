@@ -17,6 +17,8 @@ class Author(
 
     @ManyToMany(cascade = [ALL])
     val books: Set<Book>,
-)
+) {
+    override fun toString() = "$firstName${if (middleName != null) " $middleName" else ""} $lastName"
+}
 
 interface AuthorRepository : JpaRepository<Author, Int>

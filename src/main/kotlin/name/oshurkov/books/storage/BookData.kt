@@ -27,6 +27,7 @@ class Book(
     val cover: ByteArray?,
     val coverContentType: String?,
     val file: String,
+    val fileContentType: String,
 )
 
 interface BookRepository : JpaRepository<Book, Int>
