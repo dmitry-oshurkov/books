@@ -36,6 +36,9 @@ class Book(
     val genres: Set<Genre>,
 )
 
-interface BookRepository : JpaRepository<Book, Int>
+interface BookRepository : JpaRepository<Book, Int> {
+
+    fun findBooksByAuthorsId(authorId: Int): List<Book>
+}
 
 enum class BookExt { FB2, FBZ, EPUB }

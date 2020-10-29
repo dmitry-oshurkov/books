@@ -175,6 +175,43 @@ class CatalogController {
         )
     }
 
+    @GetMapping("authors/{authorId}/books", produces = [APPLICATION_XML_VALUE])
+    fun authorBooks(@PathVariable authorId: Int) = run {
+
+        val bookEntries = bookRepository.findBooksByAuthorsId(authorId)
+            .map {
+                Entry(
+                    id = "tag:books:${it.id}",
+                    title = it.title,
+                    updated = it.updated,
+                    content = Content(it.content),
+                    summary = Summary(it.summary),
+                    authors = it.authors.map { a -> Author(name = a.toString(), uri = null) },
+                    categories = it.genres.map { g -> Category(term = g.value, scheme = null) },
+                    rights = it.rights,
+                    language = it.language,
+                    issued = it.issued,
+                    publisher = it.publisher,
+                    sources = listOf(),
+                    links = listOf(
+                        Link(rel = "http://opds-spec.org/image", href = "/catalog/image/${it.id}", type = it.coverContentType ?: ""),
+                        Link(rel = "http://opds-spec.org/image/thumbnail", href = "/catalog/image/thumbnail/${it.id}", type = it.coverContentType ?: ""),
+                        Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/catalog/file/${it.id}", type = it.fileContentType, title = it.title)
+                    )
+                )
+            }
+            .toList()
+
+        Feed(
+            id = "tag:authors:${authorId}",
+            title = "author $authorId",
+            updated = Date(),
+            links = listOf(
+            ),
+            entries = bookEntries
+        )
+    }
+
     @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
     fun genres() = run {
     }
