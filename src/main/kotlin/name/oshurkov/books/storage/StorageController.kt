@@ -5,7 +5,6 @@ import name.oshurkov.books.storage.BookExt.*
 import org.apache.tomcat.util.codec.binary.*
 import org.aspectj.util.*
 import org.springframework.beans.factory.annotation.*
-import org.springframework.data.domain.*
 import org.springframework.web.bind.annotation.*
 
 @RestControllerAdvice
@@ -34,28 +33,19 @@ class StorageController {
                     firstName = it.firstName,
                     middleName = it.middleName,
                     lastName = it.lastName,
-                    books = emptySet()
                 )
             }
             .distinctBy { listOf(it.lastName, it.middleName, it.firstName) }
-
-        authorRepository.saveAll(authors)
 
         val fb2Books = fb2
             .map { (book, file, ext) ->
 
                 val bookAuthors = book.description.titleInfo.authors
                     .mapNotNull {
-                        try {
-                            authorRepository.findOne(Example.of(Author(
-                                firstName = it.firstName,
-                                middleName = null,
-                                lastName = it.lastName,
-                                books = emptySet()
-                            )))
-                                .get()
-                        } catch (e: Exception) {
-                            null
+                        authors.find { a ->
+                            a.firstName == it.firstName
+                            a.middleName == it.middleName
+                            a.lastName == it.lastName
                         }
                     }
                     .toSet()
@@ -96,7 +86,4 @@ class StorageController {
 
     @Autowired
     private lateinit var bookRepository: BookRepository
-
-    @Autowired
-    private lateinit var authorRepository: AuthorRepository
 }

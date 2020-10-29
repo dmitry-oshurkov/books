@@ -29,10 +29,10 @@ class Book(
     val file: String,
     val fileContentType: String,
 
-    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    @ManyToMany(cascade = [ALL])
     val authors: Set<Author>,
 
-    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    @ManyToMany(cascade = [ALL])
     val genres: Set<Genre>,
 )
 
