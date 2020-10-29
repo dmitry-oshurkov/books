@@ -16,8 +16,12 @@ class Book(
     val title: String,
     @UpdateTimestamp
     val updated: Date = Date(0),
+    @Column(length = 3000)
     val content: String?,
+    @Column(length = 1000)
     val summary: String?,
+    val summaryContentType: String?,
+    @Column(length = 500)
     val rights: String?,
     val language: String?,
     val issued: String?,

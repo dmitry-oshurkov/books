@@ -87,12 +87,12 @@ data class Content(
     @JacksonXmlText
     val content: String?,
     @JacksonXmlProperty(isAttribute = true)
-    val type: String = "text"
+    val type: String? = "text"
 )
 
 data class Summary(
     @JacksonXmlText
     val content: String?,
     @JacksonXmlProperty(isAttribute = true)
-    val type: String = "text"
+    val type: String? = "text"
 )

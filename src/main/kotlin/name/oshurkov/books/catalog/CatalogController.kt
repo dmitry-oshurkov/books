@@ -1,13 +1,10 @@
 package name.oshurkov.books.catalog
 
 import name.oshurkov.books.storage.*
-import nl.siegmann.epublib.epub.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.data.domain.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
-import java.io.*
-import java.nio.file.*
 import java.util.*
 
 @RestControllerAdvice
@@ -57,10 +54,7 @@ class CatalogController {
 
         val bookEntries = bookRepository.findAll(PageRequest.of(1, 100))
             .map { it.toEntry() }
-
-        val epub = EpubReader().readEpub(FileInputStream("/home/dmitry/Загрузки/qq.epub"))
-//        val epub = EpubReader().readEpub(FileInputStream("/home/dmitry/yandex.disk/Книги/Брэдбери, Рэй/451 градус по Фаренгейту.epub"))
-        Files.write(Path.of("/home/dmitry/Загрузки/qq.epub${epub.coverImage.mediaType.defaultExtension}"), epub.coverImage.data)
+            .toList()
 
         Feed(
             id = "tag:featured",
@@ -72,52 +66,7 @@ class CatalogController {
                 Link(rel = "up", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
                 Link(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
             ),
-            entries = bookEntries + listOf(
-                Entry(
-                    id = "2",
-                    title = epub.metadata.titles[0],
-                    updated = Date(),
-                    summary = Summary(epub.metadata.descriptions.firstOrNull()),
-                    authors = epub.metadata.authors.map {
-                        Author(
-                            name = "${it.firstname} ${it.lastname}",
-                            uri = null
-                        )
-                    },
-                    categories = epub.metadata.subjects.map {
-                        Category(
-                            scheme = "http://purl.org/dc/terms/LCSH",
-                            term = it
-                        )
-                    },
-                    rights = epub.metadata.rights.firstOrNull(),
-                    language = epub.metadata.language,
-//                    issued = book.metadata.dates.firstOrNull()?.let { ZonedDateTime.parse(it.value, DateTimeFormatter.ISO_INSTANT)  },
-                    publisher = epub.metadata.publishers.firstOrNull(),
-                    sources = null,
-                    content = Content(
-                        content = "<p>\n" +
-                            "            <a href=\"https://standardebooks.org/ebooks/h-g-wells\">\n" +
-                            "               <abbr>H. G.</abbr>\n" +
-                            "               Wells’\n" +
-                            "            </a>\n" +
-                            "            classic tale of alien invasion has to this day never been out of print. Like many works of the era, it was originally published as a serial—though the publisher,\n" +
-                            "            <i>Pearson’s Magazine</i>\n" +
-                            "            , demanded to know the ending before committing to publication.\n" +
-                            "         </p>\n" +
-                            "         <p>\n" +
-                            "            <i>The War of the Worlds</i>\n" +
-                            "            , with its matter-of-fact narrative style and deft mixture of contemporary science and fictionalized interstellar war machines, became an instant hit. Its themes of colonialism, social Darwinism, good and evil, and total war still resonate with modern-day readers, so much so that it’s been continuously adapted for screen, radio, television, comics, and print.\n" +
-                            "         </p>",
-                        type = "text/html"
-                    ),
-                    links = listOf(
-                        Link(rel = "http://opds-spec.org/image", href = "file:///home/dmitry/Загрузки/qq.epub.jpg", type = "image/jpeg"),
-                        Link(rel = "http://opds-spec.org/image/thumbnail", href = "file:///home/dmitry/Загрузки/qq.epub.jpg", type = "image/jpeg"),
-                        Link(rel = "http://opds-spec.org/acquisition/open-access", href = "rowland-smith.epub", type = "application/epub+zip", title = "Recommended compatible epub")
-                    )
-                )
-            )
+            entries = bookEntries
         )
     }
 
@@ -178,7 +127,7 @@ class CatalogController {
         title = title,
         updated = updated,
         content = Content(content),
-        summary = Summary(summary),
+        summary = Summary(summary, summaryContentType),
         authors = authors.map { a -> Author(name = a.toString(), uri = null) },
         categories = genres.map { g -> Category(term = g.value, scheme = null) },
         rights = rights,
