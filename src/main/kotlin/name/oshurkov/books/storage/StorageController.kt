@@ -29,35 +29,33 @@ class StorageController {
 
         val fb2 = fictionBookService.parse(files)
 
+        val authors = fb2
+            .flatMap { (book, _) -> book.description.titleInfo.authors }
+            .map {
+                Author(
+                    firstName = it.firstName,
+                    middleName = it.middleName,
+                    lastName = it.lastName,
+                    books = emptySet()
+                )
+            }
+            .distinctBy { listOf(it.lastName, it.middleName, it.firstName) }
+
+        authorRepository.saveAll(authors)
+
         val fb2Books = fb2
             .map { (book, file) ->
 
-                val authors = book.description.titleInfo.authors
-                    .map {
-                        Author(
-                            firstName = it.firstName,
-                            middleName = it.middleName,
-                            lastName = it.lastName,
-                            books = emptySet()
-                        )
-                    }
+                val bookAuthors = book.description.titleInfo.authors
                     .mapNotNull {
-
                         try {
-                            authorRepository
-                                .findOne(Example.of(Author(
-                                    firstName = it.firstName,
-                                    middleName = null,
-                                    lastName = it.lastName,
-                                    books = emptySet()
-                                )))
-                                .orElseGet {
-                                    try {
-                                        authorRepository.saveAndFlush(it)
-                                    } catch (e: Exception) {
-                                        null
-                                    }
-                                }
+                            authorRepository.findOne(Example.of(Author(
+                                firstName = it.firstName,
+                                middleName = null,
+                                lastName = it.lastName,
+                                books = emptySet()
+                            )))
+                                .get()
                         } catch (e: Exception) {
                             null
                         }
@@ -77,7 +75,7 @@ class StorageController {
                     title = book.title,
                     content = null,
                     summary = null,
-                    authors = authors,
+                    authors = bookAuthors,
                     rights = null,
                     language = when (book.lang.toLowerCase()) {
                         "ru" -> "ru-RU"
