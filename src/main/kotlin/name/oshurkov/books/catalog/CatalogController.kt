@@ -70,9 +70,9 @@ class CatalogController {
                 publisher = it.publisher,
                 sources = listOf(),
                 links = listOf(
-                    Link(rel = "http://opds-spec.org/image", href = "image/${it.id}", type = it.coverContentType ?: ""),
-                    Link(rel = "http://opds-spec.org/image/thumbnail", href = "image/thumbnail/${it.id}", type = it.coverContentType ?: ""),
-                    Link(rel = "http://opds-spec.org/acquisition/open-access", href = "file/${it.id}", type = it.fileContentType, title = it.title)
+                    Link(rel = "http://opds-spec.org/image", href = "/catalog/image/${it.id}", type = it.coverContentType ?: ""),
+                    Link(rel = "http://opds-spec.org/image/thumbnail", href = "/catalog/image/thumbnail/${it.id}", type = it.coverContentType ?: ""),
+                    Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/catalog/file/${it.id}", type = it.fileContentType, title = it.title)
                 )
             )
         }
@@ -156,7 +156,9 @@ class CatalogController {
                 issued = null,
                 publisher = null,
                 sources = listOf(),
-                links = null
+                links = listOf(
+                    Link(rel = "subsection", href = "/catalog/authors/${it.id}/books", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                )
             )
         }
 
@@ -165,10 +167,9 @@ class CatalogController {
             title = "По авторам",
             updated = Date(),
             links = listOf(
-                Link(rel = "self", href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "self", href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
                 Link(rel = "start", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
                 Link(rel = "up", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "http://opds-spec.org/crawlable", href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
             ),
             entries = authorsEntries
         )
