@@ -187,9 +187,9 @@ class CatalogController {
         publisher = publisher,
         sources = listOf(),
         links = listOf(
-            Link(rel = "http://opds-spec.org/image", href = "/catalog/image/$id", type = coverContentType ?: ""),
-            Link(rel = "http://opds-spec.org/image/thumbnail", href = "/catalog/image/thumbnail/$id", type = coverContentType ?: ""),
-            Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/catalog/file/$id", type = fileContentType, title = title)
+            Link(rel = "http://opds-spec.org/image", href = "/catalog/book/$id/image", type = coverContentType ?: ""),
+            Link(rel = "http://opds-spec.org/image/thumbnail", href = "/catalog/book/$id/image/thumbnail", type = coverContentType ?: ""),
+            Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/catalog/book/$id/file", type = fileContentType, title = title)
         )
     )
 
