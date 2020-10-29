@@ -6,6 +6,7 @@ plugins {
     kotlin("plugin.jpa") version "1.4.10"
     id("org.springframework.boot") version "2.3.4.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    id("org.unbroken-dome.xjc") version "2.0.0"
 }
 
 group = "name.oshurkov"
@@ -38,12 +39,23 @@ dependencies {
         exclude(group = "xmlpull")
     }
     implementation(files("lib/fb2parser.jar"))
+    implementation("javax.xml.ws:jaxws-api:2.3.1")
+    xjcClasspath("org.jvnet.jaxb2_commons:jaxb2-value-constructor:3.0")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
+}
+
+xjc {
+    packageLevelAnnotations.set(false)
+    extraArgs.add("-Xvalue-constructor")
+}
+
+sourceSets.main {
+    xjcTargetPackage.set("${project.group}.books.storage.fb2")
 }
 
 tasks {

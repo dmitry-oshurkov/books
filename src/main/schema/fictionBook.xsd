@@ -209,7 +209,7 @@ SUCH DAMAGE.
             <xs:documentation>Main content of the book, multiple bodies are used for additional information, like footnotes, that do not appear in the main book flow. The first body is presented to the reader by default, and content in the other bodies should be accessible by hyperlinks. Name attribute should describe the meaning of this body, this is optional for the main body.</xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="body" type="notesBodyType" minOccurs="0">
+        <xs:element name="body2" type="notesBodyType" minOccurs="0">
           <xs:annotation>
             <xs:documentation>Main content of the book, multiple bodies are used for additional information, like footnotes, that do not appear in the main book flow. The first body is presented to the reader by default, and content in the other bodies should be accessible by hyperlinks. Name attribute should describe the meaning of this body, this is optional for the main body.</xs:documentation>
           </xs:annotation>
@@ -265,7 +265,7 @@ SUCH DAMAGE.
     </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute name="value" type="xs:date" use="optional"/>
+        <xs:attribute name="value1" type="xs:date" use="optional"/>
         <xs:attribute ref="xml:lang"/>
       </xs:extension>
     </xs:simpleContent>
@@ -501,7 +501,7 @@ SUCH DAMAGE.
     </xs:choice>
     <xs:attribute ref="xlink:type" use="optional"/>
     <xs:attribute ref="xlink:href" use="required"/>
-    <xs:attribute name="type" type="xs:token" use="optional"/>
+    <xs:attribute name="type2" type="xs:token" use="optional"/>
   </xs:complexType>
   <xs:complexType name="styleLinkType" mixed="true">
     <xs:annotation>
