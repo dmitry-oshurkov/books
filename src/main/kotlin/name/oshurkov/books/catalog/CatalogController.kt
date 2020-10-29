@@ -73,7 +73,7 @@ class CatalogController {
     @GetMapping("authors", produces = [APPLICATION_XML_VALUE])
     fun authors() = run {
 
-        val authorsEntries = authorRepository.findAll().map {
+        val authorsEntries = authorRepository.findAll(Sort.by("lastName")).map {
             Entry(
                 id = "tag:authors:${it.id}",
                 title = it.toString(),
