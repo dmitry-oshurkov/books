@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 import java.io.*
 
 @RestControllerAdvice
-@RequestMapping("/catalog/book")
+@RequestMapping("/api/book")
 class BookController {
 
     @GetMapping("{id}/image", produces = [IMAGE_JPEG_VALUE])

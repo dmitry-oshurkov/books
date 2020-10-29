@@ -22,9 +22,9 @@ class CatalogController {
             title = "Каталог книг",
             updated = Date(),
             links = listOf(
-                Link(rel = "self", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "start", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "http://opds-spec.org/crawlable", href = "catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition")
+                Link(rel = "self", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition")
             ),
             entries = listOf(
                 Entry(
@@ -32,21 +32,21 @@ class CatalogController {
                     title = "Рекомендуемые",
                     updated = Date(),
                     content = Content("Рекомендуемые книги"),
-                    links = listOf(Link(href = "catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"))
+                    links = listOf(Link(href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"))
                 ),
                 Entry(
                     id = "tag:root:authors",
                     title = "По авторам",
                     updated = Date(),
                     content = Content("Поиск книг по авторам"),
-                    links = listOf(Link(href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation"))
+                    links = listOf(Link(href = "/catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation"))
                 ),
                 Entry(
                     id = "tag:root:genre",
                     title = "По жанрам",
                     updated = Date(),
                     content = Content("Поиск книг по жанрам"),
-                    links = listOf(Link(href = "catalog/genres", type = "application/atom+xml;profile=opds-catalog;kind=navigation"))
+                    links = listOf(Link(href = "/catalog/genres", type = "application/atom+xml;profile=opds-catalog;kind=navigation"))
                 )
             )
         )
@@ -67,10 +67,10 @@ class CatalogController {
             title = "Рекомендуемые книги",
             updated = Date(),
             links = listOf(
-                Link(rel = "self", href = "catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
-                Link(rel = "start", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "up", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "http://opds-spec.org/crawlable", href = "catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
+                Link(rel = "self", href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
+                Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "up", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
             ),
             entries = bookEntries + listOf(
                 Entry(
@@ -138,7 +138,7 @@ class CatalogController {
                 publisher = null,
                 sources = listOf(),
                 links = listOf(
-                    Link(rel = "subsection", href = "/catalog/authors/${it.id}/books", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                    Link(rel = "subsection", href = "/catalog/author/${it.id}/book", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
                 )
             )
         }
@@ -148,15 +148,15 @@ class CatalogController {
             title = "По авторам",
             updated = Date(),
             links = listOf(
-                Link(rel = "self", href = "catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
-                Link(rel = "start", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "up", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "self", href = "/catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
+                Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "up", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
             ),
             entries = authorsEntries
         )
     }
 
-    @GetMapping("authors/{authorId}/books", produces = [APPLICATION_XML_VALUE])
+    @GetMapping("author/{authorId}/book", produces = [APPLICATION_XML_VALUE])
     fun authorBooks(@PathVariable authorId: Int) = run {
 
         val bookEntries = bookRepository.findBooksByAuthorsId(authorId)
@@ -187,9 +187,9 @@ class CatalogController {
         publisher = publisher,
         sources = listOf(),
         links = listOf(
-            Link(rel = "http://opds-spec.org/image", href = "/catalog/book/$id/image", type = coverContentType ?: ""),
-            Link(rel = "http://opds-spec.org/image/thumbnail", href = "/catalog/book/$id/image/thumbnail", type = coverContentType ?: ""),
-            Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/catalog/book/$id/file", type = fileContentType, title = title)
+            Link(rel = "http://opds-spec.org/image", href = "/api/book/$id/image", type = coverContentType ?: ""),
+            Link(rel = "http://opds-spec.org/image/thumbnail", href = "/api/book/$id/image/thumbnail", type = coverContentType ?: ""),
+            Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/api/book/$id/file", type = fileContentType, title = title)
         )
     )
 
