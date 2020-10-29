@@ -55,27 +55,8 @@ class CatalogController {
     @GetMapping("featured", produces = [APPLICATION_XML_VALUE])
     fun featured() = run {
 
-        val bookEntries = bookRepository.findAll(PageRequest.of(1, 100)).map {
-            Entry(
-                id = "tag:books:${it.id}",
-                title = it.title,
-                updated = it.updated,
-                content = Content(it.content),
-                summary = Summary(it.summary),
-                authors = it.authors.map { a -> Author(name = a.toString(), uri = null) },
-                categories = it.genres.map { g -> Category(term = g.value, scheme = null) },
-                rights = it.rights,
-                language = it.language,
-                issued = it.issued,
-                publisher = it.publisher,
-                sources = listOf(),
-                links = listOf(
-                    Link(rel = "http://opds-spec.org/image", href = "/catalog/image/${it.id}", type = it.coverContentType ?: ""),
-                    Link(rel = "http://opds-spec.org/image/thumbnail", href = "/catalog/image/thumbnail/${it.id}", type = it.coverContentType ?: ""),
-                    Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/catalog/file/${it.id}", type = it.fileContentType, title = it.title)
-                )
-            )
-        }
+        val bookEntries = bookRepository.findAll(PageRequest.of(1, 100))
+            .map { it.toEntry() }
 
         val epub = EpubReader().readEpub(FileInputStream("/home/dmitry/Загрузки/qq.epub"))
 //        val epub = EpubReader().readEpub(FileInputStream("/home/dmitry/yandex.disk/Книги/Брэдбери, Рэй/451 градус по Фаренгейту.epub"))
@@ -179,27 +160,7 @@ class CatalogController {
     fun authorBooks(@PathVariable authorId: Int) = run {
 
         val bookEntries = bookRepository.findBooksByAuthorsId(authorId)
-            .map {
-                Entry(
-                    id = "tag:books:${it.id}",
-                    title = it.title,
-                    updated = it.updated,
-                    content = Content(it.content),
-                    summary = Summary(it.summary),
-                    authors = it.authors.map { a -> Author(name = a.toString(), uri = null) },
-                    categories = it.genres.map { g -> Category(term = g.value, scheme = null) },
-                    rights = it.rights,
-                    language = it.language,
-                    issued = it.issued,
-                    publisher = it.publisher,
-                    sources = listOf(),
-                    links = listOf(
-                        Link(rel = "http://opds-spec.org/image", href = "/catalog/image/${it.id}", type = it.coverContentType ?: ""),
-                        Link(rel = "http://opds-spec.org/image/thumbnail", href = "/catalog/image/thumbnail/${it.id}", type = it.coverContentType ?: ""),
-                        Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/catalog/file/${it.id}", type = it.fileContentType, title = it.title)
-                    )
-                )
-            }
+            .map { it.toEntry() }
             .toList()
 
         Feed(
@@ -211,6 +172,26 @@ class CatalogController {
             entries = bookEntries
         )
     }
+
+    private fun Book.toEntry() = Entry(
+        id = "tag:books:$id",
+        title = title,
+        updated = updated,
+        content = Content(content),
+        summary = Summary(summary),
+        authors = authors.map { a -> Author(name = a.toString(), uri = null) },
+        categories = genres.map { g -> Category(term = g.value, scheme = null) },
+        rights = rights,
+        language = language,
+        issued = issued,
+        publisher = publisher,
+        sources = listOf(),
+        links = listOf(
+            Link(rel = "http://opds-spec.org/image", href = "/catalog/image/$id", type = coverContentType ?: ""),
+            Link(rel = "http://opds-spec.org/image/thumbnail", href = "/catalog/image/thumbnail/$id", type = coverContentType ?: ""),
+            Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/catalog/file/$id", type = fileContentType, title = title)
+        )
+    )
 
     @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
     fun genres() = run {
