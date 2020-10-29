@@ -16,7 +16,7 @@ class Book(
     val content: String?,
     val summary: String?,
 
-    @ManyToMany(cascade = [ALL])
+    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
     val authors: Set<Author>,
 
     val rights: String?,
