@@ -1,5 +1,8 @@
 package name.oshurkov.books.catalog
 
+import com.kursx.parser.fb2.*
+import nl.siegmann.epublib.epub.*
+import org.apache.tomcat.util.codec.binary.Base64
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
 import java.io.*
@@ -51,6 +54,23 @@ class CatalogController {
     @GetMapping("featured", produces = [APPLICATION_XML_VALUE])
     fun featured() = run {
 
+        val fb2 = FictionBook(File("/home/dmitry/Загрузки/Пикник на обочине.fb2"))
+        val s = fb2.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')
+        val binary = fb2.binaries[s]
+        if (binary != null) {
+
+            when (binary.contentType) {
+                "image/jpeg" -> {
+                    val bytes = Base64.decodeBase64(binary.binary)
+                    Files.write(Path.of("/home/dmitry/Загрузки/Пикник на обочине.fb2.jpeg"), bytes)
+                }
+            }
+        }
+
+        val epub = EpubReader().readEpub(FileInputStream("/home/dmitry/Загрузки/qq.epub"))
+//        val epub = EpubReader().readEpub(FileInputStream("/home/dmitry/yandex.disk/Книги/Брэдбери, Рэй/451 градус по Фаренгейту.epub"))
+        Files.write(Path.of("/home/dmitry/Загрузки/qq.epub${epub.coverImage.mediaType.defaultExtension}"), epub.coverImage.data)
+
         Feed(
             id = "tag:featured",
             title = "Рекомендуемые книги",
@@ -64,29 +84,76 @@ class CatalogController {
             entries = listOf(
                 Entry(
                     id = "1",
-                    title = "книга 1",
+                    title = fb2.title,
                     updated = Date(),
-                    content = "<p>\n" +
-                        "            <a href=\"https://standardebooks.org/ebooks/vsevolod-garshin\">Vsevolod Garshin’s</a>\n" +
-                        "            literary career followed a stint as a infantry soldier and later an officer, and he received both public and critical acclaim in the 1880s. Before his sadly early death at the age of thirty-three after a lifelong battle with mental illness he wrote and published nineteen short stories. He drew on his military career and life in\n" +
-                        "            <abbr>St.</abbr>\n" +
-                        "            Petersburg as initial source material, and his varied cast of characters includes soldiers, painters, architects, madmen, bears, frogs and even flowers and trees. All are written with a depth of feeling and sympathy that marks Garshin out from his contemporaries.\n" +
-                        "         </p>\n" +
-                        "         <p>Collected here are the seventeen translations into English by Rowland Smith of Garshin’s short stories and novellas, in chronological order of the original Russian publication.</p>",
-                    link = Link(rel = "http://opds-spec.org/acquisition/open-access", href = "rowland-smith.epub", type = "application/epub+zip", title = "Recommended compatible epub")
+                    content = null,
+                    summary = null,
+                    authors = fb2.description.titleInfo.authors.map {
+                        Author(
+                            name = "${it.firstName} ${it.middleName} ${it.lastName}",
+                            uri = null
+                        )
+                    },
+                    categories = fb2.description.titleInfo.genres.map {
+                        Category(
+                            scheme = null,
+                            term = it
+                        )
+                    },
+                    rights = null,
+                    language = fb2.lang,
+//                    issued = fb2.description.titleInfo.date,
+                    publisher = null,
+                    sources = listOf(),
+                    links = listOf(
+                        Link(rel = "http://opds-spec.org/image", href = "file:///home/dmitry/Загрузки/Пикник на обочине.fb2.jpeg", type = "image/jpeg"),
+                        Link(rel = "http://opds-spec.org/image/thumbnail", href = "file:///home/dmitry/Загрузки/Пикник на обочине.fb2.jpeg", type = "image/jpeg"),
+                        Link(rel = "http://opds-spec.org/acquisition/open-access", href = "rowland-smith.epub", type = "application/epub+zip", title = "Recommended compatible epub")
+                    )
                 ),
                 Entry(
                     id = "2",
-                    title = "книга 2",
+                    title = epub.metadata.titles[0],
                     updated = Date(),
-                    content = "<p>\n" +
-                        "            <a href=\"https://standardebooks.org/ebooks/vsevolod-garshin\">Vsevolod Garshin’s</a>\n" +
-                        "            literary career followed a stint as a infantry soldier and later an officer, and he received both public and critical acclaim in the 1880s. Before his sadly early death at the age of thirty-three after a lifelong battle with mental illness he wrote and published nineteen short stories. He drew on his military career and life in\n" +
-                        "            <abbr>St.</abbr>\n" +
-                        "            Petersburg as initial source material, and his varied cast of characters includes soldiers, painters, architects, madmen, bears, frogs and even flowers and trees. All are written with a depth of feeling and sympathy that marks Garshin out from his contemporaries.\n" +
-                        "         </p>\n" +
-                        "         <p>Collected here are the seventeen translations into English by Rowland Smith of Garshin’s short stories and novellas, in chronological order of the original Russian publication.</p>",
-                    link = Link(rel = "http://opds-spec.org/acquisition/open-access", href = "rowland-smith.epub", type = "application/epub+zip", title = "Recommended compatible epub")
+                    summary = Summary(epub.metadata.descriptions.firstOrNull()),
+                    authors = epub.metadata.authors.map {
+                        Author(
+                            name = "${it.firstname} ${it.lastname}",
+                            uri = null
+                        )
+                    },
+                    categories = epub.metadata.subjects.map {
+                        Category(
+                            scheme = "http://purl.org/dc/terms/LCSH",
+                            term = it
+                        )
+                    },
+                    rights = epub.metadata.rights.firstOrNull(),
+                    language = epub.metadata.language,
+//                    issued = book.metadata.dates.firstOrNull()?.let { ZonedDateTime.parse(it.value, DateTimeFormatter.ISO_INSTANT)  },
+                    publisher = epub.metadata.publishers.firstOrNull(),
+                    sources = null,
+                    content = Content(
+                        content = "<p>\n" +
+                            "            <a href=\"https://standardebooks.org/ebooks/h-g-wells\">\n" +
+                            "               <abbr>H. G.</abbr>\n" +
+                            "               Wells’\n" +
+                            "            </a>\n" +
+                            "            classic tale of alien invasion has to this day never been out of print. Like many works of the era, it was originally published as a serial—though the publisher,\n" +
+                            "            <i>Pearson’s Magazine</i>\n" +
+                            "            , demanded to know the ending before committing to publication.\n" +
+                            "         </p>\n" +
+                            "         <p>\n" +
+                            "            <i>The War of the Worlds</i>\n" +
+                            "            , with its matter-of-fact narrative style and deft mixture of contemporary science and fictionalized interstellar war machines, became an instant hit. Its themes of colonialism, social Darwinism, good and evil, and total war still resonate with modern-day readers, so much so that it’s been continuously adapted for screen, radio, television, comics, and print.\n" +
+                            "         </p>",
+                        type = "text/html"
+                    ),
+                    links = listOf(
+                        Link(rel = "http://opds-spec.org/image", href = "file:///home/dmitry/Загрузки/qq.epub.jpg", type = "image/jpeg"),
+                        Link(rel = "http://opds-spec.org/image/thumbnail", href = "file:///home/dmitry/Загрузки/qq.epub.jpg", type = "image/jpeg"),
+                        Link(rel = "http://opds-spec.org/acquisition/open-access", href = "rowland-smith.epub", type = "application/epub+zip", title = "Recommended compatible epub")
+                    )
                 )
             )
         )
@@ -94,11 +161,9 @@ class CatalogController {
 
     @GetMapping("authors", produces = [APPLICATION_XML_VALUE])
     fun authors() = run {
-
     }
 
     @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
     fun genres() = run {
-
     }
 }
