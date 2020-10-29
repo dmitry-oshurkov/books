@@ -55,24 +55,19 @@ class CatalogController {
     @GetMapping("featured", produces = [APPLICATION_XML_VALUE])
     fun featured() = run {
 
-        val fb2Entries = bookRepository.findAll(PageRequest.of(1, 100)).map {
+        val bookEntries = bookRepository.findAll(PageRequest.of(1, 100)).map {
             Entry(
                 id = "tag:books:${it.id}",
                 title = it.title,
-                updated = Date(),
-                content = null,
-                summary = null,
+                updated = it.updated,
+                content = Content(it.content),
+                summary = Summary(it.summary),
                 authors = it.authors.map { a -> Author(name = a.toString(), uri = null) },
-//                categories = it.genres.map {
-//                    Category(
-//                        scheme = null,
-//                        term = it
-//                    )
-//                },
-                rights = null,
+                categories = it.genres.map { g -> Category(term = g.value, scheme = null) },
+                rights = it.rights,
                 language = it.language,
                 issued = it.issued,
-                publisher = null,
+                publisher = it.publisher,
                 sources = listOf(),
                 links = listOf(
                     Link(rel = "http://opds-spec.org/image", href = "image/${it.id}", type = it.coverContentType ?: ""),
@@ -96,7 +91,7 @@ class CatalogController {
                 Link(rel = "up", href = "catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
                 Link(rel = "http://opds-spec.org/crawlable", href = "catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
             ),
-            entries = fb2Entries + listOf(
+            entries = bookEntries + listOf(
                 Entry(
                     id = "2",
                     title = epub.metadata.titles[0],
