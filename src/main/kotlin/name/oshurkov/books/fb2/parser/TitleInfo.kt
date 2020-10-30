@@ -47,7 +47,7 @@ open class TitleInfo internal constructor(document: Document) {
                             image++
                         }
                     }
-                    "elements" -> annotation = Annotation(node)
+                    "annotation" -> annotation = Annotation(node)
                     "date" -> date = node.textContent
                     "author" -> authors.add(Person(node))
                     "translator" -> translators.add(Person(node))

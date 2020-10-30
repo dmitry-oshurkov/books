@@ -48,12 +48,13 @@ class BookService {
                 val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
 
                 val file = preprocessFile(fb.title, bookAuthors, f)
+                val summary = fb.description.titleInfo.annotation?.annotations?.firstOrNull()?.text
 
                 Book(
                     title = fb.title,
                     content = null,
-                    summary = null,
-                    summaryContentType = null,
+                    summary = summary,
+                    summaryContentType = summaryType(summary),
                     rights = null,
                     language = lang(fb.lang),
                     issued = fb.description.titleInfo.date,
