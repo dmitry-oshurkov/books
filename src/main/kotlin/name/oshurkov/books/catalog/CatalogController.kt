@@ -51,7 +51,7 @@ class CatalogController {
     @GetMapping("featured", produces = [APPLICATION_XML_VALUE])
     fun featured() = run {
 
-        val bookEntries = bookRepository.findAll(PageRequest.of(1, 100))
+        val bookEntries = bookRepository.findAll()
             .map { it.toEntry() }
             .toList()
 

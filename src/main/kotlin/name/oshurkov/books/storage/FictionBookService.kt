@@ -20,6 +20,7 @@ class FictionBookService {
                         val entry = it.entries().toList().first()
                         it.getInputStream(entry).use { stream ->
 
+                            // todo repack fbz with zip entry renaming
                             val bytes = stream.readAllBytes()
                             val tmp = File.createTempFile("temp", null)
                             try {

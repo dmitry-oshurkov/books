@@ -1,12 +1,14 @@
 package name.oshurkov.books
 
 import name.oshurkov.books.storage.*
+import org.apache.tomcat.util.http.fileupload.FileUploadBase.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.core.io.*
 import org.springframework.http.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
 import java.io.*
+import kotlin.text.Charsets.UTF_8
 
 @RestControllerAdvice
 @RequestMapping("/api/book")
@@ -25,11 +27,11 @@ class BookController {
     fun download(@PathVariable id: Int): ResponseEntity<ByteArrayResource> = run {
 
         val book = bookRepository.getOne(id)
-        val file = File(booksDir, book.file)
+        val file = File(root, book.file)
 
         val headers = HttpHeaders()
-        headers.contentDisposition = ContentDisposition.builder("attachment")
-            .filename("[${book.authors.joinToString()}] - ${file.name}", Charsets.UTF_8)
+        headers.contentDisposition = ContentDisposition.builder(ATTACHMENT)
+            .filename("[${book.authors.joinToString()}] - ${file.name}", UTF_8)
             .build()
 
         ResponseEntity.ok()
@@ -37,6 +39,9 @@ class BookController {
             .headers(headers)
             .body(ByteArrayResource(file.readBytes()))
     }
+
+    @Value("\${books.root}")
+    private lateinit var root: File
 
     @Autowired
     private lateinit var bookRepository: BookRepository

@@ -8,3 +8,10 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
+
+books:
+  root: /home/dmitry/yandex.disk/Книги
+  importer:
+    source: /home/dmitry/Загрузки
+    target: /home/dmitry/Загрузки/books
+    processed: /home/dmitry/Загрузки/processed
