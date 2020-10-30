@@ -123,6 +123,53 @@ class CatalogController {
 
     @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
     fun genres() = run {
+
+        val genresEntries = genreRepository.findAll(Sort.by("name")).map {
+            Entry(
+                id = "tag:genres:${it.id}",
+                title = it.name,
+                updated = it.updated,
+                content = null,
+                summary = null,
+                authors = null,
+                rights = null,
+                language = null,
+                issued = null,
+                publisher = null,
+                sources = listOf(),
+                links = listOf(
+                    Link(rel = "subsection", href = "/catalog/genre/${it.id}/book", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                )
+            )
+        }
+
+        Feed(
+            id = "tag:genres",
+            title = "По жанрам",
+            updated = Date(),
+            links = listOf(
+                Link(rel = "self", href = "/catalog/genres", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
+                Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Link(rel = "up", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+            ),
+            entries = genresEntries
+        )
+    }
+
+    @GetMapping("genre/{id}/book", produces = [APPLICATION_XML_VALUE])
+    fun genreBooks(@PathVariable id: Int) = run {
+
+        val bookEntries = bookRepository.findBooksByGenresId(id)
+            .map { it.toEntry() }
+            .toList()
+
+        Feed(
+            id = "tag:genre:${id}",
+            title = "genre $id",
+            updated = Date(),
+            links = listOf(),
+            entries = bookEntries
+        )
     }
 
 
@@ -154,4 +201,7 @@ class CatalogController {
 
     @Autowired
     private lateinit var authorRepository: AuthorRepository
+
+    @Autowired
+    private lateinit var genreRepository: GenreRepository
 }
