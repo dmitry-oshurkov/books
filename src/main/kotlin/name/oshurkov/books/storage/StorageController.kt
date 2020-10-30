@@ -1,11 +1,13 @@
 package name.oshurkov.books.storage
 
+import com.kursx.parser.fb2.*
 import name.oshurkov.books.*
 import name.oshurkov.books.storage.BookExt.*
 import org.apache.tomcat.util.codec.binary.*
 import org.aspectj.util.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.web.bind.annotation.*
+import java.io.*
 import javax.xml.namespace.*
 
 @RestControllerAdvice
@@ -28,36 +30,19 @@ class StorageController {
         val fb2 = fictionBookService.parse(files)
         val epub = epubService.parse(files)
 
-        val fb2Authors = fb2
-            .flatMap { (fb, _, _) -> fb.description.titleInfo.authors }
-            .map { it.firstName to it.middleName and it.lastName }
-
-        val epubAuthors = epub
-            .flatMap { (ep, _, _) -> ep.metadata.authors }
-            .map { it.firstname to null and it.lastname }
-
-        val authors = (fb2Authors + epubAuthors)
-            .map { (firstName, middleName, lastName) ->
-                Author(
-                    firstName = firstName?.trim()?.ifEmpty { null },
-                    middleName = middleName?.trim(),
-                    lastName = lastName.trim(),
-                )
-            }
-            .distinctBy { listOf(it.lastName, it.middleName, it.firstName) }
+        val authors = authors(fb2, epub)
+        val genres = genres(fb2, epub)
 
         val fb2Books = fb2
             .map { (fb, file, ext) ->
 
                 val bookAuthors = fb.description.titleInfo.authors
-                    .mapNotNull {
-                        authors.find { a ->
-                            a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName
-                        }
-                    }
+                    .mapNotNull { authors.find { a -> a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName } }
                     .toSet()
 
-                val genres = fb.description.titleInfo.genres.map { Genre(value = it) }
+                val bookGenres = fb.description.titleInfo.genres
+                    .mapNotNull { genres.find { g -> g.value == it } }
+                    .toSet()
 
                 val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
 
@@ -75,7 +60,7 @@ class StorageController {
                     file = file.relativeTo(booksDir).path,
                     fileContentType = fileType(ext),
                     authors = bookAuthors,
-                    genres = emptySet()
+                    genres = bookGenres
                 )
             }
 
@@ -83,14 +68,12 @@ class StorageController {
             .map { (ep, file, ext) ->
 
                 val bookAuthors = ep.metadata.authors
-                    .mapNotNull {
-                        authors.find { a ->
-                            a.firstName == it.firstname && a.lastName == it.lastname
-                        }
-                    }
+                    .mapNotNull { authors.find { a -> a.firstName == it.firstname && a.lastName == it.lastname } }
                     .toSet()
 
-                val genres = ep.metadata.subjects.map { Genre(value = it) }
+                val bookGenres = ep.metadata.subjects
+                    .mapNotNull { genres.find { g -> g.value == it } }
+                    .toSet()
 
                 Book(
                     title = ep.metadata.titles[0],
@@ -106,11 +89,42 @@ class StorageController {
                     file = file.relativeTo(booksDir).path,
                     fileContentType = fileType(ext),
                     authors = bookAuthors,
-                    genres = emptySet()
+                    genres = bookGenres
                 )
             }
 
         bookRepository.saveAll(fb2Books + epubBooks)
+    }
+
+    private fun genres(fb2: List<Triple<FictionBook, File, BookExt>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, BookExt>>) = run {
+
+        val fb2Genres = fb2.flatMap { (fb, _, _) -> fb.description.titleInfo.genres }
+        val epubGenres = epub.flatMap { (ep, _, _) -> ep.metadata.subjects }
+
+        (fb2Genres + epubGenres)
+            .map { Genre(value = it) }
+            .distinctBy { it.value }
+    }
+
+    private fun authors(fb2: List<Triple<FictionBook, File, BookExt>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, BookExt>>) = run {
+
+        val fb2Authors = fb2
+            .flatMap { (fb, _, _) -> fb.description.titleInfo.authors }
+            .map { it.firstName to it.middleName and it.lastName }
+
+        val epubAuthors = epub
+            .flatMap { (ep, _, _) -> ep.metadata.authors }
+            .map { it.firstname to null and it.lastname }
+
+        (fb2Authors + epubAuthors)
+            .map { (firstName, middleName, lastName) ->
+                Author(
+                    firstName = firstName?.trim()?.ifEmpty { null },
+                    middleName = middleName?.trim(),
+                    lastName = lastName.trim(),
+                )
+            }
+            .distinctBy { listOf(it.lastName, it.middleName, it.firstName) }
     }
 
     private fun summaryType(value: String?) = if (value?.contains("</p>") == true)
