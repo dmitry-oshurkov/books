@@ -30,22 +30,18 @@ class StorageController {
 
         val fb2Authors = fb2
             .flatMap { (fb, _, _) -> fb.description.titleInfo.authors }
-            .map {
-                Author(
-                    firstName = it.firstName,
-                    middleName = it.middleName,
-                    lastName = it.lastName,
-                )
-            }
-            .distinctBy { listOf(it.lastName, it.middleName, it.firstName) }
+            .map { it.firstName to it.middleName and it.lastName }
 
         val epubAuthors = epub
             .flatMap { (ep, _, _) -> ep.metadata.authors }
-            .map {
+            .map { it.firstname to null and it.lastname }
+
+        val authors = (fb2Authors + epubAuthors)
+            .map { (firstName, middleName, lastName) ->
                 Author(
-                    firstName = it.firstname,
-                    middleName = null,
-                    lastName = it.lastname,
+                    firstName = firstName?.trim()?.ifEmpty { null },
+                    middleName = middleName?.trim(),
+                    lastName = lastName.trim(),
                 )
             }
             .distinctBy { listOf(it.lastName, it.middleName, it.firstName) }
@@ -55,7 +51,7 @@ class StorageController {
 
                 val bookAuthors = fb.description.titleInfo.authors
                     .mapNotNull {
-                        fb2Authors.find { a ->
+                        authors.find { a ->
                             a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName
                         }
                     }
@@ -88,7 +84,7 @@ class StorageController {
 
                 val bookAuthors = ep.metadata.authors
                     .mapNotNull {
-                        epubAuthors.find { a ->
+                        authors.find { a ->
                             a.firstName == it.firstname && a.lastName == it.lastname
                         }
                     }

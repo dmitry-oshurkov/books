@@ -9,9 +9,5 @@ import java.io.*
 @Component
 class EpubService {
 
-    fun parse(files: Map<BookExt, List<File>>) = run {
-
-        files[EPUB].orEmpty()
-            .map { EpubReader().readEpub(FileInputStream(it)) to it and EPUB }
-    }
+    fun parse(files: Map<BookExt, List<File>>) = files[EPUB].orEmpty().map { EpubReader().readEpub(FileInputStream(it)) to it and EPUB }
 }
