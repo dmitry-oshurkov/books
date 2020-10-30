@@ -1,21 +1,12 @@
 package name.oshurkov.books.storage
 
-import org.hibernate.annotations.*
 import org.springframework.data.jpa.repository.*
-import java.util.*
 import javax.persistence.*
 import javax.persistence.CascadeType.*
-import javax.persistence.Entity
-import javax.persistence.GenerationType.*
 
 @Entity
 class Book(
-    @Id
-    @GeneratedValue(strategy = AUTO)
-    val id: Int = 0,
     val title: String,
-    @UpdateTimestamp
-    val updated: Date = Date(0),
     @Column(length = 3000)
     val content: String?,
     @Column(length = 1000)
@@ -38,7 +29,7 @@ class Book(
 
     @ManyToMany(cascade = [ALL])
     val genres: Set<Genre>,
-)
+) : EntityBase()
 
 interface BookRepository : JpaRepository<Book, Int> {
 
