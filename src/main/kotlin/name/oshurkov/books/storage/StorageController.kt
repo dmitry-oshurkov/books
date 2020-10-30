@@ -41,7 +41,7 @@ class StorageController {
                     .toSet()
 
                 val bookGenres = fb.description.titleInfo.genres
-                    .mapNotNull { genres.find { g -> g.value == it } }
+                    .mapNotNull { genres.find { g -> g.name == it } }
                     .toSet()
 
                 val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
@@ -72,7 +72,7 @@ class StorageController {
                     .toSet()
 
                 val bookGenres = ep.metadata.subjects
-                    .mapNotNull { genres.find { g -> g.value == it } }
+                    .mapNotNull { genres.find { g -> g.name == it } }
                     .toSet()
 
                 Book(
@@ -102,8 +102,8 @@ class StorageController {
         val epubGenres = epub.flatMap { (ep, _, _) -> ep.metadata.subjects }
 
         (fb2Genres + epubGenres)
-            .map { Genre(value = it) }
-            .distinctBy { it.value }
+            .map { Genre(name = it) }
+            .distinctBy { it.name }
     }
 
     private fun authors(fb2: List<Triple<FictionBook, File, BookExt>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, BookExt>>) = run {

@@ -4,5 +4,5 @@ import javax.persistence.*
 
 @Entity
 class Genre(
-    val value: String,
+    val name: String,
 ) : EntityBase()

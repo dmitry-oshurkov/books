@@ -116,8 +116,7 @@ class CatalogController {
             id = "tag:authors:${id}",
             title = "author $id",
             updated = Date(),
-            links = listOf(
-            ),
+            links = listOf(),
             entries = bookEntries
         )
     }
@@ -134,7 +133,7 @@ class CatalogController {
         content = Content(content).toPlainText(),
         summary = Summary(summary, summaryContentType).toPlainText(),
         authors = authors.map { a -> Author(name = a.toString(), uri = null) },
-        categories = genres.map { g -> Category(term = g.value, scheme = null) },
+        categories = genres.map { g -> Category(term = g.name, scheme = null) },
         rights = rights,
         language = language,
         issued = issued,
