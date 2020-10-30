@@ -17,7 +17,6 @@ class CatalogController {
         Feed(
             id = "tag:root",
             title = "Каталог книг",
-            updated = Date(),
             links = listOf(
                 Link(rel = "self", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
                 Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
@@ -59,7 +58,6 @@ class CatalogController {
         Feed(
             id = "tag:featured",
             title = "Рекомендуемые книги",
-            updated = Date(),
             links = listOf(
                 Link(rel = "self", href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
                 Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
@@ -95,7 +93,6 @@ class CatalogController {
         Feed(
             id = "tag:authors",
             title = "По авторам",
-            updated = Date(),
             links = listOf(
                 Link(rel = "self", href = "/catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
                 Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
@@ -115,7 +112,6 @@ class CatalogController {
         Feed(
             id = "tag:authors:${id}",
             title = "author $id",
-            updated = Date(),
             links = listOf(),
             entries = bookEntries
         )
@@ -146,7 +142,6 @@ class CatalogController {
         Feed(
             id = "tag:genres",
             title = "По жанрам",
-            updated = Date(),
             links = listOf(
                 Link(rel = "self", href = "/catalog/genres", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
                 Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
@@ -166,7 +161,6 @@ class CatalogController {
         Feed(
             id = "tag:genre:${id}",
             title = "genre $id",
-            updated = Date(),
             links = listOf(),
             entries = bookEntries
         )

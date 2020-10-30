@@ -16,7 +16,7 @@ data class Feed(
 
     val id: String,
     val title: String,
-    val updated: Date?,
+    val updated: Date = Date(),
     val author: Author? = null,
 
     @JacksonXmlProperty(localName = "link")
