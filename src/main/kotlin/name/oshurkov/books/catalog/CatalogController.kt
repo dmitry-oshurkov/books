@@ -76,7 +76,7 @@ class CatalogController {
         val authorsEntries = authorRepository.findAll(Sort.by("lastName")).map {
             Entry(
                 id = "tag:authors:${it.id}",
-                title = it.toString(),
+                title = it.toStringForList(),
                 updated = it.updated,
                 content = null,
                 summary = null,

@@ -18,7 +18,11 @@ class Author(
     @UpdateTimestamp
     val updated: Date = Date(0),
 ) {
-    override fun toString() = "$firstName${if (middleName != null) " $middleName" else ""} $lastName"
+    override fun toString() = "$firstName$middle $lastName"
+    fun toStringForList() = "$lastName$first"
+
+    private val first get() = if (firstName != null) ", $firstName$middle" else ""
+    private val middle get() = if (middleName != null) " $middleName" else ""
 }
 
 interface AuthorRepository : JpaRepository<Author, Int>
