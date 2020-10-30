@@ -1,37 +1,36 @@
 package name.oshurkov.books.fb2.parser
 
 import org.w3c.dom.*
-import java.util.*
 
-//http://www.fictionbook.org/index.php/Элемент_annotation
-open class Annotation : IdElement {
+/**
+ * http://www.fictionbook.org/index.php/Элемент_annotation
+ */
+open class Annotation internal constructor(node: Node) : IdElement(node) {
+
     var lang: String? = null
-    var elements: ArrayList<Element>? = null
+    var annotations = arrayListOf<Element>()
 
-    constructor() {}
-    internal constructor(node: Node) : super(node) {
+    init {
+
         val map = node.attributes
-        for (index in 0 until map.length) {
-            val attr = map.item(index)
-            if (attr.nodeName == "xml:lang") {
-                lang = attr.nodeValue
-            }
-        }
-        val nodeList = node.childNodes
-        for (i in 0 until nodeList.length) {
-            val paragraph = nodeList.item(i)
-            if (elements == null) elements = ArrayList()
-            when (paragraph.nodeName) {
-                "p" -> elements!!.add(P(paragraph))
-                "poem" -> elements!!.add(Poem(paragraph))
-                "cite" -> elements!!.add(Cite(paragraph))
-                "subtitle" -> elements!!.add(Subtitle(paragraph))
-                "empty-line" -> elements!!.add(EmptyLine())
-                "table" -> elements!!.add(Table())
-            }
-        }
-    }
+        (0 until map.length)
+            .map { map.item(it) }
+            .filter { it.nodeName == "xml:lang" }
+            .forEach { lang = it.nodeValue }
 
-    val annotations: ArrayList<Element>
-        get() = if (elements == null) ArrayList() else elements!!
+        val nodeList = node.childNodes
+
+        (0 until nodeList.length)
+            .map { nodeList.item(it) }
+            .forEach {
+                when (it.nodeName) {
+                    "p" -> annotations.add(P(it))
+                    "poem" -> annotations.add(Poem(it))
+                    "cite" -> annotations.add(Cite(it))
+                    "subtitle" -> annotations.add(Subtitle(it))
+                    "empty-line" -> annotations.add(EmptyLine())
+                    "table" -> annotations.add(Table())
+                }
+            }
+    }
 }

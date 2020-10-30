@@ -79,12 +79,13 @@ class BookService {
                     .toSet()
 
                 val file = preprocessFile(ep.metadata.titles[0], bookAuthors, f)
+                val summary = ep.metadata.descriptions.firstOrNull()
 
                 Book(
                     title = ep.metadata.titles[0],
                     content = ep.metadata.otherProperties[QName("se:long-description")],
-                    summary = ep.metadata.descriptions.firstOrNull(),
-                    summaryContentType = summaryType(ep.metadata.descriptions.firstOrNull()),
+                    summary = summary,
+                    summaryContentType = summaryType(summary),
                     rights = ep.metadata.rights.firstOrNull(),
                     language = lang(ep.metadata.language),
                     issued = ep.metadata.dates.firstOrNull()?.value,
