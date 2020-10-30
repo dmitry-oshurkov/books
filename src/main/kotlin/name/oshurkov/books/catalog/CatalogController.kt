@@ -126,8 +126,8 @@ class CatalogController {
         id = "tag:books:$id",
         title = title,
         updated = updated,
-        content = Content(content),
-        summary = Summary(summary, summaryContentType),
+        content = Content(content).toPlainText(),
+        summary = Summary(summary, summaryContentType).toPlainText(),
         authors = authors.map { a -> Author(name = a.toString(), uri = null) },
         categories = genres.map { g -> Category(term = g.value, scheme = null) },
         rights = rights,
@@ -145,6 +145,10 @@ class CatalogController {
     @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
     fun genres() = run {
     }
+
+
+    private fun Content.toPlainText() = Content(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
+    private fun Summary.toPlainText() = Summary(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
 
     @Autowired
     private lateinit var bookRepository: BookRepository
