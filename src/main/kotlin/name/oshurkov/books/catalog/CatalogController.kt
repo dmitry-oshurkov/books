@@ -105,22 +105,27 @@ class CatalogController {
         )
     }
 
-    @GetMapping("author/{authorId}/book", produces = [APPLICATION_XML_VALUE])
-    fun authorBooks(@PathVariable authorId: Int) = run {
+    @GetMapping("author/{id}/book", produces = [APPLICATION_XML_VALUE])
+    fun authorBooks(@PathVariable id: Int) = run {
 
-        val bookEntries = bookRepository.findBooksByAuthorsId(authorId)
+        val bookEntries = bookRepository.findBooksByAuthorsId(id)
             .map { it.toEntry() }
             .toList()
 
         Feed(
-            id = "tag:authors:${authorId}",
-            title = "author $authorId",
+            id = "tag:authors:${id}",
+            title = "author $id",
             updated = Date(),
             links = listOf(
             ),
             entries = bookEntries
         )
     }
+
+    @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
+    fun genres() = run {
+    }
+
 
     private fun Book.toEntry() = Entry(
         id = "tag:books:$id",
@@ -141,11 +146,6 @@ class CatalogController {
             Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/api/book/$id/file", type = fileContentType, title = title)
         )
     )
-
-    @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
-    fun genres() = run {
-    }
-
 
     private fun Content.toPlainText() = Content(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
     private fun Summary.toPlainText() = Summary(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping

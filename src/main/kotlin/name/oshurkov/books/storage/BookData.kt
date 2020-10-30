@@ -42,7 +42,7 @@ class Book(
 
 interface BookRepository : JpaRepository<Book, Int> {
 
-    fun findBooksByAuthorsId(authorId: Int): List<Book>
+    fun findBooksByAuthorsId(id: Int): List<Book>
 }
 
 enum class BookExt { FB2, FBZ, EPUB }
