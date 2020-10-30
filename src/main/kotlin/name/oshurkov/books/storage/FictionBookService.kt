@@ -1,7 +1,7 @@
 package name.oshurkov.books.storage
 
-import com.kursx.parser.fb2.*
 import name.oshurkov.books.*
+import name.oshurkov.books.fb2.parser.*
 import name.oshurkov.books.storage.BookExt.*
 import org.springframework.stereotype.*
 import java.io.*

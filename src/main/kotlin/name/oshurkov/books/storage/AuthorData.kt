@@ -2,7 +2,6 @@ package name.oshurkov.books.storage
 
 import org.springframework.data.jpa.repository.*
 import javax.persistence.*
-import javax.persistence.GenerationType.*
 
 @Entity
 class Author(

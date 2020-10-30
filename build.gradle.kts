@@ -37,7 +37,6 @@ dependencies {
         exclude(group = "org.slf4j")
         exclude(group = "xmlpull")
     }
-    implementation(files("lib/fb2parser.jar"))
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")

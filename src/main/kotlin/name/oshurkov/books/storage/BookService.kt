@@ -1,7 +1,7 @@
 package name.oshurkov.books.storage
 
-import com.kursx.parser.fb2.*
 import name.oshurkov.books.*
+import name.oshurkov.books.fb2.parser.*
 import name.oshurkov.books.storage.BookExt.*
 import org.apache.tomcat.util.codec.binary.*
 import org.slf4j.*
@@ -122,7 +122,7 @@ class BookService {
 
         val fb2Authors = fb2
             .flatMap { (fb, _, _) -> fb.description.titleInfo.authors }
-            .map { it.firstName to it.middleName and it.lastName }
+            .map { it.firstName to it.middleName and (it.lastName ?: "?") }
 
         val epubAuthors = epub
             .flatMap { (ep, _, _) -> ep.metadata.authors }
