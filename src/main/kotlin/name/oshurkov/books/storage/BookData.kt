@@ -37,4 +37,4 @@ interface BookRepository : JpaRepository<Book, Int> {
     fun findBooksByGenresId(id: Int): List<Book>
 }
 
-enum class BookExt { FB2, FBZ, EPUB }
+enum class BookExt { FB2, FBZ, EPUB, UNSUPPORTED }

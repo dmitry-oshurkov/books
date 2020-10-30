@@ -23,7 +23,7 @@ class StorageController {
                     it.extension == "fb2" -> FB2
                     it.name.endsWith(".fb2.zip") -> FBZ
                     it.extension == "epub" -> EPUB
-                    else -> error("Unsupported book type")
+                    else -> UNSUPPORTED
                 }
             }
 
@@ -136,6 +136,7 @@ class StorageController {
         FB2 -> "application/xml"
         FBZ -> "application/zip"
         EPUB -> "application/epub+zip"
+        UNSUPPORTED -> ""
     }
 
     private fun lang(value: String) = when (value.toLowerCase()) {
