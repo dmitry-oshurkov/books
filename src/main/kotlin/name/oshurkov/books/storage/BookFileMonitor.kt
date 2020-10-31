@@ -19,10 +19,14 @@ class BookFileMonitor {
 
         processed.mkdirs()
 
-        bookService.import(files, target) { title, authors, file ->
+        bookService.import(files, target) { title, authors, seq, seqNo, file ->
 
             val extension = if (file.name.endsWith(".fb2.zip")) "fb2.zip" else file.extension
-            val path = Paths.get(authors.joinToString { it.toStringForList() }, "$title.$extension")
+            val string = authors.joinToString { it.toStringForList() }
+            val path = if (seq != null)
+                Path.of(string, seq.name, "[$seqNo] $title.$extension")
+            else
+                Path.of(string, "$title.$extension")
             val target = File(target, path.toString())
 
             val result = file.copyTo(target, true)

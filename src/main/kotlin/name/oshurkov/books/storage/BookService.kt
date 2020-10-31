@@ -13,7 +13,7 @@ import javax.xml.namespace.*
 @Component
 class BookService {
 
-    fun import(arrayOfFiles: Array<out File>, bookRootDir: File, preprocessFile: (String, Set<Author>, File) -> File) = run {
+    fun import(arrayOfFiles: Array<out File>, bookRootDir: File, preprocessFile: (String, Set<Author>, Sequence?, Int?, File) -> File) = run {
 
         if (arrayOfFiles.isEmpty())
             return@run
@@ -33,6 +33,7 @@ class BookService {
 
         val authors = authors(fb2, epub)
         val genres = genres(fb2, epub)
+        val sequences = sequences(fb2, epub)
 
         val fb2Books = fb2
             .map { (fb, f, ext) ->
@@ -46,9 +47,12 @@ class BookService {
                     .mapNotNull { genres.find { g -> g.name == it } }
                     .toSet()
 
+                val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
+                val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
+
                 val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
 
-                val file = preprocessFile(fb.title, bookAuthors, f)
+                val file = preprocessFile(fb.title, bookAuthors, bookSequence, sequenceNumber, f)
                 val summary = fb.description.titleInfo.annotation?.annotations?.firstOrNull()?.text
 
                 Book(
@@ -64,6 +68,8 @@ class BookService {
                     coverContentType = binary?.contentType,
                     file = file.relativeTo(bookRootDir).path,
                     fileContentType = fileType(ext),
+                    sequence = bookSequence,
+                    sequenceNumber = sequenceNumber,
                     authors = bookAuthors,
                     genres = bookGenres
                 )
@@ -80,7 +86,7 @@ class BookService {
                     .mapNotNull { genres.find { g -> g.name == it } }
                     .toSet()
 
-                val file = preprocessFile(ep.metadata.titles[0], bookAuthors, f)
+                val file = preprocessFile(ep.metadata.titles[0], bookAuthors, null, null, f)
                 val summary = ep.metadata.descriptions.firstOrNull()
 
                 Book(
@@ -96,6 +102,8 @@ class BookService {
                     coverContentType = ep.coverImage?.mediaType?.name,
                     file = file.relativeTo(bookRootDir).path,
                     fileContentType = fileType(ext),
+                    sequence = null,
+                    sequenceNumber = null,
                     authors = bookAuthors,
                     genres = bookGenres
                 )
@@ -106,6 +114,22 @@ class BookService {
         }
     }
 
+
+    private fun sequences(fb2: List<Triple<FictionBook, File, BookExt>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, BookExt>>) = run {
+
+        val fb2Sequences = fb2
+            .mapNotNull { (fb, _, _) -> fb.description.titleInfo.sequence?.name }
+
+        val epubSequences = emptyList<String>()
+
+        val entities = (
+            sequenceRepository.findAll() + (fb2Sequences + epubSequences)
+                .map { Sequence(name = it) }
+            )
+            .distinctBy { it.name }
+
+        sequenceRepository.saveAll(entities)
+    }
 
     private fun genres(fb2: List<Triple<FictionBook, File, BookExt>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, BookExt>>) = run {
 
@@ -294,6 +318,9 @@ class BookService {
 
     @Autowired
     private lateinit var genreRepository: GenreRepository
+
+    @Autowired
+    private lateinit var sequenceRepository: SequenceRepository
 
     private val log = LoggerFactory.getLogger(BookService::class.java)
 }

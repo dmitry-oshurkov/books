@@ -24,6 +24,10 @@ class Book(
     val file: String,
     val fileContentType: String,
 
+    @OneToOne(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    val sequence: Sequence?,
+    val sequenceNumber: Int?,
+
     @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
     val authors: Set<Author>,
 
