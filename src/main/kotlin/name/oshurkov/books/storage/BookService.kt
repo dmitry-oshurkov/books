@@ -47,13 +47,12 @@ class BookService {
                     .mapNotNull { genres.find { g -> g.name == it } }
                     .toSet()
 
+                val summary = fb.description.titleInfo.annotation?.annotations?.firstOrNull()?.text
+                val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
                 val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
                 val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
 
-                val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
-
                 val file = preprocessFile(fb.title, bookAuthors, bookSequence, sequenceNumber, f)
-                val summary = fb.description.titleInfo.annotation?.annotations?.firstOrNull()?.text
 
                 Book(
                     title = fb.title,
@@ -86,8 +85,8 @@ class BookService {
                     .mapNotNull { genres.find { g -> g.name == it } }
                     .toSet()
 
-                val file = preprocessFile(ep.metadata.titles[0], bookAuthors, null, null, f)
                 val summary = ep.metadata.descriptions.firstOrNull()
+                val file = preprocessFile(ep.metadata.titles[0], bookAuthors, null, null, f)
 
                 Book(
                     title = ep.metadata.titles[0],

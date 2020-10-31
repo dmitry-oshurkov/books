@@ -21,17 +21,15 @@ class BookFileMonitor {
 
         bookService.import(files, target) { title, authors, seq, seqNo, file ->
 
-            val extension = if (file.name.endsWith(".fb2.zip")) "fb2.zip" else file.extension
-            val string = authors.joinToString { it.toStringForList() }
-            val path = if (seq != null)
-                Path.of(string, seq.name, "[$seqNo] $title.$extension")
-            else
-                Path.of(string, "$title.$extension")
-            val target = File(target, path.toString())
+            val ext = if (file.name.endsWith(".fb2.zip")) "fb2.zip" else file.extension
+            val authorsDir = authors.joinToString { it.toStringForList() }
+            val newFileName = if (seq != null) "[$seqNo] $title.$ext" else "$title.$ext"
+            val newFilePath = if (seq != null) Path.of(authorsDir, seq.name, newFileName) else Path.of(authorsDir, newFileName)
 
+            val target = File(target, newFilePath.toString())
             val result = file.copyTo(target, true)
-            val file1 = File(processed, file.name)
-            Files.move(file.toPath(), file1.toPath(), REPLACE_EXISTING)
+
+            Files.move(file.toPath(), File(processed, file.name).toPath(), REPLACE_EXISTING)
             result
         }
     }
