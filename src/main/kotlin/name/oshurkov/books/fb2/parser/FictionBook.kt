@@ -6,7 +6,7 @@ import java.io.*
 import java.util.*
 import javax.xml.parsers.*
 
-class FictionBook(file: File) {
+class FictionBook(file: File?, bytes: ByteArray?) {
     lateinit var xmlns: Array<Xmlns?>
         private set
     var description: Description
@@ -21,7 +21,12 @@ class FictionBook(file: File) {
 
         try {
 
-            BufferedReader(FileReader(file)).use { br1 ->
+            val reader = if (file != null)
+                FileReader(file)
+            else
+                InputStreamReader(ByteArrayInputStream(bytes))
+
+            BufferedReader(reader).use { br1 ->
 
                 var line = br1.readLine().trim { it <= ' ' }
                 if (!line.startsWith("<")) {
@@ -44,7 +49,12 @@ class FictionBook(file: File) {
 
         val reader = if (foundIllegalCharacters) {
 
-            BufferedReader(FileReader(file)).use { br2 ->
+            val reader = if (file != null)
+                FileReader(file)
+            else
+                InputStreamReader(ByteArrayInputStream(bytes))
+
+            BufferedReader(reader).use { br2 ->
 
                 var line = br2.readLine()
                 if (line != null && line.contains("<")) {
@@ -60,7 +70,10 @@ class FictionBook(file: File) {
                 StringReader(text.toString())
             }
         } else {
-            val inputStream: InputStream = FileInputStream(file)
+            val inputStream = if (file != null)
+                FileInputStream(file)
+            else
+                ByteArrayInputStream(bytes)
             InputStreamReader(inputStream, encoding)
         }
 

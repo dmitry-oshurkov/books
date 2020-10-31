@@ -27,7 +27,7 @@ class FictionBookService {
                             val tmp = File.createTempFile("temp", null)
                             try {
                                 tmp.writeBytes(bytes)
-                                FictionBook(tmp) to file and FBZ
+                                FictionBook(tmp, null) to file and FBZ
                             } catch (e: Exception) {
                                 null
                             } finally {
@@ -41,7 +41,7 @@ class FictionBookService {
             }
 
         val fb2plain = files[FB2].orEmpty()
-            .map { FictionBook(it) to it and FB2 }
+            .map { FictionBook(it, null) to it and FB2 }
 
         fb2plain + fbz
     }
