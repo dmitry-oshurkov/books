@@ -13,7 +13,9 @@ class FictionBook(file: File?, bytes: ByteArray?) {
         private set
     var bodies = mutableListOf<Body>()
     var binaries = hashMapOf<String, Binary>()
-    var encoding = "utf-8"
+    
+    private lateinit var encoding: String
+    private val encodingRegex = Regex("""encoding="([^\?]+)"""")
 
     init {
 
@@ -27,21 +29,9 @@ class FictionBook(file: File?, bytes: ByteArray?) {
                 InputStreamReader(ByteArrayInputStream(bytes))
 
             BufferedReader(reader).use { br1 ->
-
-                var line = br1.readLine().trim { it <= ' ' }
-                if (!line.startsWith("<")) {
-                    foundIllegalCharacters = true
-                }
-                while (!line.endsWith("?>")) {
-                    line += """
-                    
-                    ${br1.readLine().trim { it <= ' ' }}
-                    """.trimIndent()
-                }
-                val start = line.indexOf("encoding") + 8
-                var substring = line.substring(start)
-                substring = substring.substring(substring.indexOf("\"") + 1)
-                encoding = substring.substring(0, substring.indexOf("\"")).toLowerCase()
+                val line = br1.readLine().trim()
+                foundIllegalCharacters = !line.startsWith("<")
+                encoding = encodingRegex.find(line)?.groupValues?.get(1) ?: "utf-8"
             }
         } catch (e: Exception) {
             e.printStackTrace()
