@@ -13,31 +13,14 @@ class FictionBookService {
     fun parse(files: Map<BookExt, List<File>>) = run {
 
         val fbz = files[FBZ].orEmpty()
-            .mapNotNull { file ->
+            .map { file ->
 
-                try {
-                    ZipFile(file.absolutePath).use {
-
-                        val entry = it.entries().toList().first()
-
-                        it.getInputStream(entry).use { stream ->
-
-                            // todo repack fbz with zip entry renaming
-                            val bytes = stream.readAllBytes()
-                            val tmp = File.createTempFile("temp", null)
-                            try {
-                                tmp.writeBytes(bytes)
-                                FictionBook(tmp, null) to file and FBZ
-                            } catch (e: Exception) {
-                                null
-                            } finally {
-                                tmp.delete()
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    null
+                val bytes = ZipFile(file).use {
+                    val entry = it.entries().toList().first()
+                    it.getInputStream(entry).use { stream -> stream.readAllBytes() }
                 }
+
+                FictionBook(null, bytes) to file and FBZ
             }
 
         val fb2plain = files[FB2].orEmpty()
