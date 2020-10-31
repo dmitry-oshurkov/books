@@ -112,6 +112,7 @@ class BookService {
         val fb2Genres = fb2
             .flatMap { (fb, _, _) -> fb.description.titleInfo.genres }
             .map { fb2GenreToString(it) }
+
         val epubGenres = epub.flatMap { (ep, _, _) -> ep.metadata.subjects }
 
         val entities = (
