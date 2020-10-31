@@ -13,7 +13,7 @@ import javax.xml.namespace.*
 @Component
 class BookService {
 
-    fun import(arrayOfFiles: Array<out File>, bookRootDir: File, preprocessFile: (String, Set<Author>, Sequence?, Int?, File) -> File) = run {
+    fun import(arrayOfFiles: Array<out File>, bookRootDir: File, preprocessFile: (String, Set<Author>, Sequence?, Int?, BookExt, File) -> File) = run {
 
         if (arrayOfFiles.isEmpty())
             return@run
@@ -52,7 +52,7 @@ class BookService {
                 val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
                 val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
 
-                val file = preprocessFile(fb.title, bookAuthors, bookSequence, sequenceNumber, f)
+                val file = preprocessFile(fb.title, bookAuthors, bookSequence, sequenceNumber, ext, f)
 
                 Book(
                     title = fb.title,
@@ -86,7 +86,7 @@ class BookService {
                     .toSet()
 
                 val summary = ep.metadata.descriptions.firstOrNull()
-                val file = preprocessFile(ep.metadata.titles[0], bookAuthors, null, null, f)
+                val file = preprocessFile(ep.metadata.titles[0], bookAuthors, null, null, ext, f)
 
                 Book(
                     title = ep.metadata.titles[0],

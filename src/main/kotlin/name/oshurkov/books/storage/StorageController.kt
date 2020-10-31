@@ -14,7 +14,7 @@ class StorageController {
 
         val files = FileUtil.listFiles(root) { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") }
 
-        bookService.import(files, root) { _, _, _, _, file -> file }
+        bookService.import(files, root) { _, _, _, _, _, file -> file }
     }
 
     @Value("\${books.root}")
