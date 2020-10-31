@@ -31,7 +31,7 @@ class BookFileMonitor {
             }
             val authorsDir = authors.joinToString { it.toStringForList() }
 
-            val (newFileName, newFileDir) = if (seq != null)
+            val (newFileName, newFileDir) = if (seq != null && seqNo != null)
                 "[$seqNo] $title.$ext" to Path.of(target.absolutePath, authorsDir, seq.name).toFile()
             else
                 "$title.$ext" to Path.of(target.absolutePath, authorsDir).toFile()

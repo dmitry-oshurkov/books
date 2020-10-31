@@ -5,7 +5,7 @@ import org.w3c.dom.*
 class Sequence internal constructor(node: Node) {
     lateinit var name: String
         private set
-    lateinit var number: String
+    var number: String? = null
         private set
 
     init {
