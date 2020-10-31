@@ -17,7 +17,9 @@ class FictionBookService {
 
                 try {
                     ZipFile(file.absolutePath).use {
+
                         val entry = it.entries().toList().first()
+
                         it.getInputStream(entry).use { stream ->
 
                             // todo repack fbz with zip entry renaming

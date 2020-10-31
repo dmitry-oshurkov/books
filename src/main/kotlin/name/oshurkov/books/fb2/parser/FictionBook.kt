@@ -16,54 +16,67 @@ class FictionBook(file: File) {
     var encoding = "utf-8"
 
     init {
-        val dbf = DocumentBuilderFactory.newInstance()
-        val db = dbf.newDocumentBuilder()
-        val inputStream: InputStream = FileInputStream(file)
-        var br = BufferedReader(FileReader(file))
+
         var foundIllegalCharacters = false
+
         try {
-            var line = br.readLine().trim { it <= ' ' }
-            if (!line.startsWith("<")) {
-                foundIllegalCharacters = true
-            }
-            while (!line.endsWith("?>")) {
-                line += """
+
+            BufferedReader(FileReader(file)).use { br1 ->
+
+                var line = br1.readLine().trim { it <= ' ' }
+                if (!line.startsWith("<")) {
+                    foundIllegalCharacters = true
+                }
+                while (!line.endsWith("?>")) {
+                    line += """
                     
-                    ${br.readLine().trim { it <= ' ' }}
+                    ${br1.readLine().trim { it <= ' ' }}
                     """.trimIndent()
+                }
+                val start = line.indexOf("encoding") + 8
+                var substring = line.substring(start)
+                substring = substring.substring(substring.indexOf("\"") + 1)
+                encoding = substring.substring(0, substring.indexOf("\"")).toLowerCase()
             }
-            val start = line.indexOf("encoding") + 8
-            var substring = line.substring(start)
-            substring = substring.substring(substring.indexOf("\"") + 1)
-            encoding = substring.substring(0, substring.indexOf("\"")).toLowerCase()
-            br.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        val doc: Document
-        if (foundIllegalCharacters) {
-            val text = StringBuilder()
-            br = BufferedReader(FileReader(file))
-            var line = br.readLine()
-            if (line != null && line.contains("<")) {
-                line = line.substring(line.indexOf("<"))
+
+        val reader = if (foundIllegalCharacters) {
+
+            BufferedReader(FileReader(file)).use { br2 ->
+
+                var line = br2.readLine()
+                if (line != null && line.contains("<")) {
+                    line = line.substring(line.indexOf("<"))
+                }
+
+                val text = StringBuilder()
+                while (line != null) {
+                    text.append(line)
+                    line = br2.readLine()
+                }
+
+                StringReader(text.toString())
             }
-            while (line != null) {
-                text.append(line)
-                line = br.readLine()
-            }
-            br.close()
-            doc = db.parse(InputSource(StringReader(text.toString())))
         } else {
-            doc = db.parse(InputSource(InputStreamReader(inputStream, encoding)))
+            val inputStream: InputStream = FileInputStream(file)
+            InputStreamReader(inputStream, encoding)
         }
+
+        val db = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        val doc = db.parse(InputSource(reader))
+
         initXmlns(doc)
         description = Description(doc)
         val bodyNodes = doc.getElementsByTagName("body")
+
         for (item in 0 until bodyNodes.length) {
             bodies.add(Body(bodyNodes.item(item)))
         }
+
         val binary = doc.getElementsByTagName("binary")
+
         for (item in 0 until binary.length) {
             val binary1 = Binary(binary.item(item))
             binaries[binary1.id!!.replace("#", "")] = binary1
