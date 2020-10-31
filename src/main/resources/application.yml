@@ -15,3 +15,4 @@ books:
     source: /home/dmitry/Загрузки
     target: /home/dmitry/Загрузки/books
     processed: /home/dmitry/Загрузки/processed
+    forceCompress: true

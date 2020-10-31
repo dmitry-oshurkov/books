@@ -26,12 +26,19 @@ class BookFileMonitor {
 
             val ext = when (bookExt) {
                 FBZ -> "fb2.zip"
+                FB2 -> if (forceCompress) "fb2.zip" else "fb2"
                 else -> file.extension
             }
             val authorsDir = authors.joinToString { it.toStringForList() }
-            val newFileName = if (seq != null) "[$seqNo] $title.$ext" else "$title.$ext"
-            val newFilePath = if (seq != null) Path.of(authorsDir, seq.name, newFileName) else Path.of(authorsDir, newFileName)
-            val target = File(target, newFilePath.toString())
+
+            val (newFileName, newFileDir) = if (seq != null)
+                "[$seqNo] $title.$ext" to Path.of(target.absolutePath, authorsDir, seq.name).toFile()
+            else
+                "$title.$ext" to Path.of(target.absolutePath, authorsDir).toFile()
+
+            newFileDir.mkdirs()
+
+            val target = File(newFileDir, newFileName)
 
             when (bookExt) {
                 FBZ -> {
@@ -41,13 +48,12 @@ class BookFileMonitor {
                         it.getInputStream(entry).use { stream -> stream.readAllBytes() }
                     }
 
-                    ZipOutputStream(FileOutputStream(target)).use { stream ->
-                        stream.setLevel(BEST_COMPRESSION)
-                        stream.putNextEntry(ZipEntry(if (seq != null) "[$seqNo] $title.fb2" else "$title.fb2"))
-                        stream.write(bytes, 0, bytes.size)
-                        stream.closeEntry()
-                    }
+                    zip(target, seq, seqNo, title, bytes)
                 }
+                FB2 -> if (forceCompress)
+                    zip(target, seq, seqNo, title, file.readBytes())
+                else
+                    file.copyTo(target, true)
                 else -> file.copyTo(target, true)
             }
 
@@ -55,6 +61,14 @@ class BookFileMonitor {
             target
         }
     }
+
+    private fun zip(target: File, seq: Sequence?, seqNo: Int?, title: String, bytes: ByteArray) =
+        ZipOutputStream(FileOutputStream(target)).use { stream ->
+            stream.setLevel(BEST_COMPRESSION)
+            stream.putNextEntry(ZipEntry(if (seq != null) "[$seqNo] $title.fb2" else "$title.fb2"))
+            stream.write(bytes, 0, bytes.size)
+            stream.closeEntry()
+        }
 
     @Value("\${books.importer.source}")
     private lateinit var source: File
@@ -64,6 +78,9 @@ class BookFileMonitor {
 
     @Value("\${books.importer.processed}")
     private lateinit var processed: File
+
+    @Value("\${books.importer.forceCompress}")
+    private var forceCompress: Boolean = true
 
     @Autowired
     private lateinit var bookService: BookService
