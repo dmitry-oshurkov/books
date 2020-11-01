@@ -33,7 +33,7 @@ class BookService {
 
         val authors = authors(fb2, epub)
         val genres = genres(fb2, epub)
-        val sequences = sequences(fb2, epub)
+        val sequences = sequences(fb2)
 
         val fb2Books = fb2
             .map { (fb, f, ext) ->
@@ -114,7 +114,7 @@ class BookService {
     }
 
 
-    private fun sequences(fb2: List<Triple<FictionBook, File, BookExt>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, BookExt>>) = run {
+    private fun sequences(fb2: List<Triple<FictionBook, File, BookExt>>) = run {
 
         val fb2Sequences = fb2
             .mapNotNull { (fb, _, _) -> fb.description.titleInfo.sequence?.name }

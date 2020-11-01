@@ -30,22 +30,21 @@ class Section internal constructor(root: Node) : IdElement(root) {
         }
     }
 
-    private fun getTitleString(innerDivider: String, outerDivider: String): String {
+    private fun getTitleString(): String {
         val title1 = title ?: return ""
         val builder = StringBuilder()
         val list = ArrayList<Element?>(title1.paragraphs)
-        builder.append(Element.Companion.getText(list, innerDivider)).append(outerDivider)
+        val outerDivider = "\n"
+        builder.append(Element.getText(list, ". ")).append(outerDivider)
         return builder.substring(0, builder.length - outerDivider.length)
     }
 
     override fun toString(): String {
-        var data = getTitleString(". ", "\n")
-        if (!elements!!.isEmpty()) {
-            data += " p: " + elements!!.size
-        }
-        if (!elements!!.isEmpty()) {
-            data += " section: " + sections!!.size
-        }
+        var data = getTitleString()
+        if (elements.isNotEmpty())
+            data += " p: ${elements.size}"
+        if (elements.isNotEmpty())
+            data += " section: ${sections.size}"
         return data.trim { it <= ' ' }
     }
 }
