@@ -18,9 +18,9 @@ class CatalogController {
             id = "tag:root",
             title = "Каталог книг",
             links = listOf(
-                Link(rel = "self", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition")
+                Navigation(rel = "self", href = "/catalog"),
+                Navigation(rel = "start", href = "/catalog"),
+                Acquisition(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured")
             ),
             entries = listOf(
                 Entry(
@@ -28,21 +28,21 @@ class CatalogController {
                     title = "Рекомендуемые",
                     updated = Date(),
                     content = Content("Рекомендуемые книги"),
-                    links = listOf(Link(href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"))
+                    links = listOf(Acquisition(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured"))
                 ),
                 Entry(
                     id = "tag:root:authors",
                     title = "По авторам",
                     updated = Date(),
                     content = Content("Поиск книг по авторам"),
-                    links = listOf(Link(href = "/catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=navigation"))
+                    links = listOf(Navigation(rel = "subsection", href = "/catalog/authors"))
                 ),
                 Entry(
                     id = "tag:root:genre",
                     title = "По жанрам",
                     updated = Date(),
                     content = Content("Поиск книг по жанрам"),
-                    links = listOf(Link(href = "/catalog/genres", type = "application/atom+xml;profile=opds-catalog;kind=navigation"))
+                    links = listOf(Navigation(rel = "subsection", href = "/catalog/genres"))
                 )
             )
         )
@@ -59,10 +59,10 @@ class CatalogController {
             id = "tag:featured",
             title = "Рекомендуемые книги",
             links = listOf(
-                Link(rel = "self", href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
-                Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "up", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
+                Acquisition(rel = "self", href = "/catalog/featured"),
+                Navigation(rel = "start", href = "/catalog"),
+                Navigation(rel = "up", href = "/catalog"),
+                Acquisition(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured"),
             ),
             entries = bookEntries
         )
@@ -85,7 +85,7 @@ class CatalogController {
                 publisher = null,
                 sources = listOf(),
                 links = listOf(
-                    Link(rel = "subsection", href = "/catalog/author/${it.id}/book", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                    Navigation(rel = "subsection", href = "/catalog/author/${it.id}/book"),
                 )
             )
         }
@@ -94,9 +94,9 @@ class CatalogController {
             id = "tag:authors",
             title = "По авторам",
             links = listOf(
-                Link(rel = "self", href = "/catalog/authors", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
-                Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "up", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Acquisition(rel = "self", href = "/catalog/authors"),
+                Navigation(rel = "start", href = "/catalog"),
+                Navigation(rel = "up", href = "/catalog"),
             ),
             entries = authorsEntries
         )
@@ -134,7 +134,7 @@ class CatalogController {
                 publisher = null,
                 sources = listOf(),
                 links = listOf(
-                    Link(rel = "subsection", href = "/catalog/genre/${it.id}/book", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                    Navigation(rel = "subsection", href = "/catalog/genre/${it.id}/book"),
                 )
             )
         }
@@ -143,9 +143,9 @@ class CatalogController {
             id = "tag:genres",
             title = "По жанрам",
             links = listOf(
-                Link(rel = "self", href = "/catalog/genres", type = "application/atom+xml;profile=opds-catalog;kind=acquisition"),
-                Link(rel = "start", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
-                Link(rel = "up", href = "/catalog", type = "application/atom+xml;profile=opds-catalog;kind=navigation"),
+                Acquisition(rel = "self", href = "/catalog/genres"),
+                Navigation(rel = "start", href = "/catalog"),
+                Navigation(rel = "up", href = "/catalog"),
             ),
             entries = genresEntries
         )

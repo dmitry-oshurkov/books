@@ -21,7 +21,7 @@ data class Feed(
 
     @JacksonXmlProperty(localName = "link")
     @JacksonXmlElementWrapper(useWrapping = false)
-    val links: List<Link>?,
+    val links: List<CatalogLink>?,
 
     @JacksonXmlProperty(localName = "entry")
     @JacksonXmlElementWrapper(useWrapping = false)
@@ -33,7 +33,9 @@ data class Author(
     val uri: String?
 )
 
-data class Link(
+interface CatalogLink
+
+open class Link(
     @JacksonXmlProperty(isAttribute = true)
     val type: String = "application/atom+xml;profile=opds-catalog;",
     @JacksonXmlProperty(isAttribute = true)
@@ -42,7 +44,29 @@ data class Link(
     val rel: String? = null,
     @JacksonXmlProperty(isAttribute = true)
     val href: String
-)
+) : CatalogLink
+
+class Acquisition(
+    @JacksonXmlProperty(isAttribute = true)
+    val type: String = "application/atom+xml;profile=opds-catalog;kind=acquisition",
+    @JacksonXmlProperty(isAttribute = true)
+    val title: String? = null,
+    @JacksonXmlProperty(isAttribute = true)
+    val rel: String? = null,
+    @JacksonXmlProperty(isAttribute = true)
+    val href: String
+) : CatalogLink
+
+class Navigation(
+    @JacksonXmlProperty(isAttribute = true)
+    val type: String = "application/atom+xml;profile=opds-catalog;kind=navigation",
+    @JacksonXmlProperty(isAttribute = true)
+    val title: String? = null,
+    @JacksonXmlProperty(isAttribute = true)
+    val rel: String? = null,
+    @JacksonXmlProperty(isAttribute = true)
+    val href: String
+) : CatalogLink
 
 data class Entry(
     val id: String,
@@ -73,7 +97,7 @@ data class Entry(
 
     @JacksonXmlProperty(localName = "link")
     @JacksonXmlElementWrapper(useWrapping = false)
-    val links: List<Link>?,
+    val links: List<CatalogLink>?,
 )
 
 data class Category(
