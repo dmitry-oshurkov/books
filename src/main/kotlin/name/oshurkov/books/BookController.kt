@@ -24,14 +24,19 @@ class BookController {
 
     @GetMapping("{id}/file")
     @ResponseBody
-    fun download(@PathVariable id: Int): ResponseEntity<ByteArrayResource> = run {
+    fun download(@RequestHeader("user-agent") userAgent: String, @PathVariable id: Int): ResponseEntity<ByteArrayResource> = run {
 
         val book = bookRepository.getOne(id)
         val file = File(root, book.file)
 
+        val filename = if (userAgent.contains("Chrome") || userAgent.contains("Mozilla") || userAgent.contains("Safari"))
+            "[${book.authors.joinToString()}] - ${file.name}"
+        else
+            book.id.toString()
+
         val headers = HttpHeaders()
         headers.contentDisposition = ContentDisposition.builder(ATTACHMENT)
-            .filename("[${book.authors.joinToString()}] - ${file.name}", UTF_8)
+            .filename(filename, UTF_8)
             .build()
 
         ResponseEntity.ok()
