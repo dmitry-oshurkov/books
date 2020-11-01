@@ -22,7 +22,7 @@ class BookFileMonitor {
 
         processed.mkdirs()
 
-        bookService.import(files, target) { title, authors, seq, seqNo, bookExt, file ->
+        bookService.import(files, root) { title, authors, seq, seqNo, bookExt, file ->
 
             val ext = when (bookExt) {
                 FBZ -> "fb2.zip"
@@ -32,9 +32,9 @@ class BookFileMonitor {
             val authorsDir = authors.joinToString { it.toStringForList() }
 
             val (newFileName, newFileDir) = if (seq != null && seqNo != null)
-                "[$seqNo] $title.$ext" to Path.of(target.absolutePath, authorsDir, seq.name).toFile()
+                "[$seqNo] $title.$ext" to Path.of(root.absolutePath, authorsDir, seq.name).toFile()
             else
-                "$title.$ext" to Path.of(target.absolutePath, authorsDir).toFile()
+                "$title.$ext" to Path.of(root.absolutePath, authorsDir).toFile()
 
             newFileDir.mkdirs()
 
@@ -70,16 +70,16 @@ class BookFileMonitor {
             stream.closeEntry()
         }
 
-    @Value("\${books.importer.source}")
+    @Value("\${books.root}")
+    private lateinit var root: File
+
+    @Value("\${books.fileMonitor.source}")
     private lateinit var source: File
 
-    @Value("\${books.importer.target}")
-    private lateinit var target: File
-
-    @Value("\${books.importer.processed}")
+    @Value("\${books.fileMonitor.processed}")
     private lateinit var processed: File
 
-    @Value("\${books.importer.forceCompress}")
+    @Value("\${books.fileMonitor.forceCompress}")
     private var forceCompress: Boolean = true
 
     @Autowired

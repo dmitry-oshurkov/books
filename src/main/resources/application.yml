@@ -11,8 +11,7 @@ spring:
 
 books:
   root: /home/dmitry/yandex.disk/Книги
-  importer:
+  fileMonitor:
     source: /home/dmitry/Загрузки
-    target: /home/dmitry/Загрузки/books
     processed: /home/dmitry/Загрузки/processed
     forceCompress: true
