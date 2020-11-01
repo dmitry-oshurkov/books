@@ -1,6 +1,8 @@
 package name.oshurkov.books.catalog
 
-import name.oshurkov.books.storage.*
+import name.oshurkov.books.api.author.*
+import name.oshurkov.books.api.book.*
+import name.oshurkov.books.api.genre.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.data.domain.*
 import org.springframework.http.MediaType.*

@@ -12,7 +12,7 @@ data class Feed(
     @JacksonXmlProperty(isAttribute = true, localName = "xmlns:opensearch") val opensearch: String = "http://a9.com/-/spec/opensearch/1.1/",
     @JacksonXmlProperty(isAttribute = true, localName = "xmlns:xsi") val xsi: String = "http://www.w3.org/2001/XMLSchema-instance",
     @JacksonXmlProperty(isAttribute = true) val xmlns: String = "http://www.w3.org/2005/Atom",
-    @JacksonXmlProperty(isAttribute = true, localName = "xml:lang") val lang: String = "en",
+    @JacksonXmlProperty(isAttribute = true, localName = "xml:lang") val lang: String = "ru",
 
     val id: String,
     val title: String,
