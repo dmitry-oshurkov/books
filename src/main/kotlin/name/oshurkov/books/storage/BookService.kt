@@ -291,8 +291,8 @@ class BookService {
         "text"
 
     private fun fileType(ext: BookExt) = when (ext) {
-        FB2 -> "application/xml"
-        FBZ -> "application/zip"
+        FB2 -> "application/fb2"
+        FBZ -> "application/fb2+zip"
         EPUB -> "application/epub+zip"
         UNSUPPORTED -> ""
     }
