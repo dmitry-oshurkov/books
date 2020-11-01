@@ -181,9 +181,14 @@ class CatalogController {
         publisher = publisher,
         sources = listOf(),
         links = listOf(
-            Link(rel = "http://opds-spec.org/image", href = "/api/book/$id/image", type = coverContentType ?: ""),
-            Link(rel = "http://opds-spec.org/image/thumbnail", href = "/api/book/$id/image/thumbnail", type = coverContentType ?: ""),
-            Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/api/book/$id/file", type = fileContentType, title = title)
+            *authors.map { a -> Navigation(rel = "related", href = "/catalog/author/${a.id}/book", title = "Все книги автора $a") }.toTypedArray(),
+            *coverContentType?.let {
+                listOf(
+                    Link(rel = "http://opds-spec.org/image", href = "/api/book/$id/image", type = coverContentType),
+                    Link(rel = "http://opds-spec.org/image/thumbnail", href = "/api/book/$id/image/thumbnail", type = coverContentType),
+                )
+            }.orEmpty().toTypedArray(),
+            Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/api/book/$id/file", type = fileContentType, title = "fb2.zip")
         )
     )
 
