@@ -1,4 +1,5 @@
 import org.gradle.api.JavaVersion.*
+import org.springframework.boot.gradle.tasks.bundling.*
 
 plugins {
     kotlin("jvm") version "1.4.10"
@@ -6,6 +7,7 @@ plugins {
     kotlin("plugin.jpa") version "1.4.10"
     id("org.springframework.boot") version "2.3.5.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    war
 }
 
 group = "name.oshurkov"
@@ -53,5 +55,6 @@ tasks {
         }
     }
     wrapper { gradleVersion = "6.7" }
+    withType<BootWar> { archiveFileName.set("books.war") }
     withType<Test> { useJUnitPlatform() }
 }
