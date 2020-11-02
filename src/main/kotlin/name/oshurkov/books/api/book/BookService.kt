@@ -13,6 +13,7 @@ import org.slf4j.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.stereotype.*
 import java.io.*
+import java.nio.file.*
 import java.util.zip.*
 import java.util.zip.Deflater.*
 import javax.xml.namespace.*
@@ -116,6 +117,38 @@ class BookService {
 
         bookRepository.saveAll(fb2Books + epubBooks).onEach {
             log.info("Imported: ${it.title}")
+        }
+    }
+
+    fun export(targetDir: String) {
+
+        val root = File(targetDir)
+
+        if (root.exists())
+            root.deleteRecursively()
+
+        bookRepository.findAll().forEach {
+
+            val authorsDir = it.authors.joinToString { a -> a.toStringForList() }
+
+            val newFileDir = if (it.sequence != null && it.sequenceNumber != null)
+                Path.of(root.absolutePath, authorsDir, it.sequence.name).toFile()
+            else
+                Path.of(root.absolutePath, authorsDir).toFile()
+
+            newFileDir.mkdirs()
+
+            it.files.forEach { f ->
+
+                val baseName = "${it.title}.${f.type.extension}"
+
+                val newFileName = if (it.sequence != null && it.sequenceNumber != null)
+                    "[${it.sequenceNumber}] $baseName"
+                else
+                    baseName
+
+                File(newFileDir, newFileName).writeBytes(f.content)
+            }
         }
     }
 
