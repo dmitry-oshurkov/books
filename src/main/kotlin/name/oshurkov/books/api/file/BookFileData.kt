@@ -2,12 +2,15 @@ package name.oshurkov.books.api.file
 
 import name.oshurkov.books.api.*
 import org.springframework.data.jpa.repository.*
+import java.util.*
 import javax.persistence.*
 
 @Entity
 class BookFile(
     @Lob
     val content: ByteArray,
+    @Column(unique = true)
+    val hash: UUID,
     val type: FileType,
 ) : EntityBase()
 
