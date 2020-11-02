@@ -4,6 +4,7 @@ import org.apache.tomcat.util.http.fileupload.FileUploadBase.*
 import org.aspectj.util.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.core.io.*
+import org.springframework.data.repository.*
 import org.springframework.http.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
@@ -28,30 +29,34 @@ class BookController {
         @RequestHeader("user-agent") userAgent: String,
         @PathVariable id: Int,
         @PathVariable fileId: Int,
-    ) = run {
+    ): ResponseEntity<*> = run {
 
-        val book = bookRepository.getOne(id)
+        val book = bookRepository.findByIdOrNull(id)
 
-        val filename = if (userAgent.contains("Chrome") || userAgent.contains("Mozilla") || userAgent.contains("Safari"))
-            "[${book.authors.joinToString()}] - ${book.title}"
-        else
-            book.id.toString()
+        if (book != null) {
 
-        val headers = HttpHeaders()
-        headers.contentDisposition = ContentDisposition.builder(ATTACHMENT)
-            .filename(filename, UTF_8)
-            .build()
+            val filename = if (userAgent.contains("Chrome") || userAgent.contains("Mozilla") || userAgent.contains("Safari"))
+                "[${book.authors.joinToString()}] - ${book.title}"
+            else
+                book.id.toString()
 
-        val bookFile = book.files.find { it.id == fileId }
+            val headers = HttpHeaders()
+            headers.contentDisposition = ContentDisposition.builder(ATTACHMENT)
+                .filename(filename, UTF_8)
+                .build()
 
-        if (bookFile != null)
-            ResponseEntity.ok()
-                .contentType(parseMediaType(bookFile.type.contentType))
-                .headers(headers)
-                .body(ByteArrayResource(bookFile.content))
-        else
-            ResponseEntity.notFound()
-    }!!
+            val bookFile = book.files.find { it.id == fileId }
+
+            if (bookFile != null)
+                ResponseEntity.ok()
+                    .contentType(parseMediaType(bookFile.type.contentType))
+                    .headers(headers)
+                    .body(ByteArrayResource(bookFile.content))
+            else
+                ResponseEntity.notFound().build()
+        } else
+            ResponseEntity.notFound().build()
+    }
 
     @PostMapping("import")
     fun importAll(@RequestBody rootDir: String) = run {
