@@ -18,11 +18,11 @@ class CatalogController {
 
         Feed(
             id = "tag:root",
-            title = "Каталог книг",
+            title = "Книжный каталог",
             links = listOf(
                 Navigation(rel = "self", href = "/catalog"),
                 Navigation(rel = "start", href = "/catalog"),
-                Acquisition(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured")
+                Acquisition(rel = "http://opds-spec.org/featured", href = "/catalog/featured")
             ),
             entries = listOf(
                 Entry(
@@ -30,7 +30,7 @@ class CatalogController {
                     title = "Рекомендуемые",
                     updated = Date(),
                     content = Content("Рекомендуемые книги"),
-                    links = listOf(Acquisition(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured"))
+                    links = listOf(Acquisition(rel = "subsection", href = "/catalog/featured"))
                 ),
                 Entry(
                     id = "tag:root:authors",
@@ -64,7 +64,6 @@ class CatalogController {
                 Acquisition(rel = "self", href = "/catalog/featured"),
                 Navigation(rel = "start", href = "/catalog"),
                 Navigation(rel = "up", href = "/catalog"),
-                Acquisition(rel = "http://opds-spec.org/crawlable", href = "/catalog/featured"),
             ),
             entries = bookEntries
         )
