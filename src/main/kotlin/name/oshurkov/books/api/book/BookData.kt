@@ -2,6 +2,7 @@ package name.oshurkov.books.api.book
 
 import name.oshurkov.books.api.*
 import name.oshurkov.books.api.author.*
+import name.oshurkov.books.api.file.*
 import name.oshurkov.books.api.genre.*
 import name.oshurkov.books.api.sequence.*
 import org.springframework.data.jpa.repository.*
@@ -24,9 +25,6 @@ class Book(
     @Lob
     val cover: ByteArray?,
     val coverContentType: String?,
-    @Column(unique = true)
-    val file: String,
-    val fileContentType: String,
 
     @OneToOne(cascade = [MERGE, REMOVE, REFRESH, DETACH])
     val sequence: Sequence?,
@@ -37,6 +35,9 @@ class Book(
 
     @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
     val genres: Set<Genre>,
+
+    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    val files: Set<BookFile>,
 ) : EntityBase()
 
 interface BookRepository : JpaRepository<Book, Int> {
@@ -44,5 +45,3 @@ interface BookRepository : JpaRepository<Book, Int> {
     fun findBooksByAuthorsId(id: Int): List<Book>
     fun findBooksByGenresId(id: Int): List<Book>
 }
-
-enum class BookExt { FB2, FBZ, EPUB, UNSUPPORTED }

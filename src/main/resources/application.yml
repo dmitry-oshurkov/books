@@ -2,7 +2,7 @@ spring:
   datasource:
     driverClassName: org.h2.Driver
     password: password
-    url: jdbc:h2:file:/var/local/projects/books-db
+    url: jdbc:h2:file:~/.local/share/books/db
     username: sa
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
@@ -10,7 +10,6 @@ spring:
       ddl-auto: update
 
 books:
-  root: /home/dmitry/yandex.disk/Книги
   fileMonitor:
     source: /home/dmitry/Загрузки
     processed: /home/dmitry/Загрузки/processed

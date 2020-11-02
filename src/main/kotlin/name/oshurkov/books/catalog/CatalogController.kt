@@ -174,22 +174,22 @@ class CatalogController {
         updated = updated,
         content = Content(content).toPlainText(),
         summary = Summary(summary, summaryContentType).toPlainText(),
-        authors = authors.map { a -> Author(name = a.toString(), uri = null) },
-        categories = genres.map { g -> Category(term = g.name, scheme = null) },
+        authors = authors.map { Author(name = it.toString(), uri = null) },
+        categories = genres.map { Category(term = it.name, scheme = null) },
         rights = rights,
         language = language,
         issued = issued,
         publisher = publisher,
         sources = listOf(),
         links = listOf(
-            *authors.map { a -> Navigation(rel = "related", href = "/catalog/author/${a.id}/book", title = "Все книги автора $a") }.toTypedArray(),
+            *authors.map { Navigation(rel = "related", href = "/catalog/author/${it.id}/book", title = "Все книги автора $it") }.toTypedArray(),
             *coverContentType?.let {
                 listOf(
                     Link(rel = "http://opds-spec.org/image", href = "/api/book/$id/image", type = coverContentType),
                     Link(rel = "http://opds-spec.org/image/thumbnail", href = "/api/book/$id/image/thumbnail", type = coverContentType),
                 )
             }.orEmpty().toTypedArray(),
-            Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/api/book/$id/file", type = fileContentType, title = "fb2.zip")
+            *files.map { Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/api/book/$id/file/${it.id}", type = it.type.contentType, title = it.type.contentType) }.toTypedArray()
         )
     )
 

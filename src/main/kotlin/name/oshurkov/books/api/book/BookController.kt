@@ -6,7 +6,6 @@ import org.springframework.core.io.*
 import org.springframework.http.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
-import java.io.*
 import kotlin.text.Charsets.UTF_8
 
 @RestControllerAdvice
@@ -21,15 +20,18 @@ class BookController {
     @ResponseBody
     fun thumbnail(@PathVariable id: Int) = bookRepository.getOne(id).cover
 
-    @GetMapping("{id}/file")
+    @GetMapping("{id}/file/{fileId}")
     @ResponseBody
-    fun download(@RequestHeader("user-agent") userAgent: String, @PathVariable id: Int): ResponseEntity<ByteArrayResource> = run {
+    fun download(
+        @RequestHeader("user-agent") userAgent: String,
+        @PathVariable id: Int,
+        @PathVariable fileId: Int,
+    ) = run {
 
         val book = bookRepository.getOne(id)
-        val file = File(root, book.file)
 
         val filename = if (userAgent.contains("Chrome") || userAgent.contains("Mozilla") || userAgent.contains("Safari"))
-            "[${book.authors.joinToString()}] - ${file.name}"
+            "[${book.authors.joinToString()}] - ${book.title}"
         else
             book.id.toString()
 
@@ -38,14 +40,16 @@ class BookController {
             .filename(filename, UTF_8)
             .build()
 
-        ResponseEntity.ok()
-            .contentType(parseMediaType(book.fileContentType))
-            .headers(headers)
-            .body(ByteArrayResource(file.readBytes()))
-    }
+        val bookFile = book.files.find { it.id == fileId }
 
-    @Value("\${books.root}")
-    private lateinit var root: File
+        if (bookFile != null)
+            ResponseEntity.ok()
+                .contentType(parseMediaType(bookFile.type.contentType))
+                .headers(headers)
+                .body(ByteArrayResource(bookFile.content))
+        else
+            ResponseEntity.notFound()
+    }!!
 
     @Autowired
     private lateinit var bookRepository: BookRepository
