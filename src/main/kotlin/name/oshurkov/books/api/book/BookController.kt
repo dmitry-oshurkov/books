@@ -22,14 +22,16 @@ class BookController {
     fun thumbnail(@PathVariable id: Int) = bookRepository.getOne(id).cover
 
     @PostMapping("{id}/featured")
-    fun featured(@PathVariable id: Int) {
+    fun featured(@PathVariable id: Int): ResponseEntity<Unit> = run {
 
         val book = bookRepository.findByIdOrNull(id)
 
         if (book != null) {
             book.featured = true
             bookRepository.save(book)
-        }
+            ResponseEntity.ok().build()
+        } else
+            ResponseEntity.notFound().build()
     }
 
     @GetMapping("{id}/file/{fileId}")
