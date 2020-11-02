@@ -1,11 +1,14 @@
 package name.oshurkov.books.api.book
 
 import org.apache.tomcat.util.http.fileupload.FileUploadBase.*
+import org.aspectj.util.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.core.io.*
 import org.springframework.http.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
+import java.io.*
+import java.nio.file.*
 import kotlin.text.Charsets.UTF_8
 
 @RestControllerAdvice
@@ -50,6 +53,45 @@ class BookController {
         else
             ResponseEntity.notFound()
     }!!
+
+    @PostMapping("import")
+    fun importAll(@RequestBody rootDir: String) = run {
+        val files = FileUtil.listFiles(File(rootDir)) { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") }
+        bookService.import(files)
+    }
+
+    @PostMapping("export")
+    fun exportAll(@RequestBody targetDir: String) = run {
+
+        val root = File(targetDir)
+
+        bookRepository.findAll().forEach {
+
+            val authorsDir = it.authors.joinToString { a -> a.toStringForList() }
+
+            val newFileDir = if (it.sequence != null && it.sequenceNumber != null)
+                Path.of(root.absolutePath, authorsDir, it.sequence.name).toFile()
+            else
+                Path.of(root.absolutePath, authorsDir).toFile()
+
+            newFileDir.mkdirs()
+
+            it.files.forEach { f ->
+
+                val baseName = "${it.title}.${f.type.extension}"
+
+                val newFileName = if (it.sequence != null && it.sequenceNumber != null)
+                    "[${it.sequenceNumber}] $baseName"
+                else
+                    baseName
+
+                File(newFileDir, newFileName).writeBytes(f.content)
+            }
+        }
+    }
+
+    @Autowired
+    private lateinit var bookService: BookService
 
     @Autowired
     private lateinit var bookRepository: BookRepository
