@@ -62,6 +62,9 @@ class BookController {
     @PostMapping("export")
     fun exportAll(@RequestBody targetDir: String) = bookService.export(targetDir)
 
+    @PostMapping("backup")
+    fun backupAll(@RequestBody targetDir: String) = bookService.backup(targetDir)
+
     @Autowired
     private lateinit var bookService: BookService
 

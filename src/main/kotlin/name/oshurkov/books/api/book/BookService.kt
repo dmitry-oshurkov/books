@@ -8,12 +8,15 @@ import name.oshurkov.books.api.file.fb2.parser.*
 import name.oshurkov.books.api.genre.*
 import name.oshurkov.books.api.sequence.*
 import name.oshurkov.books.api.sequence.Sequence
-import org.apache.tomcat.util.codec.binary.*
+import org.apache.commons.compress.archivers.sevenz.*
+import org.apache.tomcat.util.codec.binary.Base64
 import org.slf4j.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.stereotype.*
 import java.io.*
 import java.nio.file.*
+import java.text.*
+import java.util.Date
 import java.util.zip.*
 import java.util.zip.Deflater.*
 import javax.xml.namespace.*
@@ -148,6 +151,45 @@ class BookService {
                     baseName
 
                 File(newFileDir, newFileName).writeBytes(f.content)
+            }
+        }
+    }
+
+    fun backup(targetDir: String) {
+
+        val root = File(targetDir)
+
+        if (root.exists())
+            root.deleteRecursively()
+
+        val backupName = "books-${SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(Date())}"
+        val exported = File(root, backupName)
+        export(exported.absolutePath)
+
+        createSevenZipFile(File(root, "$backupName.7z"), exported)
+        exported.deleteRecursively()
+    }
+
+
+    private fun createSevenZipFile(sevenZ: File, folder: File) {
+
+        runCatching {
+
+            SevenZOutputFile(sevenZ).use { out ->
+
+                Files.walk(folder.toPath())
+                    .map { it.toFile() }
+                    .filter { !it.isDirectory }
+                    .forEach { file ->
+                        FileInputStream(file).use {
+                            val entry = out.createArchiveEntry(file, file.toRelativeString(folder))
+                            out.putArchiveEntry(entry)
+                            out.write(file.readBytes())
+                            out.closeArchiveEntry()
+                        }
+                    }
+
+                out.finish()
             }
         }
     }
