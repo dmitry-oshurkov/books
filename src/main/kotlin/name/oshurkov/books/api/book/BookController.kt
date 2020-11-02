@@ -16,11 +16,9 @@ import kotlin.text.Charsets.UTF_8
 class BookController {
 
     @GetMapping("{id}/image", produces = [IMAGE_JPEG_VALUE])
-    @ResponseBody
     fun image(@PathVariable id: Int) = bookRepository.getOne(id).cover
 
     @GetMapping("{id}/image/thumbnail", produces = [IMAGE_JPEG_VALUE])
-    @ResponseBody
     fun thumbnail(@PathVariable id: Int) = bookRepository.getOne(id).cover
 
     @PostMapping("{id}/featured")
@@ -35,7 +33,6 @@ class BookController {
     }
 
     @GetMapping("{id}/file/{fileId}")
-    @ResponseBody
     fun download(
         @RequestHeader("user-agent") userAgent: String,
         @PathVariable id: Int,
