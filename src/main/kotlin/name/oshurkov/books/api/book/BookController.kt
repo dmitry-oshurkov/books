@@ -23,6 +23,17 @@ class BookController {
     @ResponseBody
     fun thumbnail(@PathVariable id: Int) = bookRepository.getOne(id).cover
 
+    @PostMapping("{id}/featured")
+    fun featured(@PathVariable id: Int) {
+
+        val book = bookRepository.findByIdOrNull(id)
+
+        if (book != null) {
+            book.featured = true
+            bookRepository.save(book)
+        }
+    }
+
     @GetMapping("{id}/file/{fileId}")
     @ResponseBody
     fun download(

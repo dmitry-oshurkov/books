@@ -25,7 +25,7 @@ class Book(
     @Lob
     val cover: ByteArray?,
     val coverContentType: String?,
-    val featured: Boolean = false,
+    var featured: Boolean = false,
 
     @OneToOne(cascade = [MERGE, REMOVE, REFRESH, DETACH])
     val sequence: Sequence?,
