@@ -1,2 +1,2 @@
 # Books
-Books online catalog
+Online books catalog (OPDS)
