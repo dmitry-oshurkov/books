@@ -13,14 +13,17 @@ class Fb2Service {
     fun parse(files: Map<FileType?, List<File>>) = run {
 
         val fbz = files[FBZ].orEmpty()
-            .map { file ->
+            .mapNotNull { file ->
+                runCatching {
 
-                val bytes = ZipFile(file).use {
-                    val entry = it.entries().toList().first()
-                    it.getInputStream(entry).use { stream -> stream.readAllBytes() }
+                    val bytes = ZipFile(file).use {
+                        val entry = it.entries().toList().first()
+                        it.getInputStream(entry).use { stream -> stream.readAllBytes() }
+                    }
+
+                    FictionBook(null, bytes) to file and FBZ
                 }
-
-                FictionBook(null, bytes) to file and FBZ
+                    .getOrNull()
             }
 
         val fb2plain = files[FB2].orEmpty()

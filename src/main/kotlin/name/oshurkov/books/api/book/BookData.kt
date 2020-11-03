@@ -14,7 +14,7 @@ class Book(
     val title: String,
     @Column(length = 3000)
     val content: String?,
-    @Column(length = 1000)
+    @Column(length = 2000)
     val summary: String?,
     val summaryContentType: String?,
     @Column(length = 500)

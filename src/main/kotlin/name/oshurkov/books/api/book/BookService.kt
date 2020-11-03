@@ -51,30 +51,29 @@ class BookService {
 
         val fb2Books = fb2
             .mapNotNull { (fb, file, type) ->
+                runCatching {
 
-                val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
+                    val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
 
-                val bookAuthors = fb.description.titleInfo.authors
-                    .mapNotNull { authors.find { a -> a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName } }
-                    .onEach {
-                        if (bookSequence != null && !it.sequences.contains(bookSequence))
-                            it.sequences.add(bookSequence)
-                    }
-                    .toSet()
+                    val bookAuthors = fb.description.titleInfo.authors
+                        .mapNotNull { authors.find { a -> a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName } }
+                        .onEach {
+                            if (bookSequence != null && !it.sequences.contains(bookSequence))
+                                it.sequences.add(bookSequence)
+                        }
+                        .toSet()
 
-                val bookGenres = fb.description.titleInfo.genres
-                    .map { fb2GenreToString(it) }
-                    .mapNotNull { genres.find { g -> g.name == it } }
-                    .toSet()
+                    val bookGenres = fb.description.titleInfo.genres
+                        .map { fb2GenreToString(it) }
+                        .mapNotNull { genres.find { g -> g.name == it } }
+                        .toSet()
 
-                val summary = fb.description.titleInfo.annotation?.annotations?.firstOrNull()?.text
-                val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
+                    val summary = fb.description.titleInfo.annotation?.annotations?.firstOrNull()?.text
+                    val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
 
-                val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
-                val bookFile = saveBookFile(file, type, fb.title, bookSequence, sequenceNumber)
-                afterSaveFile(file)
+                    val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
+                    val bookFile = saveBookFile(file, type, fb.title, bookSequence, sequenceNumber)
 
-                if (bookFile != null)
                     Book(
                         title = fb.title,
                         content = null,
@@ -92,26 +91,32 @@ class BookService {
                         genres = bookGenres,
                         files = setOf(bookFile)
                     )
-                else
-                    null
+                }
+                    .onSuccess {
+                        afterSaveFile(file)
+                        log.info("Parsed: [${file.absolutePath}]")
+                    }
+                    .onFailure {
+                        afterSaveFile(file)
+                        log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
+                    }
+                    .getOrNull()
             }
 
         val epubBooks = epub
             .mapNotNull { (ep, file, type) ->
+                runCatching {
+                    val bookAuthors = ep.metadata.authors
+                        .mapNotNull { authors.find { a -> a.firstName == it.firstname && a.lastName == it.lastname } }
+                        .toSet()
 
-                val bookAuthors = ep.metadata.authors
-                    .mapNotNull { authors.find { a -> a.firstName == it.firstname && a.lastName == it.lastname } }
-                    .toSet()
+                    val bookGenres = ep.metadata.subjects
+                        .mapNotNull { genres.find { g -> g.name == it } }
+                        .toSet()
 
-                val bookGenres = ep.metadata.subjects
-                    .mapNotNull { genres.find { g -> g.name == it } }
-                    .toSet()
+                    val summary = ep.metadata.descriptions.firstOrNull()
+                    val bookFile = saveBookFile(file, type, ep.title, null, null)
 
-                val summary = ep.metadata.descriptions.firstOrNull()
-                val bookFile = saveBookFile(file, type, ep.title, null, null)
-                afterSaveFile(file)
-
-                if (bookFile != null)
                     Book(
                         title = ep.title,
                         content = ep.metadata.otherProperties[QName("se:long-description")],
@@ -129,8 +134,16 @@ class BookService {
                         genres = bookGenres,
                         files = setOf(bookFile)
                     )
-                else
-                    null
+                }
+                    .onSuccess {
+                        afterSaveFile(file)
+                        log.info("Parsed: [${file.absolutePath}]")
+                    }
+                    .onFailure {
+                        afterSaveFile(file)
+                        log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
+                    }
+                    .getOrNull()
             }
 
         genreRepository.saveAll(genres)
@@ -213,7 +226,7 @@ class BookService {
         }
     }
 
-    private fun saveBookFile(file: File, type: FileType, title: String, seq: Sequence?, seqNo: Int?) = runCatching {
+    private fun saveBookFile(file: File, type: FileType, title: String, seq: Sequence?, seqNo: Int?) = run {
 
         val (content, hash) = when (type) {
 
@@ -237,8 +250,6 @@ class BookService {
 
         bookFileRepository.save(BookFile(content, hash, type))
     }
-        .onFailure { log.error("Error import: [${file.absolutePath}]") }
-        .getOrElse { null }
 
     private fun uuid(bytes: ByteArray) = run {
         val digest = MessageDigest.getInstance("MD5").digest(bytes)

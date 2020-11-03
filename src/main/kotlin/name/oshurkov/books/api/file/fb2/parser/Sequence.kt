@@ -3,7 +3,7 @@ package name.oshurkov.books.api.file.fb2.parser
 import org.w3c.dom.*
 
 class Sequence internal constructor(node: Node) {
-    lateinit var name: String
+    var name: String? = null
         private set
     var number: String? = null
         private set
