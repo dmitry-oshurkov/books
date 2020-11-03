@@ -27,7 +27,7 @@ class BookController {
         val book = bookRepository.findByIdOrNull(id)
 
         if (book != null) {
-            book.featured = true
+            book.recommended = true
             bookRepository.save(book)
             ResponseEntity.ok().build()
         } else

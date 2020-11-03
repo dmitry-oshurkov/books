@@ -23,15 +23,14 @@ class CatalogController {
             links = listOf(
                 Navigation(rel = "self", href = root),
                 Navigation(rel = "start", href = root),
-                Acquisition(rel = "http://opds-spec.org/featured", href = featured)
             ),
             entries = listOf(
                 Entry(
-                    id = "tag:root:featured",
+                    id = "tag:root:recommended",
                     title = "Рекомендуемые",
                     updated = Date(),
                     content = Content("Рекомендуемые книги"),
-                    links = listOf(Acquisition(rel = "subsection", href = featured))
+                    links = listOf(Acquisition(rel = "subsection", href = recommended))
                 ),
                 Entry(
                     id = "tag:root:authors",
@@ -51,18 +50,18 @@ class CatalogController {
         )
     }
 
-    @GetMapping("featured", produces = [APPLICATION_XML_VALUE])
-    fun featured() = run {
+    @GetMapping("recommended", produces = [APPLICATION_XML_VALUE])
+    fun recommended() = run {
 
-        val bookEntries = bookRepository.findBooksByFeaturedTrue()
+        val bookEntries = bookRepository.findBooksByRecommendedTrue()
             .map { it.toEntry() }
             .toList()
 
         Feed(
-            id = "tag:featured",
+            id = "tag:recommended",
             title = "Рекомендуемые книги",
             links = listOf(
-                Acquisition(rel = "self", href = featured),
+                Acquisition(rel = "self", href = recommended),
                 Navigation(rel = "start", href = root),
                 Navigation(rel = "up", href = root),
             ),
@@ -108,7 +107,7 @@ class CatalogController {
             id = "tag:authors:${id}",
             title = "Все книги автора ${author?.toString()}",
             links = if (author?.sequences?.isNotEmpty() == true)
-                listOf(Acquisition(rel = "http://opds-spec.org/featured", href = "/catalog/author/$id/sequence", title = "По сериям"))
+                listOf(Acquisition(rel = "http://opds-spec.org/facet", href = "/catalog/author/$id/sequence", title = "По сериям", facetGroup = "Серии", activeFacet = true))
             else
                 emptyList(),
             entries = bookEntries
@@ -210,7 +209,7 @@ class CatalogController {
         updated = updated,
         content = Content(content).toPlainText(),
         summary = Summary(summary, summaryContentType).toPlainText(),
-        authors = authors.map { Author(name = it.toString(), uri = null) },
+        authors = authors.map { Author(name = it.toString(), uri = "http://opds-spec.org/authors/$id") },
         categories = genres.map { Category(term = it.name, scheme = null) },
         rights = rights,
         language = language,
@@ -233,7 +232,7 @@ class CatalogController {
     private fun Summary.toPlainText() = Summary(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
 
     private val root = "/catalog"
-    private val featured = "$root/featured"
+    private val recommended = "$root/recommended"
     private val authors = "$root/authors"
     private val genres = "$root/genres"
 

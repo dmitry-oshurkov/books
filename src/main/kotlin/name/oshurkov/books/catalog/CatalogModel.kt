@@ -54,7 +54,11 @@ class Acquisition(
     @JacksonXmlProperty(isAttribute = true)
     val rel: String? = null,
     @JacksonXmlProperty(isAttribute = true)
-    val href: String
+    val href: String,
+    @JacksonXmlProperty(isAttribute = true, localName = "opds:facetGroup")
+    val facetGroup: String? = null,
+    @JacksonXmlProperty(isAttribute = true, localName = "opds:activeFacet")
+    val activeFacet: Boolean = false,
 ) : CatalogLink
 
 class Navigation(
