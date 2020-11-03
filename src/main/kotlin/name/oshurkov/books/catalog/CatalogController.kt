@@ -21,9 +21,9 @@ class CatalogController {
             id = "tag:root",
             title = "Книжный каталог",
             links = listOf(
-                Navigation(rel = "self", href = "/catalog"),
-                Navigation(rel = "start", href = "/catalog"),
-                Acquisition(rel = "http://opds-spec.org/featured", href = "/catalog/featured")
+                Navigation(rel = "self", href = root),
+                Navigation(rel = "start", href = root),
+                Acquisition(rel = "http://opds-spec.org/featured", href = featured)
             ),
             entries = listOf(
                 Entry(
@@ -31,21 +31,21 @@ class CatalogController {
                     title = "Рекомендуемые",
                     updated = Date(),
                     content = Content("Рекомендуемые книги"),
-                    links = listOf(Acquisition(rel = "subsection", href = "/catalog/featured"))
+                    links = listOf(Acquisition(rel = "subsection", href = featured))
                 ),
                 Entry(
                     id = "tag:root:authors",
                     title = "По авторам",
                     updated = Date(),
                     content = Content("Поиск книг по авторам"),
-                    links = listOf(Navigation(rel = "subsection", href = "/catalog/authors"))
+                    links = listOf(Navigation(rel = "subsection", href = authors))
                 ),
                 Entry(
                     id = "tag:root:genre",
                     title = "По жанрам",
                     updated = Date(),
                     content = Content("Поиск книг по жанрам"),
-                    links = listOf(Navigation(rel = "subsection", href = "/catalog/genres"))
+                    links = listOf(Navigation(rel = "subsection", href = genres))
                 )
             )
         )
@@ -62,9 +62,9 @@ class CatalogController {
             id = "tag:featured",
             title = "Рекомендуемые книги",
             links = listOf(
-                Acquisition(rel = "self", href = "/catalog/featured"),
-                Navigation(rel = "start", href = "/catalog"),
-                Navigation(rel = "up", href = "/catalog"),
+                Acquisition(rel = "self", href = featured),
+                Navigation(rel = "start", href = root),
+                Navigation(rel = "up", href = root),
             ),
             entries = bookEntries
         )
@@ -78,14 +78,6 @@ class CatalogController {
                 id = "tag:authors:${it.id}",
                 title = it.toStringForList(),
                 updated = it.updated,
-                content = null,
-                summary = null,
-                authors = null,
-                rights = null,
-                language = null,
-                issued = null,
-                publisher = null,
-                sources = listOf(),
                 links = listOf(
                     Navigation(rel = "subsection", href = "/catalog/author/${it.id}/book"),
                 )
@@ -96,9 +88,9 @@ class CatalogController {
             id = "tag:authors",
             title = "По авторам",
             links = listOf(
-                Acquisition(rel = "self", href = "/catalog/authors"),
-                Navigation(rel = "start", href = "/catalog"),
-                Navigation(rel = "up", href = "/catalog"),
+                Acquisition(rel = "self", href = authors),
+                Navigation(rel = "start", href = root),
+                Navigation(rel = "up", href = root),
             ),
             entries = authorsEntries
         )
@@ -133,14 +125,6 @@ class CatalogController {
                 id = "tag:sequences:${it.id}",
                 title = it.name,
                 updated = it.updated,
-                content = null,
-                summary = null,
-                authors = null,
-                rights = null,
-                language = null,
-                issued = null,
-                publisher = null,
-                sources = listOf(),
                 links = listOf(
                     Navigation(rel = "subsection", href = "/catalog/sequence/${it.id}/book"),
                     Navigation(rel = "up", href = "/catalog/author/$id/sequence"),
@@ -153,8 +137,8 @@ class CatalogController {
             title = "По сериям",
             links = listOf(
                 Acquisition(rel = "self", href = "/catalog/author/$id/sequence"),
-                Navigation(rel = "start", href = "/catalog"),
-                Navigation(rel = "up", href = "/catalog/authors"),
+                Navigation(rel = "start", href = root),
+                Navigation(rel = "up", href = authors),
             ),
             entries = sequencesEntries
         )
@@ -183,14 +167,6 @@ class CatalogController {
                 id = "tag:genres:${it.id}",
                 title = it.name,
                 updated = it.updated,
-                content = null,
-                summary = null,
-                authors = null,
-                rights = null,
-                language = null,
-                issued = null,
-                publisher = null,
-                sources = listOf(),
                 links = listOf(
                     Navigation(rel = "subsection", href = "/catalog/genre/${it.id}/book"),
                 )
@@ -201,9 +177,9 @@ class CatalogController {
             id = "tag:genres",
             title = "По жанрам",
             links = listOf(
-                Acquisition(rel = "self", href = "/catalog/genres"),
-                Navigation(rel = "start", href = "/catalog"),
-                Navigation(rel = "up", href = "/catalog"),
+                Acquisition(rel = "self", href = genres),
+                Navigation(rel = "start", href = root),
+                Navigation(rel = "up", href = root),
             ),
             entries = genresEntries
         )
@@ -255,6 +231,11 @@ class CatalogController {
 
     private fun Content.toPlainText() = Content(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
     private fun Summary.toPlainText() = Summary(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
+
+    private val root = "/catalog"
+    private val featured = "$root/featured"
+    private val authors = "$root/authors"
+    private val genres = "$root/genres"
 
     @Autowired
     private lateinit var bookRepository: BookRepository
