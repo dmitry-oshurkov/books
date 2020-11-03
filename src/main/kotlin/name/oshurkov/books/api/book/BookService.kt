@@ -52,8 +52,14 @@ class BookService {
         val fb2Books = fb2
             .mapNotNull { (fb, file, type) ->
 
+                val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
+
                 val bookAuthors = fb.description.titleInfo.authors
                     .mapNotNull { authors.find { a -> a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName } }
+                    .onEach {
+                        if (bookSequence != null && !it.sequences.contains(bookSequence))
+                            it.sequences.add(bookSequence)
+                    }
                     .toSet()
 
                 val bookGenres = fb.description.titleInfo.genres
@@ -63,7 +69,7 @@ class BookService {
 
                 val summary = fb.description.titleInfo.annotation?.annotations?.firstOrNull()?.text
                 val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
-                val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
+
                 val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
                 val bookFile = saveBookFile(file, type, fb.title, bookSequence, sequenceNumber)
                 afterSaveFile(file)
@@ -126,6 +132,10 @@ class BookService {
                 else
                     null
             }
+
+        genreRepository.saveAll(genres)
+        sequenceRepository.saveAll(sequences)
+        authorRepository.saveAll(authors)
 
         bookRepository.saveAll(fb2Books + epubBooks).onEach {
             log.info("Imported: ${it.title}")
@@ -254,13 +264,11 @@ class BookService {
 
         val epubSequences = emptyList<String>()
 
-        val entities = (
+        (
             sequenceRepository.findAll() + (fb2Sequences + epubSequences)
                 .map { Sequence(name = it) }
             )
             .distinctBy { it.name }
-
-        sequenceRepository.saveAll(entities)
     }
 
     private fun genres(fb2: List<Triple<FictionBook, File, FileType>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, FileType>>) = run {
@@ -271,13 +279,11 @@ class BookService {
 
         val epubGenres = epub.flatMap { (ep, _, _) -> ep.metadata.subjects }
 
-        val entities = (
+        (
             genreRepository.findAll() + (fb2Genres + epubGenres)
                 .map { Genre(name = it) }
             )
             .distinctBy { it.name }
-
-        genreRepository.saveAll(entities)
     }
 
     private fun fb2GenreToString(code: String) = when (code) {
@@ -403,7 +409,7 @@ class BookService {
             .flatMap { (ep, _, _) -> ep.metadata.authors }
             .map { it.firstname to null and it.lastname }
 
-        val entities = (
+        (
             authorRepository.findAll() + (fb2Authors + epubAuthors)
                 .map { (firstName, middleName, lastName) ->
                     Author(
@@ -414,8 +420,6 @@ class BookService {
                 }
             )
             .distinctBy { listOf(it.lastName, it.middleName, it.firstName) }
-
-        authorRepository.saveAll(entities)
     }
 
     private fun summaryType(value: String?) = if (value?.contains("</p>") == true)

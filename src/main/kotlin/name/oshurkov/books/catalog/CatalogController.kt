@@ -5,6 +5,7 @@ import name.oshurkov.books.api.book.*
 import name.oshurkov.books.api.genre.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.data.domain.*
+import org.springframework.data.repository.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -106,13 +107,69 @@ class CatalogController {
     @GetMapping("author/{id}/book", produces = [APPLICATION_XML_VALUE])
     fun authorBooks(@PathVariable id: Int) = run {
 
+        val author = authorRepository.findByIdOrNull(id)
         val bookEntries = bookRepository.findBooksByAuthorsId(id)
             .map { it.toEntry() }
             .toList()
 
         Feed(
             id = "tag:authors:${id}",
-            title = "author $id",
+            title = "Все книги автора ${author?.toString()}",
+            links = if (author?.sequences?.isNotEmpty() == true)
+                listOf(Acquisition(rel = "http://opds-spec.org/featured", href = "/catalog/author/$id/sequence", title = "По сериям"))
+            else
+                emptyList(),
+            entries = bookEntries
+        )
+    }
+
+    @GetMapping("author/{id}/sequence", produces = [APPLICATION_XML_VALUE])
+    fun authorSequences(@PathVariable id: Int) = run {
+
+        val author = authorRepository.findByIdOrNull(id)
+
+        val sequencesEntries = author?.sequences.orEmpty().map {
+            Entry(
+                id = "tag:sequences:${it.id}",
+                title = it.name,
+                updated = it.updated,
+                content = null,
+                summary = null,
+                authors = null,
+                rights = null,
+                language = null,
+                issued = null,
+                publisher = null,
+                sources = listOf(),
+                links = listOf(
+                    Navigation(rel = "subsection", href = "/catalog/sequence/${it.id}/book"),
+                    Navigation(rel = "up", href = "/catalog/author/$id/sequence"),
+                )
+            )
+        }
+
+        Feed(
+            id = "tag:authors",
+            title = "По сериям",
+            links = listOf(
+                Acquisition(rel = "self", href = "/catalog/author/$id/sequence"),
+                Navigation(rel = "start", href = "/catalog"),
+                Navigation(rel = "up", href = "/catalog/authors"),
+            ),
+            entries = sequencesEntries
+        )
+    }
+
+    @GetMapping("sequence/{id}/book", produces = [APPLICATION_XML_VALUE])
+    fun authorSequenceBooks(@PathVariable id: Int) = run {
+
+        val bookEntries = bookRepository.findBooksBySequenceIdOrderBySequenceNumber(id)
+            .map { it.toEntry(includeSequenceNumber = true) }
+            .toList()
+
+        Feed(
+            id = "tag:sequences:${id}",
+            title = "Все книги серии",
             links = listOf(),
             entries = bookEntries
         )
@@ -168,9 +225,12 @@ class CatalogController {
     }
 
 
-    private fun Book.toEntry() = Entry(
+    private fun Book.toEntry(includeSequenceNumber: Boolean = false) = Entry(
         id = "tag:books:$id",
-        title = title,
+        title = if (includeSequenceNumber && sequenceNumber != null)
+            "$sequenceNumber. $title"
+        else
+            title,
         updated = updated,
         content = Content(content).toPlainText(),
         summary = Summary(summary, summaryContentType).toPlainText(),

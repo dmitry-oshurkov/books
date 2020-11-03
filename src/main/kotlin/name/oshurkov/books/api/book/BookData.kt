@@ -45,5 +45,6 @@ interface BookRepository : JpaRepository<Book, Int> {
 
     fun findBooksByAuthorsId(id: Int): List<Book>
     fun findBooksByGenresId(id: Int): List<Book>
+    fun findBooksBySequenceIdOrderBySequenceNumber(id: Int): List<Book>
     fun findBooksByFeaturedTrue(): List<Book>
 }
