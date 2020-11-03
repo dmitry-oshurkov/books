@@ -2,7 +2,7 @@ spring:
   datasource:
     driverClassName: org.h2.Driver
     password: password
-    url: jdbc:h2:file:~/.local/share/books/db
+    url: jdbc:h2:file:~/.local/share/books/db;AUTO_SERVER=TRUE
     username: sa
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
