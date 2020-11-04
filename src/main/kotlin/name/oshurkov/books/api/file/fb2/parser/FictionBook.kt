@@ -123,5 +123,5 @@ class FictionBook(file: File?, bytes: ByteArray?) {
 
     val title get() = description.titleInfo.bookTitle!!
     val lang get() = description.titleInfo.lang!!
-    val annotation get() = description.titleInfo.annotation!!
+    val annotation get() = description.titleInfo.annotation
 }

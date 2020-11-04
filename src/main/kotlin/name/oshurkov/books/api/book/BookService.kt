@@ -68,7 +68,7 @@ class BookService {
                         .mapNotNull { genres.find { g -> g.name == it } }
                         .toSet()
 
-                    val summary = fb.description.titleInfo.annotation?.annotations?.firstOrNull()?.text
+                    val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
                     val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
 
                     val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
