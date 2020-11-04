@@ -72,7 +72,7 @@ class BookService {
                     val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
 
                     val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
-                    val bookFile = saveBookFile(file, type, fb.title, bookSequence, sequenceNumber)
+                    val bookFile = saveBookFile(file, type, fb.title, sequenceNumber)
 
                     Book(
                         title = fb.title,
@@ -115,7 +115,7 @@ class BookService {
                         .toSet()
 
                     val summary = ep.metadata.descriptions.firstOrNull()
-                    val bookFile = saveBookFile(file, type, ep.title, null, null)
+                    val bookFile = saveBookFile(file, type, ep.title, null)
 
                     Book(
                         title = ep.title,
@@ -226,7 +226,7 @@ class BookService {
         }
     }
 
-    private fun saveBookFile(file: File, type: FileType, title: String, seq: Sequence?, seqNo: Int?) = run {
+    private fun saveBookFile(file: File, type: FileType, title: String, seqNo: Int?) = run {
 
         val (content, hash) = when (type) {
 
@@ -237,11 +237,11 @@ class BookService {
                     it.getInputStream(entry).use { stream -> stream.readAllBytes() }
                 }
 
-                zip(seq, seqNo, title, bytes) to uuid(bytes)
+                zip(seqNo, title, bytes) to uuid(bytes)
             }
 
             FB2 -> if (forceCompress)
-                file.readBytes().let { zip(seq, seqNo, title, it) to uuid(it) }
+                file.readBytes().let { zip(seqNo, title, it) to uuid(it) }
             else
                 file.readBytes().let { it to uuid(it) }
 
@@ -257,11 +257,11 @@ class BookService {
         UUID(bb.long, bb.long)
     }
 
-    private fun zip(seq: Sequence?, seqNo: Int?, title: String, bytes: ByteArray) =
+    private fun zip(seqNo: Int?, title: String, bytes: ByteArray) =
         ByteArrayOutputStream().use {
             ZipOutputStream(it).use { stream ->
                 stream.setLevel(BEST_COMPRESSION)
-                stream.putNextEntry(ZipEntry(if (seq != null) "[$seqNo] $title.fb2" else "$title.fb2"))
+                stream.putNextEntry(ZipEntry(if (seqNo != null) "[$seqNo] $title.fb2" else "$title.fb2"))
                 stream.write(bytes, 0, bytes.size)
                 stream.closeEntry()
             }

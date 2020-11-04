@@ -32,7 +32,7 @@ class Book(
     val sequenceNumber: Int?,
 
     @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
-    val authors: Set<Author>,
+    val authors: Set<Author>, // todo order is important
 
     @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
     val genres: Set<Genre>,
