@@ -190,10 +190,6 @@ class BookService {
     fun backup(targetDir: String) {
 
         val root = File(targetDir)
-
-        if (root.exists())
-            root.deleteRecursively()
-
         val backupName = "books-${SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(Date())}"
         val exported = File(root, backupName)
         export(exported.absolutePath)
