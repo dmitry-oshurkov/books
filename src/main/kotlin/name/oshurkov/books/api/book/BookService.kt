@@ -248,7 +248,12 @@ class BookService {
             else -> file.readBytes().let { it to uuid(it) }
         }
 
-        bookFileRepository.save(BookFile(content, hash, type))
+        val newType = if (type == FB2 && forceCompress)
+            FBZ
+        else
+            type
+
+        bookFileRepository.save(BookFile(content, hash, newType))
     }
 
     private fun uuid(bytes: ByteArray) = run {
