@@ -1,5 +1,4 @@
 import org.gradle.api.JavaVersion.*
-import org.springframework.boot.gradle.tasks.bundling.*
 
 plugins {
     kotlin("jvm") version "1.4.10"
@@ -7,7 +6,7 @@ plugins {
     kotlin("plugin.jpa") version "1.4.10"
     id("org.springframework.boot") version "2.3.5.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
-    war
+    id("com.bmuschko.docker-spring-boot-application") version "6.6.1"
 }
 
 group = "name.oshurkov"
@@ -49,6 +48,16 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
 }
 
+docker {
+    springBootApplication {
+        maintainer.set("DM")
+        baseImage.set("openjdk:14-alpine")
+        ports.set(listOf(8080))
+        images.add("dmitryoshurkov/books:latest")
+        jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
+    }
+}
+
 tasks {
     compileKotlin {
         kotlinOptions {
@@ -57,6 +66,5 @@ tasks {
         }
     }
     wrapper { gradleVersion = "6.7" }
-    withType<BootWar> { archiveFileName.set("books.war") }
     withType<Test> { useJUnitPlatform() }
 }
