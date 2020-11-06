@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:/var/lib/books/db;AUTO_SERVER=TRUE
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+
+books:
+  fileMonitor:
+    source: /var/lib/books/autoimport
+    processed: /var/lib/books/processed

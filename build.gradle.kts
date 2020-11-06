@@ -54,7 +54,7 @@ docker {
         baseImage.set("openjdk:14-alpine")
         ports.set(listOf(8080))
         images.add("dmitryoshurkov/books:latest")
-        jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
+        jvmArgs.set(listOf("-Dspring.profiles.active=docker", "-Xmx2048m"))
     }
 }
 
