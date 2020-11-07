@@ -1,0 +1,56 @@
+<!DOCTYPE html >
+
+<html layout:decorate="~{layout}" xmlns:layout="http://www.thymeleaf.org" xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <title>Главная</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div id="example">
+
+        <p class="title">Книжный каталог</p>
+
+        <div class="demo-section k-content">
+            <ul id="fieldlist">
+                <li>
+                    <h4 for="books-count">Книг в каталоге:</h4>
+                    <!--/*@thymesVar id="booksCount" type="java.lang.Long"*/-->
+                    <input id="books-count" th:value="${booksCount}"/>
+                </li>
+                <li>
+                    <h4 for="authors-count">Авторов в каталоге:</h4>
+                    <!--/*@thymesVar id="authorsCount" type="java.lang.Long"*/-->
+                    <input id="authors-count" th:value="${authorsCount}"/>
+                </li>
+            </ul>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#books-count").kendoMaskedTextBox();
+                $("#authors-count").kendoMaskedTextBox();
+
+                $("#books-count").data("kendoMaskedTextBox").readonly();
+                $("#authors-count").data("kendoMaskedTextBox").readonly();
+            });
+        </script>
+
+        <style>
+            #fieldlist {
+                margin: 0 0 -2em;
+                padding: 0;
+            }
+
+            #fieldlist li {
+                list-style: none;
+                padding-bottom: 2em;
+            }
+
+            #fieldlist .k-maskedtextbox {
+                width: 100%;
+            }
+        </style>
+    </div>
+</section>
+</body>
+</html>
