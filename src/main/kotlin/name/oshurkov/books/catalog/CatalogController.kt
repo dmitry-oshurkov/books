@@ -33,6 +33,13 @@ class CatalogController {
                     links = listOf(Acquisition(rel = "subsection", href = recommended))
                 ),
                 Entry(
+                    id = "tag:root:recent",
+                    title = "Недавно добавленные",
+                    updated = Date(),
+                    content = Content("Недавно добавленные книги"),
+                    links = listOf(Acquisition(rel = "subsection", href = recent))
+                ),
+                Entry(
                     id = "tag:root:authors",
                     title = "По авторам",
                     updated = Date(),
@@ -68,6 +75,20 @@ class CatalogController {
             entries = bookEntries
         )
     }
+
+    @GetMapping("recent", produces = [APPLICATION_XML_VALUE])
+    fun recent() = Feed(
+        id = "tag:recent",
+        title = "Недавно добавленные книги",
+        links = listOf(
+            Acquisition(rel = "self", href = recent),
+            Navigation(rel = "start", href = root),
+            Navigation(rel = "up", href = root),
+        ),
+        entries = bookRepository.findTop10ByOrderByUpdatedDesc()
+            .map { it.toEntry() }
+            .toList()
+    )
 
     @GetMapping("authors", produces = [APPLICATION_XML_VALUE])
     fun authors() = run {
@@ -233,6 +254,7 @@ class CatalogController {
 
     private val root = "/catalog"
     private val recommended = "$root/recommended"
+    private val recent = "$root/recent"
     private val authors = "$root/authors"
     private val genres = "$root/genres"
 
