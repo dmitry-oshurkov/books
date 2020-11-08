@@ -15,85 +15,83 @@ import java.util.*
 class CatalogController {
 
     @GetMapping(produces = [APPLICATION_XML_VALUE])
-    fun root() = run {
-
-        Feed(
-            id = "tag:root",
-            title = "Книжный каталог",
-            links = listOf(
-                Navigation(rel = "self", href = root),
-                Navigation(rel = "start", href = root),
+    fun root() = Feed(
+        id = "tag:root",
+        title = "Книжный каталог",
+        links = listOf(
+            Navigation(rel = "self", href = rootCat),
+            Navigation(rel = "start", href = rootCat),
+        ),
+        entries = listOf(
+            Entry(
+                id = "tag:root:recommended",
+                title = "Рекомендуемые",
+                updated = Date(),
+                content = Content("Рекомендуемые книги"),
+                links = listOf(Acquisition(rel = "subsection", href = recommendedCat))
             ),
-            entries = listOf(
-                Entry(
-                    id = "tag:root:recommended",
-                    title = "Рекомендуемые",
-                    updated = Date(),
-                    content = Content("Рекомендуемые книги"),
-                    links = listOf(Acquisition(rel = "subsection", href = recommended))
-                ),
-                Entry(
-                    id = "tag:root:recent",
-                    title = "Недавно добавленные",
-                    updated = Date(),
-                    content = Content("Недавно добавленные книги"),
-                    links = listOf(Acquisition(rel = "subsection", href = recent))
-                ),
-                Entry(
-                    id = "tag:root:authors",
-                    title = "По авторам",
-                    updated = Date(),
-                    content = Content("Поиск книг по авторам"),
-                    links = listOf(Navigation(rel = "subsection", href = authors))
-                ),
-                Entry(
-                    id = "tag:root:genre",
-                    title = "По жанрам",
-                    updated = Date(),
-                    content = Content("Поиск книг по жанрам"),
-                    links = listOf(Navigation(rel = "subsection", href = genres))
-                )
+            Entry(
+                id = "tag:root:recent",
+                title = "Недавно добавленные",
+                updated = Date(),
+                content = Content("Недавно добавленные книги"),
+                links = listOf(Acquisition(rel = "subsection", href = recentCat))
+            ),
+            Entry(
+                id = "tag:root:authors",
+                title = "По авторам",
+                updated = Date(),
+                content = Content("Поиск книг по авторам"),
+                links = listOf(Navigation(rel = "subsection", href = authorsCat))
+            ),
+            Entry(
+                id = "tag:root:genre",
+                title = "По жанрам",
+                updated = Date(),
+                content = Content("Поиск книг по жанрам"),
+                links = listOf(Navigation(rel = "subsection", href = genresCat))
             )
         )
-    }
+    )
 
     @GetMapping("recommended", produces = [APPLICATION_XML_VALUE])
-    fun recommended() = run {
-
-        val bookEntries = bookRepository.findBooksByRecommendedTrue()
+    fun recommended() = Feed(
+        id = "tag:recommended",
+        title = "Рекомендуемые книги",
+        links = listOf(
+            Acquisition(rel = "self", href = recommendedCat),
+            Navigation(rel = "start", href = rootCat),
+            Navigation(rel = "up", href = rootCat),
+        ),
+        entries = books.findByRecommendedTrue()
             .map { it.toEntry() }
             .toList()
-
-        Feed(
-            id = "tag:recommended",
-            title = "Рекомендуемые книги",
-            links = listOf(
-                Acquisition(rel = "self", href = recommended),
-                Navigation(rel = "start", href = root),
-                Navigation(rel = "up", href = root),
-            ),
-            entries = bookEntries
-        )
-    }
+    )
 
     @GetMapping("recent", produces = [APPLICATION_XML_VALUE])
     fun recent() = Feed(
         id = "tag:recent",
         title = "Недавно добавленные книги",
         links = listOf(
-            Acquisition(rel = "self", href = recent),
-            Navigation(rel = "start", href = root),
-            Navigation(rel = "up", href = root),
+            Acquisition(rel = "self", href = recentCat),
+            Navigation(rel = "start", href = rootCat),
+            Navigation(rel = "up", href = rootCat),
         ),
-        entries = bookRepository.findTop10ByOrderByUpdatedDesc()
+        entries = books.findTop10ByOrderByUpdatedDesc()
             .map { it.toEntry() }
             .toList()
     )
 
     @GetMapping("authors", produces = [APPLICATION_XML_VALUE])
-    fun authors() = run {
-
-        val authorsEntries = authorRepository.findAll(Sort.by("lastName")).map {
+    fun authors() = Feed(
+        id = "tag:authors",
+        title = "По авторам",
+        links = listOf(
+            Acquisition(rel = "self", href = authorsCat),
+            Navigation(rel = "start", href = rootCat),
+            Navigation(rel = "up", href = rootCat),
+        ),
+        entries = authors.findAll(Sort.by("lastName")).map {
             Entry(
                 id = "tag:authors:${it.id}",
                 title = it.toStringForList(),
@@ -103,24 +101,13 @@ class CatalogController {
                 )
             )
         }
-
-        Feed(
-            id = "tag:authors",
-            title = "По авторам",
-            links = listOf(
-                Acquisition(rel = "self", href = authors),
-                Navigation(rel = "start", href = root),
-                Navigation(rel = "up", href = root),
-            ),
-            entries = authorsEntries
-        )
-    }
+    )
 
     @GetMapping("author/{id}/book", produces = [APPLICATION_XML_VALUE])
     fun authorBooks(@PathVariable id: Int) = run {
 
-        val author = authorRepository.findByIdOrNull(id)
-        val bookEntries = bookRepository.findBooksByAuthorsId(id)
+        val author = authors.findByIdOrNull(id)
+        val bookEntries = books.findByAuthorsId(id)
             .map { it.toEntry() }
             .toList()
 
@@ -138,7 +125,7 @@ class CatalogController {
     @GetMapping("author/{id}/sequence", produces = [APPLICATION_XML_VALUE])
     fun authorSequences(@PathVariable id: Int) = run {
 
-        val author = authorRepository.findByIdOrNull(id)
+        val author = authors.findByIdOrNull(id)
 
         val sequencesEntries = author?.sequences.orEmpty().map {
             Entry(
@@ -157,32 +144,33 @@ class CatalogController {
             title = "По сериям",
             links = listOf(
                 Acquisition(rel = "self", href = "/catalog/author/$id/sequence"),
-                Navigation(rel = "start", href = root),
-                Navigation(rel = "up", href = authors),
+                Navigation(rel = "start", href = rootCat),
+                Navigation(rel = "up", href = authorsCat),
             ),
             entries = sequencesEntries
         )
     }
 
     @GetMapping("sequence/{id}/book", produces = [APPLICATION_XML_VALUE])
-    fun authorSequenceBooks(@PathVariable id: Int) = run {
-
-        val bookEntries = bookRepository.findBooksBySequenceIdOrderBySequenceNumber(id)
+    fun authorSequenceBooks(@PathVariable id: Int) = Feed(
+        id = "tag:sequences:${id}",
+        title = "Все книги серии",
+        links = listOf(),
+        entries = books.findBySequenceIdOrderBySequenceNumber(id)
             .map { it.toEntry(includeSequenceNumber = true) }
             .toList()
-
-        Feed(
-            id = "tag:sequences:${id}",
-            title = "Все книги серии",
-            links = listOf(),
-            entries = bookEntries
-        )
-    }
+    )
 
     @GetMapping("genres", produces = [APPLICATION_XML_VALUE])
-    fun genres() = run {
-
-        val genresEntries = genreRepository.findAll(Sort.by("name")).map {
+    fun genres() = Feed(
+        id = "tag:genres",
+        title = "По жанрам",
+        links = listOf(
+            Acquisition(rel = "self", href = genresCat),
+            Navigation(rel = "start", href = rootCat),
+            Navigation(rel = "up", href = rootCat),
+        ),
+        entries = genres.findAll(Sort.by("name")).map {
             Entry(
                 id = "tag:genres:${it.id}",
                 title = it.name,
@@ -192,33 +180,17 @@ class CatalogController {
                 )
             )
         }
-
-        Feed(
-            id = "tag:genres",
-            title = "По жанрам",
-            links = listOf(
-                Acquisition(rel = "self", href = genres),
-                Navigation(rel = "start", href = root),
-                Navigation(rel = "up", href = root),
-            ),
-            entries = genresEntries
-        )
-    }
+    )
 
     @GetMapping("genre/{id}/book", produces = [APPLICATION_XML_VALUE])
-    fun genreBooks(@PathVariable id: Int) = run {
-
-        val bookEntries = bookRepository.findBooksByGenresId(id)
+    fun genreBooks(@PathVariable id: Int) = Feed(
+        id = "tag:genre:${id}",
+        title = "genre $id",
+        links = listOf(),
+        entries = books.findByGenresId(id)
             .map { it.toEntry() }
             .toList()
-
-        Feed(
-            id = "tag:genre:${id}",
-            title = "genre $id",
-            links = listOf(),
-            entries = bookEntries
-        )
-    }
+    )
 
 
     private fun Book.toEntry(includeSequenceNumber: Boolean = false) = Entry(
@@ -252,18 +224,18 @@ class CatalogController {
     private fun Content.toPlainText() = Content(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
     private fun Summary.toPlainText() = Summary(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
 
-    private val root = "/catalog"
-    private val recommended = "$root/recommended"
-    private val recent = "$root/recent"
-    private val authors = "$root/authors"
-    private val genres = "$root/genres"
+    private val rootCat = "/catalog"
+    private val recommendedCat = "$rootCat/recommended"
+    private val recentCat = "$rootCat/recent"
+    private val authorsCat = "$rootCat/authors"
+    private val genresCat = "$rootCat/genres"
 
     @Autowired
-    private lateinit var bookRepository: BookRepository
+    private lateinit var books: BookRepository
 
     @Autowired
-    private lateinit var authorRepository: AuthorRepository
+    private lateinit var authors: AuthorRepository
 
     @Autowired
-    private lateinit var genreRepository: GenreRepository
+    private lateinit var genres: GenreRepository
 }
