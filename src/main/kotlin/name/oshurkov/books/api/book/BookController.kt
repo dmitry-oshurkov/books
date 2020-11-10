@@ -15,9 +15,6 @@ import kotlin.text.Charsets.UTF_8
 @RequestMapping("/api/book")
 class BookController {
 
-    @GetMapping("{id}/image", produces = [IMAGE_JPEG_VALUE])
-    fun image(@PathVariable id: Int) = bookRepository.getOne(id).cover
-
     @GetMapping("{id}/image/thumbnail", produces = [IMAGE_JPEG_VALUE])
     fun thumbnail(@PathVariable id: Int) = bookRepository.getOne(id).cover
 
