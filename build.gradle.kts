@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "name.oshurkov"
-version = "20.1"
+version = "20.2"
 java.sourceCompatibility = VERSION_11
 
 configurations {
