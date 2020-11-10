@@ -1,6 +1,5 @@
 package name.oshurkov.books.api.book
 
-import org.springframework.beans.factory.annotation.*
 import org.springframework.context.annotation.*
 import org.springframework.data.repository.*
 import org.springframework.http.MediaType.*
@@ -8,12 +7,14 @@ import org.springframework.web.servlet.function.*
 import org.springframework.web.servlet.function.ServerResponse.*
 
 @Configuration
-class BookRoutes {
+class BookRoutes(
+    val bookRepository: BookRepository
+) {
 
     @Bean
-    fun bookRoutes() = router {
+    fun routes() = router {
 
-        (accept(ALL) and "/api/book").nest {
+        "/api/book".nest {
 
             GET("{id}/image", ::image)
         }
@@ -31,7 +32,4 @@ class BookRoutes {
         else
             notFound().build()
     }
-
-    @Autowired
-    private lateinit var bookRepository: BookRepository
 }
