@@ -1,0 +1,62 @@
+<!DOCTYPE html >
+
+<html layout:decorate="~{layout}" xmlns:layout="http://www.thymeleaf.org" lang="ru">
+<head>
+    <title>Администрирование</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div id="example">
+
+        <p class="title">Администрирование</p>
+
+        <div class="demo-section">
+            <p>
+                <button id="backup" class="k-primary">Сделать резеврную копию</button>
+                <label for="backup-dir"></label><input id="backup-dir" class="k-input input-dir" value="/home/dmitry/Загрузки/"/>
+                <label class="backup-results" style="float:right;"></label>
+            </p>
+            <p>
+                <button id="export" class="k-primary">Экспорт</button>
+                <label for="export-dir"></label><input id="export-dir" class="k-input input-dir" value="/home/dmitry/Загрузки/books/"/>
+                <label class="export-results" style="float:right;"></label>
+            </p>
+            <p>
+                <button id="import" class="k-primary">Импорт</button>
+                <label for="import-dir"></label><input id="import-dir" class="k-input input-dir" value="/home/dmitry/Загрузки/books/"/>
+                <label class="import-results" style="float:right;"></label>
+            </p>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#backup-dir").kendoMaskedTextBox();
+                $("#export-dir").kendoMaskedTextBox();
+                $("#import-dir").kendoMaskedTextBox();
+
+                $("#backup").kendoButton({click: post("/api/book/backup", "#backup-dir", ".backup-results")});
+                $("#export").kendoButton({click: post("/api/book/export", "#export-dir", ".export-results")});
+                $("#import").kendoButton({click: post("/api/book/import", "#import-dir", ".import-results")});
+            });
+
+            function post(url, selector, selector1) {
+                return function () {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: $(selector).data("kendoMaskedTextBox").value(),
+                        contentType: "text/plain",
+                        beforeSend: function (xhr) {
+                            $(selector1).html("Выполняется...");
+                        },
+                        success: function (data) {
+                            $(selector1).html("Завершено");
+                        }
+                    });
+                }
+            }
+        </script>
+    </div>
+</section>
+</body>
+</html>

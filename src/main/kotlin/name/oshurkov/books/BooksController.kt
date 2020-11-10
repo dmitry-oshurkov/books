@@ -17,6 +17,9 @@ class BooksController {
         "index"
     }
 
+    @GetMapping("/admin")
+    fun admin(model: Model) = "admin"
+
     @Autowired
     private lateinit var bookRepository: BookRepository
 

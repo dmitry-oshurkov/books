@@ -26,3 +26,7 @@ body::after {
 .title {
     font-size: xx-large;
 }
+
+.input-dir {
+    width: 500px !important;
+}
