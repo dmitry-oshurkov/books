@@ -11,6 +11,11 @@
         <p class="title">Книжный каталог</p>
 
         <div class="demo-section">
+            <h3>OPDS каталог: <!--/*@thymesVar id="opds" type="java.lang.String"*/-->
+                <span th:text="${opds}"></span></h3>
+            <!--/*@thymesVar id="opds" type="java.lang.String"*/-->
+            <a th:href="${opds}" target="_blank">(открыть в новой вкладке)</a>
+
             <ul id="fieldlist">
                 <li>
                     <h4 for="books-count">Книг в каталоге:</h4>

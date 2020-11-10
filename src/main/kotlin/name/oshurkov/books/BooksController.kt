@@ -6,14 +6,16 @@ import org.springframework.beans.factory.annotation.*
 import org.springframework.stereotype.*
 import org.springframework.ui.*
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.*
 
 @Controller
 class BooksController {
 
     @GetMapping("/")
-    fun index(model: Model) = run {
+    fun index(model: Model, request: HttpServletRequest) = run {
         model.addAttribute("booksCount", bookRepository.count())
         model.addAttribute("authorsCount", authorRepository.count())
+        model.addAttribute("opds", "${request.requestURL}catalog")
         "index"
     }
 
