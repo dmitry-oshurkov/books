@@ -1,12 +1,15 @@
 package name.oshurkov.books.api.file
 
 import name.oshurkov.books.api.*
+import name.oshurkov.books.api.book.*
 import org.springframework.data.jpa.repository.*
 import java.util.*
 import javax.persistence.*
 
 @Entity
 class BookFile(
+    @ManyToOne
+    val book: Book,
     @Lob
     val content: ByteArray,
     @Column(unique = true)

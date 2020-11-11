@@ -5,9 +5,12 @@ import name.oshurkov.books.api.author.*
 import name.oshurkov.books.api.file.*
 import name.oshurkov.books.api.genre.*
 import name.oshurkov.books.api.sequence.*
+import org.hibernate.annotations.*
+import org.hibernate.annotations.OnDeleteAction.*
 import org.springframework.data.jpa.repository.*
 import javax.persistence.*
 import javax.persistence.CascadeType.*
+import javax.persistence.Entity
 
 @Entity
 class Book(
@@ -37,8 +40,9 @@ class Book(
     @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
     val genres: Set<Genre>,
 
-    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
-    val files: Set<BookFile>,
+    @OneToMany(mappedBy = "book", orphanRemoval = true)
+    @OnDelete(action = CASCADE)
+    val files: MutableSet<BookFile> = mutableSetOf(),
 ) : EntityBase()
 
 interface BookRepository : JpaRepository<Book, Int> {
