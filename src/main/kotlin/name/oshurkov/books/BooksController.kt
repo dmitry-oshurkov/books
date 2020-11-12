@@ -2,14 +2,18 @@ package name.oshurkov.books
 
 import name.oshurkov.books.api.author.*
 import name.oshurkov.books.api.book.*
-import org.springframework.beans.factory.annotation.*
+import org.springframework.core.env.*
 import org.springframework.stereotype.*
 import org.springframework.ui.*
 import org.springframework.web.bind.annotation.*
 import javax.servlet.http.*
 
 @Controller
-class BooksController {
+class BooksController(
+    val env: Environment,
+    val bookRepository: BookRepository,
+    val authorRepository: AuthorRepository
+) {
 
     @GetMapping("/")
     fun index(model: Model, request: HttpServletRequest) = run {
@@ -20,11 +24,14 @@ class BooksController {
     }
 
     @GetMapping("/admin")
-    fun admin(model: Model) = "admin"
+    fun admin(model: Model) = run {
+        
+        val baseBooksDir = if (env.activeProfiles.contains("docker"))
+            "/var/lib/books"
+        else
+            "/home/dmitry/Загрузки/books"
 
-    @Autowired
-    private lateinit var bookRepository: BookRepository
-
-    @Autowired
-    private lateinit var authorRepository: AuthorRepository
+        model.addAttribute("baseBooksDir", baseBooksDir)
+        "admin"
+    }
 }

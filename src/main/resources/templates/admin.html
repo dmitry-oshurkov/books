@@ -1,6 +1,6 @@
 <!DOCTYPE html >
 
-<html layout:decorate="~{layout}" xmlns:layout="http://www.thymeleaf.org" lang="ru">
+<html layout:decorate="~{layout}" xmlns:layout="http://www.thymeleaf.org" xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <title>Администрирование</title>
 </head>
@@ -13,17 +13,20 @@
         <div class="demo-section">
             <p>
                 <button id="backup" class="k-primary">Сделать резеврную копию</button>
-                <label for="backup-dir"></label><input id="backup-dir" class="k-input input-dir" value="/home/dmitry/Загрузки/"/>
+                <label for="backup-dir"></label><!--/*@thymesVar id="baseBooksDir" type="java.lang.String"*/-->
+                <input id="backup-dir" class="k-input input-dir" th:value="|${baseBooksDir}/backup/|"/>
                 <label class="backup-results" style="float:right;"></label>
             </p>
             <p>
                 <button id="export" class="k-primary">Экспорт</button>
-                <label for="export-dir"></label><input id="export-dir" class="k-input input-dir" value="/home/dmitry/Загрузки/books/"/>
+                <label for="export-dir"></label><!--/*@thymesVar id="baseBooksDir" type="java.lang.String"*/-->
+                <input id="export-dir" class="k-input input-dir" th:value="|${baseBooksDir}/export/|"/>
                 <label class="export-results" style="float:right;"></label>
             </p>
             <p>
                 <button id="import" class="k-primary">Импорт</button>
-                <label for="import-dir"></label><input id="import-dir" class="k-input input-dir" value="/home/dmitry/Загрузки/books/"/>
+                <label for="import-dir"></label><!--/*@thymesVar id="baseBooksDir" type="java.lang.String"*/-->
+                <input id="import-dir" class="k-input input-dir" th:value="|${baseBooksDir}/export/|"/>
                 <label class="import-results" style="float:right;"></label>
             </p>
             <p>
