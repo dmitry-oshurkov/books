@@ -92,6 +92,7 @@ class BookService(
                         publisher = null,
                         cover = binary?.binary?.let { Base64.decodeBase64(it) },
                         coverContentType = binary?.contentType,
+                        recommended = file.name.contains("*]") || file.name.startsWith("*"),
                         sequence = bookSequence,
                         sequenceNumber = sequenceNumber,
                         authors = bookAuthors,
@@ -137,6 +138,7 @@ class BookService(
                         publisher = ep.metadata.publishers.firstOrNull(),
                         cover = ep.coverImage?.data,
                         coverContentType = ep.coverImage?.mediaType?.name,
+                        recommended = file.name.contains("*]") || file.name.startsWith("*"),
                         sequence = null,
                         sequenceNumber = null,
                         authors = bookAuthors,
@@ -191,9 +193,9 @@ class BookService(
                 val baseName = "${it.title}.${f.type.extension}"
 
                 val newFileName = if (it.sequence != null && it.sequenceNumber != null)
-                    "[${it.sequenceNumber}] $baseName"
+                    "[${it.sequenceNumber}${if (it.recommended) "*" else ""}] $baseName"
                 else
-                    baseName
+                    "${if (it.recommended) "* " else ""}$baseName"
 
                 File(newFileDir, newFileName).writeBytes(f.content)
             }
