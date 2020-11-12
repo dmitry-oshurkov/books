@@ -30,3 +30,7 @@ body::after {
 .input-dir {
     width: 500px !important;
 }
+
+.demo-section p {
+    width: 900px;
+}

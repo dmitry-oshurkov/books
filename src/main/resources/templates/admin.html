@@ -26,6 +26,11 @@
                 <label for="import-dir"></label><input id="import-dir" class="k-input input-dir" value="/home/dmitry/Загрузки/books/"/>
                 <label class="import-results" style="float:right;"></label>
             </p>
+            <p>
+                <button id="delete" class="k-primary">Удалить</button>
+                <label for="delete-id"></label><input id="delete-id" class="k-input input-dir"/>
+                <label class="delete-results" style="float:right;"></label>
+            </p>
         </div>
 
         <script>
@@ -33,27 +38,40 @@
                 $("#backup-dir").kendoMaskedTextBox();
                 $("#export-dir").kendoMaskedTextBox();
                 $("#import-dir").kendoMaskedTextBox();
+                $("#delete-id").kendoMaskedTextBox();
 
                 $("#backup").kendoButton({click: post("/api/book/backup", "#backup-dir", ".backup-results")});
                 $("#export").kendoButton({click: post("/api/book/export", "#export-dir", ".export-results")});
                 $("#import").kendoButton({click: post("/api/book/import", "#import-dir", ".import-results")});
+                $("#delete").kendoButton({click: del("/api/book/", "#delete-id", ".delete-results")});
             });
 
             function post(url, selector, selector1) {
                 return function () {
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        data: $(selector).data("kendoMaskedTextBox").value(),
-                        contentType: "text/plain",
-                        beforeSend: function (xhr) {
-                            $(selector1).html("Выполняется...");
-                        },
-                        success: function (data) {
-                            $(selector1).html("Завершено");
-                        }
-                    });
+                    api("POST", url, selector, selector1, $(selector).data("kendoMaskedTextBox").value());
                 }
+            }
+
+            function del(url, selector, selector1) {
+                return function () {
+                    let id = $(selector).data("kendoMaskedTextBox").value();
+                    api("DELETE", url + id, selector, selector1, null);
+                }
+            }
+
+            function api(type, url, selector, selector1, data) {
+                $.ajax({
+                    type: type,
+                    url: url,
+                    data: data,
+                    contentType: "text/plain",
+                    beforeSend: function (xhr) {
+                        $(selector1).html("Выполняется...");
+                    },
+                    success: function (data) {
+                        $(selector1).html("Завершено");
+                    }
+                });
             }
         </script>
     </div>

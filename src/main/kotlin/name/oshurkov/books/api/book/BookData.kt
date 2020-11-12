@@ -30,14 +30,14 @@ class Book(
     val coverContentType: String?,
     var recommended: Boolean = false,
 
-    @OneToOne(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    @ManyToOne(cascade = [MERGE, REFRESH, DETACH])
     val sequence: Sequence?,
     val sequenceNumber: Int?,
 
-    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    @ManyToMany(cascade = [MERGE, REFRESH, DETACH])
     val authors: Set<Author>, // todo order is important
 
-    @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH])
+    @ManyToMany(cascade = [MERGE, REFRESH, DETACH])
     val genres: Set<Genre>,
 
     @OneToMany(mappedBy = "book", orphanRemoval = true)
