@@ -1,7 +1,6 @@
 package name.oshurkov.books
 
 import org.springframework.boot.*
-import org.springframework.boot.WebApplicationType.*
 import org.springframework.boot.autoconfigure.*
 import org.springframework.boot.web.servlet.support.*
 import org.springframework.scheduling.annotation.*
@@ -11,7 +10,5 @@ import org.springframework.scheduling.annotation.*
 class BooksApplication : SpringBootServletInitializer()
 
 fun main(args: Array<String>) {
-    runApplication<BooksApplication>(*args) {
-        webApplicationType = REACTIVE
-    }
+    runApplication<BooksApplication>(*args)
 }
