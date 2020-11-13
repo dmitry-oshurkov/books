@@ -30,6 +30,11 @@
                 <label class="import-results" style="float:right;"></label>
             </p>
             <p>
+                <button id="recommended" class="k-primary">В рекомендованные</button>
+                <label for="recommended-id"></label><input id="recommended-id" class="k-input input-dir"/>
+                <label class="recommended-results" style="float:right;"></label>
+            </p>
+            <p>
                 <button id="delete" class="k-primary">Удалить</button>
                 <label for="delete-id"></label><input id="delete-id" class="k-input input-dir"/>
                 <label class="delete-results" style="float:right;"></label>
@@ -42,11 +47,13 @@
                 $("#export-dir").kendoMaskedTextBox();
                 $("#import-dir").kendoMaskedTextBox();
                 $("#delete-id").kendoMaskedTextBox();
+                $("#recommended-id").kendoMaskedTextBox();
 
                 $("#backup").kendoButton({click: post("/api/book/backup", "#backup-dir", ".backup-results")});
                 $("#export").kendoButton({click: post("/api/book/export", "#export-dir", ".export-results")});
                 $("#import").kendoButton({click: post("/api/book/import", "#import-dir", ".import-results")});
-                $("#delete").kendoButton({click: del("/api/book/", "#delete-id", ".delete-results")});
+                $("#delete").kendoButton({click: del("/api/book/{id}", "#delete-id", ".delete-results")});
+                $("#recommended").kendoButton({click: postWithId("/api/book/{id}/recommended", "#recommended-id", ".recommended-results")});
             });
 
             function post(url, selector, selector1) {
@@ -55,10 +62,17 @@
                 }
             }
 
+            function postWithId(url, selector, selector1) {
+                return function () {
+                    let id = $(selector).data("kendoMaskedTextBox").value();
+                    api("POST", url.replace("{id}", id), selector, selector1, $(selector).data("kendoMaskedTextBox").value());
+                }
+            }
+
             function del(url, selector, selector1) {
                 return function () {
                     let id = $(selector).data("kendoMaskedTextBox").value();
-                    api("DELETE", url + id, selector, selector1, null);
+                    api("DELETE", url.replace("{id}", id), selector, selector1, null);
                 }
             }
 

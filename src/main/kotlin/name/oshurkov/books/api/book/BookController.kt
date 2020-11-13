@@ -21,8 +21,8 @@ class BookController {
         bookRepository.getOne(id).cover
     }
 
-    @PostMapping("{id}/featured")
-    fun featured(@PathVariable id: Int): ResponseEntity<Unit> = run {
+    @PostMapping("{id}/recommended")
+    fun recommended(@PathVariable id: Int): ResponseEntity<Unit> = run {
 
         val book = bookRepository.findByIdOrNull(id)
 
