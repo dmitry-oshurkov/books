@@ -8,6 +8,7 @@ import name.oshurkov.books.api.sequence.*
 import org.hibernate.annotations.*
 import org.hibernate.annotations.OnDeleteAction.*
 import org.springframework.data.jpa.repository.*
+import java.util.*
 import javax.persistence.*
 import javax.persistence.CascadeType.*
 import javax.persistence.Entity
@@ -33,6 +34,8 @@ class Book(
     @ManyToOne(cascade = [MERGE, REFRESH, DETACH])
     val sequence: Sequence?,
     val sequenceNumber: Int?,
+    @Column(unique = true)
+    val hash: UUID,
 
     @ManyToMany(cascade = [MERGE, REFRESH, DETACH])
     val authors: Set<Author>, // todo order is important

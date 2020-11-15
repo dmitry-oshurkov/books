@@ -95,6 +95,7 @@ class BookService(
                         recommended = file.name.contains("*]") || file.name.startsWith("*"),
                         sequence = bookSequence,
                         sequenceNumber = sequenceNumber,
+                        hash = bookHash(bookAuthors, fb.title),
                         authors = bookAuthors,
                         genres = bookGenres
                     )
@@ -141,6 +142,7 @@ class BookService(
                         recommended = file.name.contains("*]") || file.name.startsWith("*"),
                         sequence = null,
                         sequenceNumber = null,
+                        hash = bookHash(bookAuthors, ep.title),
                         authors = bookAuthors,
                         genres = bookGenres
                     )
@@ -213,6 +215,8 @@ class BookService(
         exported.deleteRecursively()
     }
 
+
+    private fun bookHash(bookAuthors: Set<Author>, title: String) = uuid("${bookAuthors.sortedBy { it.lastName }.joinToString()}$title".toByteArray())
 
     private fun createSevenZipFile(sevenZ: File, folder: File) {
 
