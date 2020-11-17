@@ -16,12 +16,12 @@ import javax.persistence.Entity
 @Entity
 class Book(
     val title: String,
-    @Column(length = 3000)
+    @Column(length = 6000)
     val content: String?,
-    @Column(length = 2000)
+    @Column(length = 4000)
     val summary: String?,
     val summaryContentType: String?,
-    @Column(length = 500)
+    @Column(length = 1000)
     val rights: String?,
     val language: String?,
     val issued: String?,
