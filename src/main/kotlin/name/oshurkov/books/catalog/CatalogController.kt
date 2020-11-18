@@ -78,7 +78,7 @@ class CatalogController {
             Navigation(rel = "up", href = rootCat),
         ),
         entries = books.findTop10ByOrderByUpdatedDesc()
-            .map { it.toEntry() }
+            .map { it.toEntry(includeSequenceNumber = true, sequenceNumberForRecent = true) }
             .toList()
     )
 
@@ -193,12 +193,17 @@ class CatalogController {
     )
 
 
-    private fun Book.toEntry(includeSequenceNumber: Boolean = false) = Entry(
+    private fun Book.toEntry(includeSequenceNumber: Boolean = false, sequenceNumberForRecent: Boolean = false) = Entry(
         id = "tag:books:$id",
-        title = if (includeSequenceNumber && sequenceNumber != null)
-            "$sequenceNumber. $title"
-        else
-            title,
+        title = when {
+            includeSequenceNumber && sequenceNumber != null -> {
+                when {
+                    sequenceNumberForRecent -> "$title [$sequenceNumber]"
+                    else -> "$sequenceNumber. $title"
+                }
+            }
+            else -> title
+        },
         updated = updated,
         content = Content(content).toPlainText(),
         summary = Summary(summary, summaryContentType).toPlainText(),
