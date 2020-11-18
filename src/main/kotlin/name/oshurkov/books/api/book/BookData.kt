@@ -49,7 +49,7 @@ class Book(
 ) : EntityBase()
 
 interface BookRepository : JpaRepository<Book, Int> {
-    fun findByAuthorsId(id: Int): List<Book>
+    fun findByAuthorsIdOrderBySequenceAscSequenceNumber(id: Int): List<Book>
     fun findByGenresId(id: Int): List<Book>
     fun findBySequenceIdOrderBySequenceNumber(id: Int): List<Book>
     fun findByRecommendedTrue(): List<Book>

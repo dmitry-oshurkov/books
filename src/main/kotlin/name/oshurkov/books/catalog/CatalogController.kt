@@ -107,7 +107,7 @@ class CatalogController {
     fun authorBooks(@PathVariable id: Int) = run {
 
         val author = authors.findByIdOrNull(id)
-        val bookEntries = books.findByAuthorsId(id)
+        val bookEntries = books.findByAuthorsIdOrderBySequenceAscSequenceNumber(id)
             .map { it.toEntry() }
             .toList()
 
