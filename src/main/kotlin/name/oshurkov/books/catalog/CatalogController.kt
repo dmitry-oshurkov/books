@@ -4,7 +4,6 @@ import name.oshurkov.books.api.author.*
 import name.oshurkov.books.api.book.*
 import name.oshurkov.books.api.genre.*
 import org.springframework.beans.factory.annotation.*
-import org.springframework.data.domain.*
 import org.springframework.data.repository.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
@@ -91,7 +90,7 @@ class CatalogController {
             Navigation(rel = "start", href = rootCat),
             Navigation(rel = "up", href = rootCat),
         ),
-        entries = authors.findAll(Sort.by("lastName")).map {
+        entries = authors.findByOrderByLastName().map {
             Entry(
                 id = "tag:authors:${it.id}",
                 title = it.toStringForList(),
@@ -170,7 +169,7 @@ class CatalogController {
             Navigation(rel = "start", href = rootCat),
             Navigation(rel = "up", href = rootCat),
         ),
-        entries = genres.findAll(Sort.by("name")).map {
+        entries = genres.findByOrderByName().map {
             Entry(
                 id = "tag:genres:${it.id}",
                 title = it.name,
@@ -187,7 +186,7 @@ class CatalogController {
         id = "tag:genre:${id}",
         title = "genre $id",
         links = listOf(),
-        entries = books.findByGenresId(id)
+        entries = books.findByGenresIdOrderBySequenceAscSequenceNumber(id)
             .map { it.toEntry() }
             .toList()
     )

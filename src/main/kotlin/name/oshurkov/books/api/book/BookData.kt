@@ -50,7 +50,7 @@ class Book(
 
 interface BookRepository : JpaRepository<Book, Int> {
     fun findByAuthorsIdOrderBySequenceAscSequenceNumber(id: Int): List<Book>
-    fun findByGenresId(id: Int): List<Book>
+    fun findByGenresIdOrderBySequenceAscSequenceNumber(id: Int): List<Book>
     fun findBySequenceIdOrderBySequenceNumber(id: Int): List<Book>
     fun findByRecommendedTrue(): List<Book>
     fun findTop10ByOrderByUpdatedDesc(): List<Book>
