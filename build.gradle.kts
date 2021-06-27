@@ -8,6 +8,7 @@ plugins {
     id("org.springframework.boot") version "2.5.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("com.bmuschko.docker-spring-boot-application") version "7.0.1"
+    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
 }
 
 group = "name.oshurkov"
@@ -76,6 +77,7 @@ tasks {
             freeCompilerArgs = listOf("-Xjsr305=strict")
             jvmTarget = "11"
         }
+        dependsOn(ktlintFormat)
     }
     wrapper { gradleVersion = "7.1" }
     withType<Test> { useJUnitPlatform() }

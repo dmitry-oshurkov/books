@@ -25,7 +25,7 @@ class BooksController(
 
     @GetMapping("/admin")
     fun admin(model: Model) = run {
-        
+
         val baseBooksDir = if (env.activeProfiles.contains("docker"))
             "/var/lib/books"
         else

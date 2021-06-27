@@ -2,7 +2,7 @@ package name.oshurkov.books.api.file.fb2.parser
 
 import org.w3c.dom.*
 
-//http://www.fictionbook.org/index.php/Элемент_binary
+// http://www.fictionbook.org/index.php/Элемент_binary
 class Binary : IdElement {
     var contentType: String? = null
     var binary: String? = null

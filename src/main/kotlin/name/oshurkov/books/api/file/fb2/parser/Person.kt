@@ -3,7 +3,7 @@ package name.oshurkov.books.api.file.fb2.parser
 import org.w3c.dom.*
 import java.util.*
 
-//http://www.fictionbook.org/index.php/Элемент_author
+// http://www.fictionbook.org/index.php/Элемент_author
 open class Person {
     var id: String? = null
     var firstName: String? = null
@@ -37,7 +37,9 @@ open class Person {
     }
 
     val fullName: String
-        get() = ((if (firstName == null) "" else "$firstName ")
-            + (if (middleName == null) "" else "$middleName ")
-            + if (lastName == null) "" else lastName)
+        get() = (
+            (if (firstName == null) "" else "$firstName ") +
+                (if (middleName == null) "" else "$middleName ") +
+                if (lastName == null) "" else lastName
+            )
 }

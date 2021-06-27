@@ -111,7 +111,7 @@ class CatalogController {
             .toList()
 
         Feed(
-            id = "tag:authors:${id}",
+            id = "tag:authors:$id",
             title = "Все книги автора ${author?.toString()}",
             links = if (author?.sequences?.isNotEmpty() == true)
                 listOf(Acquisition(rel = "http://opds-spec.org/facet", href = "/catalog/author/$id/sequence", title = "По сериям", facetGroup = "Серии", activeFacet = true))
@@ -152,7 +152,7 @@ class CatalogController {
 
     @GetMapping("sequence/{id}/book", produces = [APPLICATION_XML_VALUE])
     fun authorSequenceBooks(@PathVariable id: Int) = Feed(
-        id = "tag:sequences:${id}",
+        id = "tag:sequences:$id",
         title = "Все книги серии",
         links = listOf(),
         entries = books.findBySequenceIdOrderBySequenceNumber(id)
@@ -183,7 +183,7 @@ class CatalogController {
 
     @GetMapping("genre/{id}/book", produces = [APPLICATION_XML_VALUE])
     fun genreBooks(@PathVariable id: Int) = Feed(
-        id = "tag:genre:${id}",
+        id = "tag:genre:$id",
         title = "genre $id",
         links = listOf(),
         entries = books.findByGenresIdOrderBySequenceAscSequenceNumber(id)
