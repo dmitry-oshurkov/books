@@ -7,7 +7,6 @@ plugins {
     kotlin("plugin.jpa") version "1.5.20"
     id("org.springframework.boot") version "2.5.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "7.0.1"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
 }
 
@@ -22,9 +21,6 @@ configurations {
 }
 
 val jacksonVersion: String by rootProject
-val localProperties = Properties().also { it.load(project.rootProject.file("local.properties").inputStream()) }
-val dockerHubUsername = localProperties.getProperty("docker.hub.username")!!
-val dockerHubPassword = localProperties.getProperty("docker.hub.password")!!
 
 repositories {
     mavenCentral()
@@ -55,20 +51,6 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
-}
-
-docker {
-    registryCredentials {
-        username.set(dockerHubUsername)
-        password.set(dockerHubPassword)
-    }
-    springBootApplication {
-        maintainer.set("DM")
-        baseImage.set("openjdk:15-alpine")
-        ports.set(listOf(8080))
-        images.add("dmitryoshurkov/books:latest")
-        jvmArgs.set(listOf("-Dspring.profiles.active=docker", "-Xmx2048m"))
-    }
 }
 
 tasks {
