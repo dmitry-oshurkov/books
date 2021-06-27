@@ -1,5 +1,4 @@
 import org.gradle.api.JavaVersion.*
-import java.util.*
 
 plugins {
     kotlin("jvm") version "1.5.20"
@@ -51,6 +50,11 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
+}
+
+sourceSets {
+    main { java.setSrcDirs(emptyList<Any>()) }
+    test { java.setSrcDirs(emptyList<Any>()) }
 }
 
 tasks {
