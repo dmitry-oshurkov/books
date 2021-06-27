@@ -1,4 +1,5 @@
 import org.gradle.api.JavaVersion.*
+import java.time.*
 
 plugins {
     kotlin("jvm") version "1.5.20"
@@ -7,10 +8,14 @@ plugins {
     id("org.springframework.boot") version "2.5.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
+    id("com.github.gmazzo.buildconfig") version "3.0.1"
 }
 
+val jacksonVersion: String by rootProject
+val buildNumber = (LocalDate.now().dayOfYear - 1) * 1440 + LocalTime.now().toSecondOfDay().div(60) // minute of year
+
 group = "name.oshurkov"
-version = "21.1"
+version = "21.1.$buildNumber"
 java.sourceCompatibility = VERSION_11
 
 configurations {
@@ -18,8 +23,6 @@ configurations {
         extendsFrom(configurations.annotationProcessor.get())
     }
 }
-
-val jacksonVersion: String by rootProject
 
 repositories {
     mavenCentral()
@@ -55,6 +58,10 @@ dependencies {
 sourceSets {
     main { java.setSrcDirs(emptyList<Any>()) }
     test { java.setSrcDirs(emptyList<Any>()) }
+}
+
+buildConfig {
+    buildConfigField("String", "APP_VER", "\"$version\"")
 }
 
 tasks {

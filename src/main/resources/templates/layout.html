@@ -38,7 +38,7 @@
 </div>
 
 <footer class="footer">
-    <p>Книжный каталог (вер. 20.2) &copy;&nbsp;<span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Книжный каталог.</p>
+    <p>Книжный каталог (вер. <span th:text="${T(name.oshurkov.books.BuildConfig).APP_VER}"></span>) &copy;&nbsp;<span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Книжный каталог.</p>
 </footer>
 </body>
 
