@@ -81,4 +81,9 @@ tasks {
     }
     wrapper { gradleVersion = "7.1" }
     withType<Test> { useJUnitPlatform() }
+
+    runKtlintCheckOverMainSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverMainSourceSet) }
+    runKtlintCheckOverTestSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverTestSourceSet) }
+    runKtlintCheckOverKotlinScripts { dependsOn(runKtlintFormatOverKotlinScripts) }
+    processResources { dependsOn(runKtlintFormatOverKotlinScripts) }
 }
