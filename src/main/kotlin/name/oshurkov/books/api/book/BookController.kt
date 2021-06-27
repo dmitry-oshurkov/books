@@ -18,7 +18,7 @@ class BookController {
 
     @GetMapping("{id}/image/thumbnail", produces = [IMAGE_JPEG_VALUE])
     fun thumbnail(@PathVariable id: Int) = mono {
-        bookRepository.getOne(id).cover
+        bookRepository.getById(id).cover
     }
 
     @PostMapping("{id}/recommended")

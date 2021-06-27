@@ -458,7 +458,7 @@ class BookService(
     else
         "text"
 
-    private fun lang(value: String) = when (value.toLowerCase()) {
+    private fun lang(value: String) = when (value.lowercase()) {
         "ru" -> "ru-RU"
         "en" -> "en-US"
         else -> value
