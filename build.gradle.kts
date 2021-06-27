@@ -5,12 +5,12 @@ import java.util.*
 import kotlin.text.Charsets.UTF_8
 
 plugins {
-    kotlin("jvm") version "1.4.10"
-    kotlin("plugin.spring") version "1.4.10"
-    kotlin("plugin.jpa") version "1.4.10"
-    id("org.springframework.boot") version "2.3.5.RELEASE"
-    id("io.spring.dependency-management") version "1.0.10.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "6.6.1"
+    kotlin("jvm") version "1.5.20"
+    kotlin("plugin.spring") version "1.5.20"
+    kotlin("plugin.jpa") version "1.5.20"
+    id("org.springframework.boot") version "2.5.2"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("com.bmuschko.docker-spring-boot-application") version "7.0.1"
 }
 
 group = "name.oshurkov"
@@ -71,7 +71,7 @@ docker {
     }
     springBootApplication {
         maintainer.set("DM")
-        baseImage.set("openjdk:14-alpine")
+        baseImage.set("openjdk:15-alpine")
         ports.set(listOf(8080))
         images.add("dmitryoshurkov/books:latest")
         jvmArgs.set(listOf("-Dspring.profiles.active=docker", "-Xmx2048m"))
@@ -85,6 +85,6 @@ tasks {
             jvmTarget = "11"
         }
     }
-    wrapper { gradleVersion = "6.7" }
+    wrapper { gradleVersion = "7.1" }
     withType<Test> { useJUnitPlatform() }
 }
