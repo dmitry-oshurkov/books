@@ -1,8 +1,5 @@
 import org.gradle.api.JavaVersion.*
-import java.io.FileInputStream
-import java.io.InputStreamReader
 import java.util.*
-import kotlin.text.Charsets.UTF_8
 
 plugins {
     kotlin("jvm") version "1.5.20"
@@ -24,14 +21,9 @@ configurations {
 }
 
 val jacksonVersion: String by rootProject
-val localProperties = File(rootDir, "local.properties").run {
-    val p = Properties()
-    if (isFile)
-        InputStreamReader(FileInputStream(this), UTF_8).use { p.load(it) }
-    p
-}
-val dockerHubUsername: String = localProperties.getProperty("docker.hub.username")
-val dockerHubPassword: String = localProperties.getProperty("docker.hub.password")
+val localProperties = Properties().also { it.load(project.rootProject.file("local.properties").inputStream()) }
+val dockerHubUsername = localProperties.getProperty("docker.hub.username")!!
+val dockerHubPassword = localProperties.getProperty("docker.hub.password")!!
 
 repositories {
     mavenCentral()
