@@ -1,11 +1,4 @@
 FROM openjdk:15-alpine
-
-LABEL maintainer=DM
-WORKDIR /app
-
-COPY build/docker/libs libs/
-COPY build/docker/resources resources/
-COPY build/docker/classes classes/
-
-ENTRYPOINT ["java", "-Dspring.profiles.active=docker", "-Xmx2048m", "-cp", "/app/resources:/app/classes:/app/libs/*", "name.oshurkov.books.BooksApplicationKt"]
+COPY build/libs/books-*.*.??????.jar books.jar
+ENTRYPOINT ["java", "-Dspring.profiles.active=docker", "-Xmx2048m", "-jar", "/books.jar"]
 EXPOSE 8080
