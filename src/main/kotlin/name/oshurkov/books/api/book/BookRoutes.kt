@@ -8,9 +8,7 @@ import org.springframework.web.servlet.function.*
 import org.springframework.web.servlet.function.ServerResponse.*
 
 @Configuration
-class BookRoutes(
-    val bookRepository: BookRepository
-) {
+class BookRoutes(val bookRepository: BookRepository) {
 
     @Bean
     fun routes() = router {

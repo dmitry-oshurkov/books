@@ -35,140 +35,140 @@ class BookService(
     val bookFileRepository: BookFileRepository
 ) {
 
-    fun import(arrayOfFiles: Array<out File>, afterSaveFile: (File) -> Unit = {}) = run {
+    fun import(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
 
-        if (arrayOfFiles.isEmpty())
-            return@run
+        if (files.isNotEmpty()) {
 
-        val files = arrayOfFiles
-            .groupBy {
-                when {
-                    it.extension == "fb2" -> FB2
-                    it.name.endsWith(".fb2.zip") -> FBZ
-                    it.extension == "epub" -> EPUB
-                    else -> null
+            val filesMap = files
+                .groupBy {
+                    when {
+                        it.extension == "fb2" -> FB2
+                        it.name.endsWith(".fb2.zip") -> FBZ
+                        it.extension == "epub" -> EPUB
+                        else -> null
+                    }
                 }
-            }
 
-        val fb2 = fictionBookService.parse(files)
-        val epub = epubService.parse(files)
+            val fb2 = fictionBookService.parse(filesMap)
+            val epub = epubService.parse(filesMap)
 
-        val authors = authors(fb2, epub)
-        val genres = genres(fb2, epub)
-        val sequences = sequences(fb2)
+            val authors = authors(fb2, epub)
+            val genres = genres(fb2, epub)
+            val sequences = sequences(fb2)
 
-        val fb2Books = fb2
-            .mapNotNull { (fb, file, type) ->
-                runCatching {
+            val fb2Books = fb2
+                .mapNotNull { (fb, file, type) ->
+                    runCatching {
 
-                    val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
+                        val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
 
-                    val bookAuthors = fb.description.titleInfo.authors
-                        .mapNotNull { authors.find { a -> a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName } }
-                        .onEach {
-                            if (bookSequence != null && !it.sequences.contains(bookSequence))
-                                it.sequences.add(bookSequence)
+                        val bookAuthors = fb.description.titleInfo.authors
+                            .mapNotNull { authors.find { a -> a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName } }
+                            .onEach {
+                                if (bookSequence != null && !it.sequences.contains(bookSequence))
+                                    it.sequences.add(bookSequence)
+                            }
+                            .toSet()
+
+                        val bookGenres = fb.description.titleInfo.genres
+                            .map { fb2GenreToString(it) }
+                            .mapNotNull { genres.find { g -> g.name == it } }
+                            .toSet()
+
+                        val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
+                        val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
+
+                        val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
+
+                        Book(
+                            title = fb.title,
+                            content = null,
+                            summary = summary,
+                            summaryContentType = summaryType(summary),
+                            rights = null,
+                            language = lang(fb.lang),
+                            issued = fb.description.titleInfo.date,
+                            publisher = null,
+                            cover = binary?.binary?.let { Base64.decodeBase64(it) },
+                            coverContentType = binary?.contentType,
+                            recommended = file.name.contains("*]") || file.name.startsWith("*"),
+                            sequence = bookSequence,
+                            sequenceNumber = sequenceNumber,
+                            hash = bookHash(bookAuthors, fb.title),
+                            authors = bookAuthors,
+                            genres = bookGenres
+                        )
+                            .also {
+                                val bookFile = bookFile(it, file, type, fb.title, sequenceNumber)
+                                it.files += bookFile
+                            }
+                    }
+                        .onSuccess {
+                            afterSaveFile(file)
+                            log.info("Parsed: [${file.absolutePath}]")
                         }
-                        .toSet()
-
-                    val bookGenres = fb.description.titleInfo.genres
-                        .map { fb2GenreToString(it) }
-                        .mapNotNull { genres.find { g -> g.name == it } }
-                        .toSet()
-
-                    val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
-                    val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
-
-                    val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
-
-                    Book(
-                        title = fb.title,
-                        content = null,
-                        summary = summary,
-                        summaryContentType = summaryType(summary),
-                        rights = null,
-                        language = lang(fb.lang),
-                        issued = fb.description.titleInfo.date,
-                        publisher = null,
-                        cover = binary?.binary?.let { Base64.decodeBase64(it) },
-                        coverContentType = binary?.contentType,
-                        recommended = file.name.contains("*]") || file.name.startsWith("*"),
-                        sequence = bookSequence,
-                        sequenceNumber = sequenceNumber,
-                        hash = bookHash(bookAuthors, fb.title),
-                        authors = bookAuthors,
-                        genres = bookGenres
-                    )
-                        .also {
-                            val bookFile = bookFile(it, file, type, fb.title, sequenceNumber)
-                            it.files += bookFile
+                        .onFailure {
+                            afterSaveFile(file)
+                            log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
                         }
+                        .getOrNull()
                 }
-                    .onSuccess {
-                        afterSaveFile(file)
-                        log.info("Parsed: [${file.absolutePath}]")
+
+            val epubBooks = epub
+                .mapNotNull { (ep, file, type) ->
+                    runCatching {
+                        val bookAuthors = ep.metadata.authors
+                            .mapNotNull { authors.find { a -> a.firstName == it.firstname && a.lastName == it.lastname } }
+                            .toSet()
+
+                        val bookGenres = ep.metadata.subjects
+                            .mapNotNull { genres.find { g -> g.name == it } }
+                            .toSet()
+
+                        val summary = ep.metadata.descriptions.firstOrNull()
+
+                        Book(
+                            title = ep.title,
+                            content = ep.metadata.otherProperties[QName("se:long-description")],
+                            summary = summary,
+                            summaryContentType = summaryType(summary),
+                            rights = ep.metadata.rights.firstOrNull(),
+                            language = lang(ep.metadata.language),
+                            issued = ep.metadata.dates.firstOrNull()?.value,
+                            publisher = ep.metadata.publishers.firstOrNull(),
+                            cover = ep.coverImage?.data,
+                            coverContentType = ep.coverImage?.mediaType?.name,
+                            recommended = file.name.contains("*]") || file.name.startsWith("*"),
+                            sequence = null,
+                            sequenceNumber = null,
+                            hash = bookHash(bookAuthors, ep.title),
+                            authors = bookAuthors,
+                            genres = bookGenres
+                        )
+                            .also {
+                                val bookFile = bookFile(it, file, type, ep.title, null)
+                                it.files += bookFile
+                            }
                     }
-                    .onFailure {
-                        afterSaveFile(file)
-                        log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
-                    }
-                    .getOrNull()
-            }
-
-        val epubBooks = epub
-            .mapNotNull { (ep, file, type) ->
-                runCatching {
-                    val bookAuthors = ep.metadata.authors
-                        .mapNotNull { authors.find { a -> a.firstName == it.firstname && a.lastName == it.lastname } }
-                        .toSet()
-
-                    val bookGenres = ep.metadata.subjects
-                        .mapNotNull { genres.find { g -> g.name == it } }
-                        .toSet()
-
-                    val summary = ep.metadata.descriptions.firstOrNull()
-
-                    Book(
-                        title = ep.title,
-                        content = ep.metadata.otherProperties[QName("se:long-description")],
-                        summary = summary,
-                        summaryContentType = summaryType(summary),
-                        rights = ep.metadata.rights.firstOrNull(),
-                        language = lang(ep.metadata.language),
-                        issued = ep.metadata.dates.firstOrNull()?.value,
-                        publisher = ep.metadata.publishers.firstOrNull(),
-                        cover = ep.coverImage?.data,
-                        coverContentType = ep.coverImage?.mediaType?.name,
-                        recommended = file.name.contains("*]") || file.name.startsWith("*"),
-                        sequence = null,
-                        sequenceNumber = null,
-                        hash = bookHash(bookAuthors, ep.title),
-                        authors = bookAuthors,
-                        genres = bookGenres
-                    )
-                        .also {
-                            val bookFile = bookFile(it, file, type, ep.title, null)
-                            it.files += bookFile
+                        .onSuccess {
+                            afterSaveFile(file)
+                            log.info("Parsed: [${file.absolutePath}]")
                         }
+                        .onFailure {
+                            afterSaveFile(file)
+                            log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
+                        }
+                        .getOrNull()
                 }
-                    .onSuccess {
-                        afterSaveFile(file)
-                        log.info("Parsed: [${file.absolutePath}]")
-                    }
-                    .onFailure {
-                        afterSaveFile(file)
-                        log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
-                    }
-                    .getOrNull()
+
+            genreRepository.saveAll(genres)
+            sequenceRepository.saveAll(sequences)
+            authorRepository.saveAll(authors)
+
+            bookRepository.saveAll(fb2Books + epubBooks).onEach {
+                bookFileRepository.saveAll(it.files)
+                log.info("Imported: ${it.title}")
             }
-
-        genreRepository.saveAll(genres)
-        sequenceRepository.saveAll(sequences)
-        authorRepository.saveAll(authors)
-
-        bookRepository.saveAll(fb2Books + epubBooks).onEach {
-            bookFileRepository.saveAll(it.files)
-            log.info("Imported: ${it.title}")
         }
     }
 

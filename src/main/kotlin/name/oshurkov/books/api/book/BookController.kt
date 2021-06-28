@@ -3,7 +3,6 @@ package name.oshurkov.books.api.book
 import kotlinx.coroutines.reactor.*
 import org.apache.tomcat.util.http.fileupload.FileUploadBase.*
 import org.aspectj.util.*
-import org.springframework.beans.factory.annotation.*
 import org.springframework.core.io.*
 import org.springframework.data.repository.*
 import org.springframework.http.*
@@ -14,7 +13,10 @@ import kotlin.text.Charsets.UTF_8
 
 @RestControllerAdvice
 @RequestMapping("/api/book")
-class BookController {
+class BookController(
+    val bookService: BookService,
+    val bookRepository: BookRepository
+) {
 
     @GetMapping("{id}/image/thumbnail", produces = [IMAGE_JPEG_VALUE])
     fun thumbnail(@PathVariable id: Int) = mono {
@@ -70,7 +72,9 @@ class BookController {
 
     @PostMapping("import")
     fun importAll(@RequestBody rootDir: String) = run {
-        val files = FileUtil.listFiles(File(rootDir)) { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") }
+        val files = FileUtil
+            .listFiles(File(rootDir)) { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") }
+            .toList()
         bookService.import(files)
     }
 
@@ -79,10 +83,4 @@ class BookController {
 
     @PostMapping("backup")
     fun backupAll(@RequestBody targetDir: String) = bookService.backup(targetDir)
-
-    @Autowired
-    private lateinit var bookService: BookService
-
-    @Autowired
-    private lateinit var bookRepository: BookRepository
 }

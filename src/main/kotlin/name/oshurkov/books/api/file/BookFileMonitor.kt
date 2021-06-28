@@ -9,7 +9,7 @@ import java.nio.file.*
 import java.nio.file.StandardCopyOption.*
 
 @Component
-class BookFileMonitor {
+class BookFileMonitor(val bookService: BookService) {
 
     @Scheduled(fixedDelay = 1_000)
     fun import() {
@@ -20,6 +20,7 @@ class BookFileMonitor {
         val files = source
             .listFiles(FileFilter { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") })
             .orEmpty()
+            .toList()
 
         if (files.isNotEmpty())
             processed.mkdirs()
@@ -32,7 +33,4 @@ class BookFileMonitor {
 
     @Value("\${books.fileMonitor.processed}")
     private lateinit var processed: File
-
-    @Autowired
-    private lateinit var bookService: BookService
 }

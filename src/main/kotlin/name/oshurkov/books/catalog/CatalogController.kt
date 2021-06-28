@@ -3,7 +3,6 @@ package name.oshurkov.books.catalog
 import name.oshurkov.books.api.author.*
 import name.oshurkov.books.api.book.*
 import name.oshurkov.books.api.genre.*
-import org.springframework.beans.factory.annotation.*
 import org.springframework.data.repository.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
@@ -11,7 +10,11 @@ import java.util.*
 
 @RestControllerAdvice
 @RequestMapping("/catalog")
-class CatalogController {
+class CatalogController(
+    val books: BookRepository,
+    val authors: AuthorRepository,
+    val genres: GenreRepository
+) {
 
     @GetMapping(produces = [APPLICATION_XML_VALUE])
     fun root() = Feed(
@@ -233,13 +236,4 @@ class CatalogController {
     private val recentCat = "$rootCat/recent"
     private val authorsCat = "$rootCat/authors"
     private val genresCat = "$rootCat/genres"
-
-    @Autowired
-    private lateinit var books: BookRepository
-
-    @Autowired
-    private lateinit var authors: AuthorRepository
-
-    @Autowired
-    private lateinit var genres: GenreRepository
 }
