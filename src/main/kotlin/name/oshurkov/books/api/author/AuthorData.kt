@@ -23,4 +23,6 @@ class Author(
     private val middle get() = if (middleName != null) " $middleName" else ""
 }
 
-interface AuthorRepository : JpaRepository<Author, Int>
+interface AuthorRepository : JpaRepository<Author, Int> {
+    fun findByOrderByLastName(): List<Author>
+}

@@ -1,5 +1,6 @@
 package name.oshurkov.books.api.book
 
+import kotlinx.coroutines.reactor.*
 import org.apache.tomcat.util.http.fileupload.FileUploadBase.*
 import org.aspectj.util.*
 import org.springframework.beans.factory.annotation.*
@@ -15,14 +16,13 @@ import kotlin.text.Charsets.UTF_8
 @RequestMapping("/api/book")
 class BookController {
 
-    @GetMapping("{id}/image", produces = [IMAGE_JPEG_VALUE])
-    fun image(@PathVariable id: Int) = bookRepository.getOne(id).cover
-
     @GetMapping("{id}/image/thumbnail", produces = [IMAGE_JPEG_VALUE])
-    fun thumbnail(@PathVariable id: Int) = bookRepository.getOne(id).cover
+    fun thumbnail(@PathVariable id: Int) = mono {
+        bookRepository.getById(id).cover
+    }
 
-    @PostMapping("{id}/featured")
-    fun featured(@PathVariable id: Int): ResponseEntity<Unit> = run {
+    @PostMapping("{id}/recommended")
+    fun recommended(@PathVariable id: Int): ResponseEntity<Unit> = run {
 
         val book = bookRepository.findByIdOrNull(id)
 

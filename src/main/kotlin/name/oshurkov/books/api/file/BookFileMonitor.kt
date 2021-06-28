@@ -14,11 +14,16 @@ class BookFileMonitor {
     @Scheduled(fixedDelay = 1_000)
     fun import() {
 
+        if (!source.exists())
+            source.mkdirs()
+
         val files = source
             .listFiles(FileFilter { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") })
             .orEmpty()
 
-        processed.mkdirs()
+        if (files.isNotEmpty())
+            processed.mkdirs()
+
         bookService.import(files) { Files.move(it.toPath(), File(processed, it.name).toPath(), REPLACE_EXISTING) }
     }
 

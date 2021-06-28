@@ -1,4 +1,6 @@
 body {
+    color: white;
+    font-family: Arial, serif;
     background-color: dimgrey;
 }
 
@@ -12,4 +14,23 @@ body::after {
     right: 0;
     left: 0;
     z-index: -1;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+.title {
+    font-size: xx-large;
+}
+
+.input-dir {
+    width: 500px !important;
+}
+
+.demo-section p {
+    width: 900px;
 }

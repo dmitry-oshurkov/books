@@ -9,4 +9,6 @@ class Genre(
     val name: String,
 ) : EntityBase()
 
-interface GenreRepository : JpaRepository<Genre, Int>
+interface GenreRepository : JpaRepository<Genre, Int> {
+    fun findByOrderByName(): List<Genre>
+}

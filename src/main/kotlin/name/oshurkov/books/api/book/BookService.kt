@@ -25,7 +25,15 @@ import java.util.zip.Deflater.*
 import javax.xml.namespace.*
 
 @Component
-class BookService {
+class BookService(
+    val fictionBookService: Fb2Service,
+    val epubService: EpubService,
+    val bookRepository: BookRepository,
+    val authorRepository: AuthorRepository,
+    val genreRepository: GenreRepository,
+    val sequenceRepository: SequenceRepository,
+    val bookFileRepository: BookFileRepository
+) {
 
     fun import(arrayOfFiles: Array<out File>, afterSaveFile: (File) -> Unit = {}) = run {
 
@@ -72,7 +80,6 @@ class BookService {
                     val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
 
                     val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
-                    val bookFile = saveBookFile(file, type, fb.title, sequenceNumber)
 
                     Book(
                         title = fb.title,
@@ -85,12 +92,17 @@ class BookService {
                         publisher = null,
                         cover = binary?.binary?.let { Base64.decodeBase64(it) },
                         coverContentType = binary?.contentType,
+                        recommended = file.name.contains("*]") || file.name.startsWith("*"),
                         sequence = bookSequence,
                         sequenceNumber = sequenceNumber,
+                        hash = bookHash(bookAuthors, fb.title),
                         authors = bookAuthors,
-                        genres = bookGenres,
-                        files = setOf(bookFile)
+                        genres = bookGenres
                     )
+                        .also {
+                            val bookFile = bookFile(it, file, type, fb.title, sequenceNumber)
+                            it.files += bookFile
+                        }
                 }
                     .onSuccess {
                         afterSaveFile(file)
@@ -115,7 +127,6 @@ class BookService {
                         .toSet()
 
                     val summary = ep.metadata.descriptions.firstOrNull()
-                    val bookFile = saveBookFile(file, type, ep.title, null)
 
                     Book(
                         title = ep.title,
@@ -128,12 +139,17 @@ class BookService {
                         publisher = ep.metadata.publishers.firstOrNull(),
                         cover = ep.coverImage?.data,
                         coverContentType = ep.coverImage?.mediaType?.name,
+                        recommended = file.name.contains("*]") || file.name.startsWith("*"),
                         sequence = null,
                         sequenceNumber = null,
+                        hash = bookHash(bookAuthors, ep.title),
                         authors = bookAuthors,
-                        genres = bookGenres,
-                        files = setOf(bookFile)
+                        genres = bookGenres
                     )
+                        .also {
+                            val bookFile = bookFile(it, file, type, ep.title, null)
+                            it.files += bookFile
+                        }
                 }
                     .onSuccess {
                         afterSaveFile(file)
@@ -151,6 +167,7 @@ class BookService {
         authorRepository.saveAll(authors)
 
         bookRepository.saveAll(fb2Books + epubBooks).onEach {
+            bookFileRepository.saveAll(it.files)
             log.info("Imported: ${it.title}")
         }
     }
@@ -178,9 +195,9 @@ class BookService {
                 val baseName = "${it.title}.${f.type.extension}"
 
                 val newFileName = if (it.sequence != null && it.sequenceNumber != null)
-                    "[${it.sequenceNumber}] $baseName"
+                    "[${it.sequenceNumber}${if (it.recommended) "*" else ""}] $baseName"
                 else
-                    baseName
+                    "${if (it.recommended) "* " else ""}$baseName"
 
                 File(newFileDir, newFileName).writeBytes(f.content)
             }
@@ -198,6 +215,8 @@ class BookService {
         exported.deleteRecursively()
     }
 
+
+    private fun bookHash(bookAuthors: Set<Author>, title: String) = uuid("${bookAuthors.sortedBy { it.lastName }.joinToString()}$title".toByteArray())
 
     private fun createSevenZipFile(sevenZ: File, folder: File) {
 
@@ -222,7 +241,7 @@ class BookService {
         }
     }
 
-    private fun saveBookFile(file: File, type: FileType, title: String, seqNo: Int?) = run {
+    private fun bookFile(book: Book, file: File, type: FileType, title: String, seqNo: Int?) = run {
 
         val (content, hash) = when (type) {
 
@@ -249,7 +268,7 @@ class BookService {
         else
             type
 
-        bookFileRepository.save(BookFile(content, hash, newType))
+        BookFile(book, content, hash, newType)
     }
 
     private fun uuid(bytes: ByteArray) = run {
@@ -439,7 +458,7 @@ class BookService {
     else
         "text"
 
-    private fun lang(value: String) = when (value.toLowerCase()) {
+    private fun lang(value: String) = when (value.lowercase()) {
         "ru" -> "ru-RU"
         "en" -> "en-US"
         else -> value
@@ -447,27 +466,6 @@ class BookService {
 
     @Value("\${books.fileMonitor.forceCompress}")
     private var forceCompress: Boolean = true
-
-    @Autowired
-    private lateinit var fictionBookService: Fb2Service
-
-    @Autowired
-    private lateinit var epubService: EpubService
-
-    @Autowired
-    private lateinit var bookRepository: BookRepository
-
-    @Autowired
-    private lateinit var authorRepository: AuthorRepository
-
-    @Autowired
-    private lateinit var genreRepository: GenreRepository
-
-    @Autowired
-    private lateinit var sequenceRepository: SequenceRepository
-
-    @Autowired
-    private lateinit var bookFileRepository: BookFileRepository
 
     private val log = LoggerFactory.getLogger(BookService::class.java)
 }

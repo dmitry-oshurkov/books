@@ -13,5 +13,5 @@ spring:
 books:
   fileMonitor:
     source: /home/dmitry/Загрузки
-    processed: /home/dmitry/Загрузки/processed
+    processed: /home/dmitry/Загрузки/books/processed
     forceCompress: true

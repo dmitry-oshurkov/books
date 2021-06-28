@@ -1,16 +1,21 @@
 import org.gradle.api.JavaVersion.*
+import java.time.*
 
 plugins {
-    kotlin("jvm") version "1.4.10"
-    kotlin("plugin.spring") version "1.4.10"
-    kotlin("plugin.jpa") version "1.4.10"
-    id("org.springframework.boot") version "2.3.5.RELEASE"
-    id("io.spring.dependency-management") version "1.0.10.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "6.6.1"
+    kotlin("jvm") version "1.5.20"
+    kotlin("plugin.spring") version "1.5.20"
+    kotlin("plugin.jpa") version "1.5.20"
+    id("org.springframework.boot") version "2.5.2"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
+    id("com.github.gmazzo.buildconfig") version "3.0.1"
 }
 
+val jacksonVersion: String by rootProject
+val buildNumber = (LocalDate.now().dayOfYear - 1) * 1440 + LocalTime.now().toSecondOfDay().div(60) // minute of year
+
 group = "name.oshurkov"
-version = "20.1"
+version = "21.1.$buildNumber"
 java.sourceCompatibility = VERSION_11
 
 configurations {
@@ -19,8 +24,6 @@ configurations {
     }
 }
 
-val jacksonVersion: String by rootProject
-
 repositories {
     mavenCentral()
 }
@@ -28,10 +31,14 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.5.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation("org.apache.commons:commons-compress:1.20")
@@ -48,14 +55,13 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
 }
 
-docker {
-    springBootApplication {
-        maintainer.set("DM")
-        baseImage.set("openjdk:14-alpine")
-        ports.set(listOf(8080))
-        images.add("dmitryoshurkov/books:latest")
-        jvmArgs.set(listOf("-Dspring.profiles.active=docker", "-Xmx2048m"))
-    }
+sourceSets {
+    main { java.setSrcDirs(emptyList<Any>()) }
+    test { java.setSrcDirs(emptyList<Any>()) }
+}
+
+buildConfig {
+    buildConfigField("String", "APP_VER", "\"$version\"")
 }
 
 tasks {
@@ -64,7 +70,13 @@ tasks {
             freeCompilerArgs = listOf("-Xjsr305=strict")
             jvmTarget = "11"
         }
+        dependsOn(ktlintFormat)
     }
-    wrapper { gradleVersion = "6.7" }
+    wrapper { gradleVersion = "7.1" }
     withType<Test> { useJUnitPlatform() }
+
+    runKtlintCheckOverMainSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverMainSourceSet) }
+    runKtlintCheckOverTestSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverTestSourceSet) }
+    runKtlintCheckOverKotlinScripts { dependsOn(runKtlintFormatOverKotlinScripts) }
+    processResources { dependsOn(runKtlintFormatOverKotlinScripts) }
 }

@@ -3,7 +3,7 @@ package name.oshurkov.books.api.file.fb2.parser
 import org.w3c.dom.*
 import java.util.*
 
-//http://www.fictionbook.org/index.php/Элемент_body
+// http://www.fictionbook.org/index.php/Элемент_body
 class Body {
     var lang: String? = null
     var name: String? = null
