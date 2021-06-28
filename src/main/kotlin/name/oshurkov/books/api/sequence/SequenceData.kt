@@ -6,6 +6,7 @@ import javax.persistence.*
 
 @Entity
 data class Sequence(
+    @Column(nullable = false)
     val name: String,
 ) : EntityBase()
 

@@ -6,6 +6,7 @@ import javax.persistence.*
 
 @Entity
 class Genre(
+    @Column(nullable = false)
     val name: String,
 ) : EntityBase()
 

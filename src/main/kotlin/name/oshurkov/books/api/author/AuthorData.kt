@@ -11,6 +11,7 @@ import javax.persistence.FetchType.*
 class Author(
     val firstName: String?,
     val middleName: String?,
+    @Column(nullable = false)
     val lastName: String,
 
     @ManyToMany(cascade = [MERGE, REMOVE, REFRESH, DETACH], fetch = EAGER)
