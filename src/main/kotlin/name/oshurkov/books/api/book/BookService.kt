@@ -52,10 +52,10 @@ class BookService(
             val fb2 = parseFb2(filesMap)
             val epub = parseEpub(filesMap)
 
-            val authors = authors(fb2, epub)
-            val genres = genres(fb2, epub)
-            val sequences = sequences(fb2)
-
+            val authors = extractAuthors(fb2, epub)
+            val genres = extractGenres(fb2, epub)
+            val sequences = extractSequences(fb2)
+            
             val fb2Books = fb2
                 .mapNotNull { (fb, file, type) ->
                     runCatching {
@@ -245,7 +245,7 @@ class BookService(
         BookFile(book, content, hash, newType)
     }
 
-    private fun sequences(fb2: List<Triple<FictionBook, File, FileType>>) = run {
+    private fun extractSequences(fb2: List<Triple<FictionBook, File, FileType>>) = run {
 
         val fb2Sequences = fb2
             .mapNotNull { (fb, _, _) -> fb.description.titleInfo.sequence?.name }
@@ -259,7 +259,7 @@ class BookService(
             .distinctBy { it.name }
     }
 
-    private fun genres(fb2: List<Triple<FictionBook, File, FileType>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, FileType>>) = run {
+    private fun extractGenres(fb2: List<Triple<FictionBook, File, FileType>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, FileType>>) = run {
 
         val fb2Genres = fb2
             .flatMap { (fb, _, _) -> fb.description.titleInfo.genres }
@@ -274,7 +274,7 @@ class BookService(
             .distinctBy { it.name }
     }
 
-    private fun authors(fb2: List<Triple<FictionBook, File, FileType>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, FileType>>) = run {
+    private fun extractAuthors(fb2: List<Triple<FictionBook, File, FileType>>, epub: List<Triple<nl.siegmann.epublib.domain.Book, File, FileType>>) = run {
 
         val fb2Authors = fb2
             .flatMap { (fb, _, _) -> fb.description.titleInfo.authors }
