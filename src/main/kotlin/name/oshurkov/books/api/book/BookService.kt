@@ -9,20 +9,15 @@ import name.oshurkov.books.api.genre.*
 import name.oshurkov.books.api.sequence.*
 import name.oshurkov.books.api.sequence.Sequence
 import org.apache.commons.compress.archivers.sevenz.*
-import org.apache.tomcat.util.codec.binary.Base64
 import org.slf4j.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.stereotype.*
 import java.io.*
-import java.nio.*
 import java.nio.file.*
-import java.security.*
 import java.text.*
-import java.util.*
 import java.util.Date
 import java.util.zip.*
 import java.util.zip.Deflater.*
-import javax.xml.namespace.*
 
 @Component
 class BookService(
@@ -55,116 +50,15 @@ class BookService(
             val authors = extractAuthors(fb2, epub)
             val genres = extractGenres(fb2, epub)
             val sequences = extractSequences(fb2)
-            
-            val fb2Books = fb2
-                .mapNotNull { (fb, file, type) ->
-                    runCatching {
 
-                        val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
-
-                        val bookAuthors = fb.description.titleInfo.authors
-                            .mapNotNull { authors.find { a -> a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName } }
-                            .onEach {
-                                if (bookSequence != null && !it.sequences.contains(bookSequence))
-                                    it.sequences.add(bookSequence)
-                            }
-                            .toSet()
-
-                        val bookGenres = fb.description.titleInfo.genres
-                            .map { fb2GenreToString(it) }
-                            .mapNotNull { genres.find { g -> g.name == it } }
-                            .toSet()
-
-                        val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
-                        val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
-                        val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
-
-                        Book(
-                            title = fb.title,
-                            content = null,
-                            summary = summary,
-                            summaryContentType = summaryType(summary),
-                            rights = null,
-                            language = lang(fb.lang),
-                            issued = fb.description.titleInfo.date,
-                            publisher = null,
-                            cover = binary?.binary?.let { Base64.decodeBase64(it) },
-                            coverContentType = binary?.contentType,
-                            recommended = file.name.contains("*]") || file.name.startsWith("*"),
-                            sequence = bookSequence,
-                            sequenceNumber = sequenceNumber,
-                            hash = bookHash(bookAuthors, fb.title),
-                            authors = bookAuthors,
-                            genres = bookGenres
-                        )
-                            .also {
-                                val bookFile = bookFile(it, file, type, fb.title, sequenceNumber)
-                                it.files += bookFile
-                            }
-                    }
-                        .onSuccess {
-                            afterSaveFile(file)
-                            log.info("Parsed: [${file.absolutePath}]")
-                        }
-                        .onFailure {
-                            afterSaveFile(file)
-                            log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
-                        }
-                        .getOrNull()
-                }
-
-            val epubBooks = epub
-                .mapNotNull { (ep, file, type) ->
-                    runCatching {
-                        val bookAuthors = ep.metadata.authors
-                            .mapNotNull { authors.find { a -> a.firstName == it.firstname && a.lastName == it.lastname } }
-                            .toSet()
-
-                        val bookGenres = ep.metadata.subjects
-                            .mapNotNull { genres.find { g -> g.name == it } }
-                            .toSet()
-
-                        val summary = ep.metadata.descriptions.firstOrNull()
-
-                        Book(
-                            title = ep.title,
-                            content = ep.metadata.otherProperties[QName("se:long-description")],
-                            summary = summary,
-                            summaryContentType = summaryType(summary),
-                            rights = ep.metadata.rights.firstOrNull(),
-                            language = lang(ep.metadata.language),
-                            issued = ep.metadata.dates.firstOrNull()?.value,
-                            publisher = ep.metadata.publishers.firstOrNull(),
-                            cover = ep.coverImage?.data,
-                            coverContentType = ep.coverImage?.mediaType?.name,
-                            recommended = file.name.contains("*]") || file.name.startsWith("*"),
-                            sequence = null,
-                            sequenceNumber = null,
-                            hash = bookHash(bookAuthors, ep.title),
-                            authors = bookAuthors,
-                            genres = bookGenres
-                        )
-                            .also {
-                                val bookFile = bookFile(it, file, type, ep.title, null)
-                                it.files += bookFile
-                            }
-                    }
-                        .onSuccess {
-                            afterSaveFile(file)
-                            log.info("Parsed: [${file.absolutePath}]")
-                        }
-                        .onFailure {
-                            afterSaveFile(file)
-                            log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
-                        }
-                        .getOrNull()
-                }
+            val fb2Books = fb2ToBooks(fb2, authors, genres, ::bookFile, afterSaveFile, sequences)
+            val epubBooks = epubToBooks(epub, authors, genres, ::bookFile, afterSaveFile)
+            val books = fb2Books + epubBooks
 
             genreRepository.saveAll(genres)
             sequenceRepository.saveAll(sequences)
             authorRepository.saveAll(authors)
-
-            bookRepository.saveAll(fb2Books + epubBooks).onEach {
+            bookRepository.saveAll(books).onEach {
                 bookFileRepository.saveAll(it.files)
                 log.info("Imported: ${it.title}")
             }
@@ -304,50 +198,7 @@ class BookService(
 }
 
 
-
-private fun bookHash(bookAuthors: Set<Author>, title: String) = uuid("${bookAuthors.sortedBy { it.lastName }.joinToString()}$title".toByteArray())
-
-private fun createSevenZipFile(sevenZ: File, folder: File) {
-
-    runCatching {
-
-        SevenZOutputFile(sevenZ).use { out ->
-
-            Files.walk(folder.toPath())
-                .map { it.toFile() }
-                .filter { !it.isDirectory }
-                .forEach { file ->
-                    FileInputStream(file).use {
-                        val entry = out.createArchiveEntry(file, file.toRelativeString(folder))
-                        out.putArchiveEntry(entry)
-                        out.write(file.readBytes())
-                        out.closeArchiveEntry()
-                    }
-                }
-
-            out.finish()
-        }
-    }
-}
-
-private fun uuid(bytes: ByteArray) = run {
-    val digest = MessageDigest.getInstance("MD5").digest(bytes)
-    val bb = ByteBuffer.wrap(digest)
-    UUID(bb.long, bb.long)
-}
-
-private fun zip(seqNo: Int?, title: String, bytes: ByteArray) =
-    ByteArrayOutputStream().use {
-        ZipOutputStream(it).use { stream ->
-            stream.setLevel(BEST_COMPRESSION)
-            stream.putNextEntry(ZipEntry(if (seqNo != null) "[$seqNo] $title.fb2" else "$title.fb2"))
-            stream.write(bytes, 0, bytes.size)
-            stream.closeEntry()
-        }
-        it.toByteArray()
-    }
-
-private fun fb2GenreToString(code: String) = when (code) {
+fun fb2GenreToString(code: String) = when (code) {
     "sf_history" -> "Альтернативная история"
     "sf_action" -> "Боевая фантастика"
     "sf_epic" -> "Эпическая фантастика"
@@ -460,13 +311,37 @@ private fun fb2GenreToString(code: String) = when (code) {
     else -> "Прочее"
 }
 
-private fun summaryType(value: String?) = if (value?.contains("</p>") == true)
-    "text/html"
-else
-    "text"
 
-private fun lang(value: String) = when (value.lowercase()) {
-    "ru" -> "ru-RU"
-    "en" -> "en-US"
-    else -> value
+private fun createSevenZipFile(sevenZ: File, folder: File) {
+
+    runCatching {
+
+        SevenZOutputFile(sevenZ).use { out ->
+
+            Files.walk(folder.toPath())
+                .map { it.toFile() }
+                .filter { !it.isDirectory }
+                .forEach { file ->
+                    FileInputStream(file).use {
+                        val entry = out.createArchiveEntry(file, file.toRelativeString(folder))
+                        out.putArchiveEntry(entry)
+                        out.write(file.readBytes())
+                        out.closeArchiveEntry()
+                    }
+                }
+
+            out.finish()
+        }
+    }
 }
+
+private fun zip(seqNo: Int?, title: String, bytes: ByteArray) =
+    ByteArrayOutputStream().use {
+        ZipOutputStream(it).use { stream ->
+            stream.setLevel(BEST_COMPRESSION)
+            stream.putNextEntry(ZipEntry(if (seqNo != null) "[$seqNo] $title.fb2" else "$title.fb2"))
+            stream.write(bytes, 0, bytes.size)
+            stream.closeEntry()
+        }
+        it.toByteArray()
+    }
