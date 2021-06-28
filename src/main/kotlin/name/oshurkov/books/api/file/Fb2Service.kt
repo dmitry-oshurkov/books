@@ -7,28 +7,24 @@ import org.springframework.stereotype.*
 import java.io.*
 import java.util.zip.*
 
-@Component
-class Fb2Service {
+fun parseFb2(files: Map<FileType, List<File>>) = run {
 
-    fun parse(files: Map<FileType?, List<File>>) = run {
+    val fbz = files[FBZ].orEmpty()
+        .mapNotNull { file ->
+            runCatching {
 
-        val fbz = files[FBZ].orEmpty()
-            .mapNotNull { file ->
-                runCatching {
-
-                    val bytes = ZipFile(file).use {
-                        val entry = it.entries().toList().first()
-                        it.getInputStream(entry).use { stream -> stream.readAllBytes() }
-                    }
-
-                    FictionBook(null, bytes) to file and FBZ
+                val bytes = ZipFile(file).use {
+                    val entry = it.entries().toList().first()
+                    it.getInputStream(entry).use { stream -> stream.readAllBytes() }
                 }
-                    .getOrNull()
+
+                FictionBook(null, bytes) to file and FBZ
             }
+                .getOrNull()
+        }
 
-        val fb2plain = files[FB2].orEmpty()
-            .map { FictionBook(it, null) to it and FB2 }
+    val fb2plain = files[FB2].orEmpty()
+        .map { FictionBook(it, null) to it and FB2 }
 
-        fb2plain + fbz
-    }
+    fb2plain + fbz
 }

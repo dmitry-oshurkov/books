@@ -26,8 +26,6 @@ import javax.xml.namespace.*
 
 @Component
 class BookService(
-    val fictionBookService: Fb2Service,
-    val epubService: EpubService,
     val bookRepository: BookRepository,
     val authorRepository: AuthorRepository,
     val genreRepository: GenreRepository,
@@ -48,9 +46,11 @@ class BookService(
                         else -> null
                     }
                 }
+                .filter { it.key != null }
+                .mapKeys { it.key!! }
 
-            val fb2 = fictionBookService.parse(filesMap)
-            val epub = epubService.parse(filesMap)
+            val fb2 = parseFb2(filesMap)
+            val epub = parseEpub(filesMap)
 
             val authors = authors(fb2, epub)
             val genres = genres(fb2, epub)
