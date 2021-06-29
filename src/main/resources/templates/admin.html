@@ -77,16 +77,24 @@
             }
 
             function api(type, url, selector, selector1, data) {
+                var startTime, endTime;
+
                 $.ajax({
                     type: type,
                     url: url,
                     data: data,
                     contentType: "text/plain",
                     beforeSend: function (xhr) {
+                        startTime = new Date();
                         $(selector1).html("Выполняется...");
                     },
                     success: function (data) {
-                        $(selector1).html("Завершено");
+                        endTime = new Date();
+                        var timeDiff = endTime - startTime; //in ms
+                        timeDiff /= 1000; // strip the ms
+                        var seconds = Math.round(timeDiff);
+
+                        $(selector1).html("Завершено (" + seconds + " сек)");
                     }
                 });
             }
