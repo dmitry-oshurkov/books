@@ -1,4 +1,4 @@
-package name.oshurkov.books
+package name.oshurkov.books.web
 
 import name.oshurkov.books.Repositories.Companion.authorsRep
 import name.oshurkov.books.Repositories.Companion.booksRep
