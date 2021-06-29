@@ -9,7 +9,6 @@ import name.oshurkov.books.api.genre.*
 import name.oshurkov.books.api.sequence.Sequence
 import org.apache.tomcat.util.codec.binary.*
 import org.slf4j.*
-import org.springframework.stereotype.*
 import java.io.*
 import java.util.zip.*
 

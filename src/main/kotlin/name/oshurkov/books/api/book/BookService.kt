@@ -15,8 +15,6 @@ import name.oshurkov.books.api.genre.*
 import name.oshurkov.books.api.sequence.Sequence
 import org.apache.commons.compress.archivers.sevenz.*
 import org.slf4j.*
-import org.springframework.beans.factory.annotation.*
-import org.springframework.stereotype.*
 import java.io.*
 import java.nio.file.*
 import java.text.*
