@@ -1,7 +1,7 @@
 package name.oshurkov.books
 
-import name.oshurkov.books.api.author.*
-import name.oshurkov.books.api.book.*
+import name.oshurkov.books.Repositories.Companion.authorsRep
+import name.oshurkov.books.Repositories.Companion.booksRep
 import org.springframework.core.env.*
 import org.springframework.stereotype.*
 import org.springframework.ui.*
@@ -9,16 +9,12 @@ import org.springframework.web.bind.annotation.*
 import javax.servlet.http.*
 
 @Controller
-class BooksController(
-    val env: Environment,
-    val bookRepository: BookRepository,
-    val authorRepository: AuthorRepository
-) {
+class BooksController(val env: Environment) {
 
     @GetMapping("/")
     fun index(model: Model, request: HttpServletRequest) = run {
-        model.addAttribute("booksCount", bookRepository.count())
-        model.addAttribute("authorsCount", authorRepository.count())
+        model.addAttribute("booksCount", booksRep.count())
+        model.addAttribute("authorsCount", authorsRep.count())
         model.addAttribute("opds", "${request.requestURL}catalog")
         "index"
     }

@@ -1,8 +1,9 @@
 package name.oshurkov.books.catalog
 
-import name.oshurkov.books.api.author.*
+import name.oshurkov.books.Repositories.Companion.authorsRep
+import name.oshurkov.books.Repositories.Companion.booksRep
+import name.oshurkov.books.Repositories.Companion.genresRep
 import name.oshurkov.books.api.book.*
-import name.oshurkov.books.api.genre.*
 import org.springframework.data.repository.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.bind.annotation.*
@@ -10,11 +11,7 @@ import java.util.*
 
 @RestControllerAdvice
 @RequestMapping("/catalog")
-class CatalogController(
-    val books: BookRepository,
-    val authors: AuthorRepository,
-    val genres: GenreRepository
-) {
+class CatalogController {
 
     @GetMapping(produces = [APPLICATION_XML_VALUE])
     fun root() = Feed(
@@ -65,7 +62,7 @@ class CatalogController(
             Navigation(rel = "start", href = rootCat),
             Navigation(rel = "up", href = rootCat),
         ),
-        entries = books.findByRecommendedTrue()
+        entries = booksRep.findByRecommendedTrue()
             .map { it.toEntry() }
             .toList()
     )
@@ -79,7 +76,7 @@ class CatalogController(
             Navigation(rel = "start", href = rootCat),
             Navigation(rel = "up", href = rootCat),
         ),
-        entries = books.findTop10ByOrderByUpdatedDesc()
+        entries = booksRep.findTop10ByOrderByUpdatedDesc()
             .map { it.toEntry(includeSequenceNumber = true, sequenceNumberForRecent = true) }
             .toList()
     )
@@ -93,7 +90,7 @@ class CatalogController(
             Navigation(rel = "start", href = rootCat),
             Navigation(rel = "up", href = rootCat),
         ),
-        entries = authors.findByOrderByLastName().map {
+        entries = authorsRep.findByOrderByLastName().map {
             Entry(
                 id = "tag:authors:${it.id}",
                 title = it.toStringForList(),
@@ -108,8 +105,8 @@ class CatalogController(
     @GetMapping("author/{id}/book", produces = [APPLICATION_XML_VALUE])
     fun authorBooks(@PathVariable id: Int) = run {
 
-        val author = authors.findByIdOrNull(id)
-        val bookEntries = books.findByAuthorsIdOrderBySequenceAscSequenceNumber(id)
+        val author = authorsRep.findByIdOrNull(id)
+        val bookEntries = booksRep.findByAuthorsIdOrderBySequenceAscSequenceNumber(id)
             .map { it.toEntry() }
             .toList()
 
@@ -127,7 +124,7 @@ class CatalogController(
     @GetMapping("author/{id}/sequence", produces = [APPLICATION_XML_VALUE])
     fun authorSequences(@PathVariable id: Int) = run {
 
-        val author = authors.findByIdOrNull(id)
+        val author = authorsRep.findByIdOrNull(id)
 
         val sequencesEntries = author?.sequences.orEmpty().map {
             Entry(
@@ -158,7 +155,7 @@ class CatalogController(
         id = "tag:sequences:$id",
         title = "Все книги серии",
         links = listOf(),
-        entries = books.findBySequenceIdOrderBySequenceNumber(id)
+        entries = booksRep.findBySequenceIdOrderBySequenceNumber(id)
             .map { it.toEntry(includeSequenceNumber = true) }
             .toList()
     )
@@ -172,7 +169,7 @@ class CatalogController(
             Navigation(rel = "start", href = rootCat),
             Navigation(rel = "up", href = rootCat),
         ),
-        entries = genres.findByOrderByName().map {
+        entries = genresRep.findByOrderByName().map {
             Entry(
                 id = "tag:genres:${it.id}",
                 title = it.name,
@@ -189,7 +186,7 @@ class CatalogController(
         id = "tag:genre:$id",
         title = "genre $id",
         links = listOf(),
-        entries = books.findByGenresIdOrderBySequenceAscSequenceNumber(id)
+        entries = booksRep.findByGenresIdOrderBySequenceAscSequenceNumber(id)
             .map { it.toEntry() }
             .toList()
     )

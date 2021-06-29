@@ -1,6 +1,8 @@
 package name.oshurkov.books.api.book
 
 import kotlinx.coroutines.reactor.*
+import name.oshurkov.books.*
+import name.oshurkov.books.Repositories.Companion.booksRep
 import org.apache.tomcat.util.http.fileupload.FileUploadBase.*
 import org.aspectj.util.*
 import org.springframework.core.io.*
@@ -13,24 +15,21 @@ import kotlin.text.Charsets.UTF_8
 
 @RestControllerAdvice
 @RequestMapping("/api/book")
-class BookController(
-    val bookService: BookService,
-    val bookRepository: BookRepository
-) {
+class BookController {
 
     @GetMapping("{id}/image/thumbnail", produces = [IMAGE_JPEG_VALUE])
     fun thumbnail(@PathVariable id: Int) = mono {
-        bookRepository.getById(id).cover
+        booksRep.getById(id).cover
     }
 
     @PostMapping("{id}/recommended")
     fun recommended(@PathVariable id: Int): ResponseEntity<Unit> = run {
 
-        val book = bookRepository.findByIdOrNull(id)
+        val book = booksRep.findByIdOrNull(id)
 
         if (book != null) {
             book.recommended = true
-            bookRepository.save(book)
+            booksRep.save(book)
             ResponseEntity.ok().build()
         } else
             ResponseEntity.notFound().build()
@@ -43,7 +42,7 @@ class BookController(
         @PathVariable fileId: Int,
     ): ResponseEntity<*> = run {
 
-        val book = bookRepository.findByIdOrNull(id)
+        val book = booksRep.findByIdOrNull(id)
 
         if (book != null) {
 
@@ -75,12 +74,12 @@ class BookController(
         val files = FileUtil
             .listFiles(File(rootDir)) { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") }
             .toList()
-        bookService.import(files)
+        importBooks(files)
     }
 
     @PostMapping("export")
-    fun exportAll(@RequestBody targetDir: String) = bookService.export(targetDir)
+    fun exportAll(@RequestBody targetDir: String) = exportBooks(targetDir)
 
     @PostMapping("backup")
-    fun backupAll(@RequestBody targetDir: String) = bookService.backup(targetDir)
+    fun backupAll(@RequestBody targetDir: String) = backupBooks(targetDir)
 }

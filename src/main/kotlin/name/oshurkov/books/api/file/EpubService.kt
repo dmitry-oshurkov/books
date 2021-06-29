@@ -13,7 +13,7 @@ import javax.xml.namespace.*
 fun parseEpub(files: Map<FileType, List<File>>) = files[EPUB].orEmpty().map { EpubReader().readEpub(it.inputStream()) to it and EPUB }
 
 fun epubToBooks(
-    epub: List<Triple<nl.siegmann.epublib.domain.Book, File, FileType>>,
+    epub: List<Triple<EpubBook, File, FileType>>,
     authors: List<Author>,
     genres: List<Genre>,
     bookFileFn: (Book, File, FileType, String, Int?) -> BookFile,
@@ -66,6 +66,8 @@ fun epubToBooks(
                 }
                 .getOrNull()
         }
+
+typealias EpubBook = nl.siegmann.epublib.domain.Book
 
 
 private val log = LoggerFactory.getLogger(::parseEpub::class.java)
