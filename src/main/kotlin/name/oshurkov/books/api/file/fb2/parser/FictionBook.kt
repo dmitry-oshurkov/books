@@ -3,7 +3,6 @@ package name.oshurkov.books.api.file.fb2.parser
 import org.w3c.dom.*
 import org.xml.sax.*
 import java.io.*
-import java.util.*
 import javax.xml.parsers.*
 
 class FictionBook(file: File?, bytes: ByteArray?) {

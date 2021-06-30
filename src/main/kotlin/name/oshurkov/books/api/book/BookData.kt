@@ -15,6 +15,7 @@ import javax.persistence.Entity
 
 @Entity
 class Book(
+    @Column(nullable = false)
     val title: String,
     @Column(length = 6000)
     val content: String?,
@@ -34,7 +35,7 @@ class Book(
     @ManyToOne(cascade = [MERGE, REFRESH, DETACH])
     val sequence: Sequence?,
     val sequenceNumber: Int?,
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     val hash: UUID,
 
     @ManyToMany(cascade = [MERGE, REFRESH, DETACH])

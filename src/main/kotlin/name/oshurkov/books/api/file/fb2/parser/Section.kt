@@ -1,7 +1,6 @@
 package name.oshurkov.books.api.file.fb2.parser
 
 import org.w3c.dom.*
-import java.util.*
 
 class Section internal constructor(root: Node) : IdElement(root) {
     var image: Image? = null

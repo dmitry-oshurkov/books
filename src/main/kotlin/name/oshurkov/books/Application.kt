@@ -7,8 +7,8 @@ import org.springframework.scheduling.annotation.*
 
 @SpringBootApplication
 @EnableScheduling
-class BooksApplication : SpringBootServletInitializer()
+class Application : SpringBootServletInitializer()
 
 fun main(args: Array<String>) {
-    runApplication<BooksApplication>(*args)
+    runApplication<Application>(*args)
 }

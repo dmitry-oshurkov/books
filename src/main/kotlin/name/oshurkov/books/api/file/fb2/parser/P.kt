@@ -2,7 +2,6 @@ package name.oshurkov.books.api.file.fb2.parser
 
 import name.oshurkov.books.api.file.fb2.parser.fonts.*
 import org.w3c.dom.*
-import java.util.*
 
 open class P : Element {
     var images: ArrayList<Image>? = null

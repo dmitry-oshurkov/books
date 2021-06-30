@@ -1,7 +1,6 @@
 package name.oshurkov.books.api.file.fb2.parser
 
 import org.w3c.dom.*
-import java.util.*
 
 open class TitleInfo internal constructor(document: Document) {
     var genres = ArrayList<String>()

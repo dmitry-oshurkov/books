@@ -8,12 +8,14 @@ import javax.persistence.*
 
 @Entity
 class BookFile(
-    @ManyToOne
+    @ManyToOne(optional = false)
     val book: Book,
     @Lob
+    @Column(nullable = false)
     val content: ByteArray,
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     val hash: UUID,
+    @Column(nullable = false)
     val type: FileType,
 ) : EntityBase()
 
