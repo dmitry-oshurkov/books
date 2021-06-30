@@ -30,6 +30,12 @@
                 <label class="import-results" style="float:right;"></label>
             </p>
             <p>
+                <button id="batch-import" class="k-primary">Импорт из списка URL</button>
+                <label for="batch-import-list"></label>
+                <textarea id="batch-import-list" class="k-textarea batch-import-list" data-role="maskedtextbox"></textarea>
+                <label class="batch-import-results" style="float:right;"></label>
+            </p>
+            <p>
                 <button id="recommended" class="k-primary">В рекомендованные</button>
                 <label for="recommended-id"></label><input id="recommended-id" class="k-input input-dir"/>
                 <label class="recommended-results" style="float:right;"></label>
@@ -46,12 +52,14 @@
                 $("#backup-dir").kendoMaskedTextBox();
                 $("#export-dir").kendoMaskedTextBox();
                 $("#import-dir").kendoMaskedTextBox();
+                $("#batch-import-list").kendoMaskedTextBox();
                 $("#delete-id").kendoMaskedTextBox();
                 $("#recommended-id").kendoMaskedTextBox();
 
                 $("#backup").kendoButton({click: post("/api/book/backup", "#backup-dir", ".backup-results")});
                 $("#export").kendoButton({click: post("/api/book/export", "#export-dir", ".export-results")});
                 $("#import").kendoButton({click: post("/api/book/import", "#import-dir", ".import-results")});
+                $("#batch-import").kendoButton({click: post("/api/book/import/batch", "#batch-import-list", ".batch-import-results")});
                 $("#delete").kendoButton({click: del("/api/book/{id}", "#delete-id", ".delete-results")});
                 $("#recommended").kendoButton({click: postWithId("/api/book/{id}/recommended", "#recommended-id", ".recommended-results")});
             });

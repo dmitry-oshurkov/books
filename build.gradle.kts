@@ -12,6 +12,7 @@ plugins {
 }
 
 val jacksonVersion: String by rootProject
+val ktorVersion: String by rootProject
 val buildNumber = (LocalDate.now().dayOfYear - 1) * 1440 + LocalTime.now().toSecondOfDay().div(60) // minute of year
 
 group = "name.oshurkov"
@@ -46,6 +47,8 @@ dependencies {
         exclude(group = "org.slf4j")
         exclude(group = "xmlpull")
     }
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")

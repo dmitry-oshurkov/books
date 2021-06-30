@@ -1,5 +1,10 @@
 package name.oshurkov.books.api.book
 
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import kotlinx.coroutines.*
 import name.oshurkov.books.*
 import name.oshurkov.books.Properties.Companion.forceCompress
 import name.oshurkov.books.Repositories.Companion.authorsRep
@@ -22,6 +27,30 @@ import java.util.Date
 import java.util.zip.*
 import java.util.zip.Deflater.*
 
+
+fun importBooksBatch(urls: List<String>) {
+
+    // todo parallel
+    val files = runBlocking {
+        urls.map {
+            val response = client.get<HttpResponse>(it)
+            val bytes = response.receive<ByteArray>()
+            val disposition = response.headers["Content-Disposition"] ?: ""
+            val filename = disposition.substringAfter("filename=")
+            val suffix = filename.substring(filename.length - 8, filename.length)
+
+            val tempFile = File.createTempFile("books", suffix)
+            tempFile.writeBytes(bytes)
+            tempFile
+        }
+    }
+
+    try {
+        importBooks(files)
+    } finally {
+        files.forEach { it.delete() }
+    }
+}
 
 fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
 
@@ -109,12 +138,7 @@ private fun bookFile(book: Book, file: File, type: FileType, title: String, seqN
     val (content, hash) = when (type) {
 
         FBZ -> {
-
-            val bytes = ZipFile(file).use {
-                val entry = it.entries().toList().first()
-                it.getInputStream(entry).use { stream -> stream.readAllBytes() }
-            }
-
+            val bytes = unzipFile(file)
             zip(seqNo, title, bytes) to uuid(bytes)
         }
 
@@ -221,4 +245,5 @@ private fun zip(seqNo: Int?, title: String, bytes: ByteArray) =
     }
 
 
+private val client = HttpClient()
 private val log = LoggerFactory.getLogger(::importBooks::class.java)
