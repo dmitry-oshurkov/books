@@ -15,7 +15,7 @@ val jacksonVersion: String by rootProject
 val buildNumber = (LocalDate.now().dayOfYear - 1) * 1440 + LocalTime.now().toSecondOfDay().div(60) // minute of year
 
 group = "name.oshurkov"
-version = "21.1.$buildNumber"
+version = "21.2.$buildNumber"
 java.sourceCompatibility = VERSION_11
 
 configurations {
