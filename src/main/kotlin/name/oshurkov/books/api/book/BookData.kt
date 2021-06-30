@@ -31,7 +31,6 @@ class Book(
     val cover: ByteArray?,
     val coverContentType: String?,
     var recommended: Boolean = false,
-    val free: Boolean = false,
 
     @ManyToOne(cascade = [MERGE, REFRESH, DETACH])
     val sequence: Sequence?,
