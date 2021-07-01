@@ -1,5 +1,6 @@
 package name.oshurkov.books
 
+import kotlinx.coroutines.*
 import java.io.*
 import java.nio.*
 import java.nio.charset.*
@@ -8,6 +9,10 @@ import java.util.*
 import java.util.zip.*
 
 infix fun <A, B, C> Pair<A, B>.and(that: C) = Triple(this.first, this.second, that)
+
+fun <A, B> List<A>.pmap(f: suspend (A) -> B) = runBlocking {
+    map { async { f(it) } }.awaitAll()
+}
 
 fun uuid(bytes: ByteArray) = run {
     val digest = MessageDigest.getInstance("MD5").digest(bytes)
