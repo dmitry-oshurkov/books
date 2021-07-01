@@ -5,7 +5,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import name.oshurkov.books.*
-import name.oshurkov.books.Properties.Companion.forceCompress
+import name.oshurkov.books.Properties.Companion.forceFb2CompressForStore
 import name.oshurkov.books.Repositories.Companion.authorsRep
 import name.oshurkov.books.Repositories.Companion.bookFilesRep
 import name.oshurkov.books.Repositories.Companion.booksRep
@@ -55,38 +55,35 @@ fun importBooksBatch(urls: List<String>) {
 
 fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
 
-    if (files.isNotEmpty()) {
-
-        val filesMap = files
-            .groupBy {
-                when {
-                    it.extension == "fb2" -> FB2
-                    it.name.endsWith(".fb2.zip") -> FBZ
-                    it.extension == "epub" -> EPUB
-                    else -> null
-                }
+    val filesMap = files
+        .groupBy {
+            when {
+                it.extension == "fb2" -> FB2
+                it.name.endsWith(".fb2.zip") -> FBZ
+                it.extension == "epub" -> EPUB
+                else -> null
             }
-            .filter { it.key != null }
-            .mapKeys { it.key!! }
-
-        val fb2 = parseFb2(filesMap)
-        val epub = parseEpub(filesMap)
-
-        val authors = extractAuthors(fb2, epub)
-        val genres = extractGenres(fb2, epub)
-        val sequences = extractSequences(fb2)
-
-        val fb2Books = fb2ToBooks(fb2, authors, genres, ::bookFile, afterSaveFile, sequences)
-        val epubBooks = epubToBooks(epub, authors, genres, ::bookFile, afterSaveFile)
-        val books = fb2Books + epubBooks
-
-        genresRep.saveAll(genres)
-        sequencesRep.saveAll(sequences)
-        authorsRep.saveAll(authors)
-        booksRep.saveAll(books).onEach {
-            bookFilesRep.saveAll(it.files)
-            log.info("Imported: ${it.title}")
         }
+        .filter { it.key != null }
+        .mapKeys { it.key!! }
+
+    val fb2 = parseFb2(filesMap)
+    val epub = parseEpub(filesMap)
+
+    val authors = extractAuthors(fb2, epub)
+    val genres = extractGenres(fb2, epub)
+    val sequences = extractSequences(fb2)
+
+    val fb2Books = fb2ToBooks(fb2, authors, genres, ::bookFile, afterSaveFile, sequences)
+    val epubBooks = epubToBooks(epub, authors, genres, ::bookFile, afterSaveFile)
+    val books = fb2Books + epubBooks
+
+    genresRep.saveAll(genres)
+    sequencesRep.saveAll(sequences)
+    authorsRep.saveAll(authors)
+    booksRep.saveAll(books).onEach {
+        bookFilesRep.saveAll(it.files)
+        log.info("Imported: ${it.title}")
     }
 }
 
@@ -143,7 +140,7 @@ private fun bookFile(book: Book, file: File, type: FileType, title: String, seqN
             zip(seqNo, title, bytes) to uuid(bytes)
         }
 
-        FB2 -> if (forceCompress)
+        FB2 -> if (forceFb2CompressForStore)
             file.readBytes().let { zip(seqNo, title, it) to uuid(it) }
         else
             file.readBytes().let { it to uuid(it) }
@@ -151,7 +148,7 @@ private fun bookFile(book: Book, file: File, type: FileType, title: String, seqN
         else -> file.readBytes().let { it to uuid(it) }
     }
 
-    val newType = if (type == FB2 && forceCompress)
+    val newType = if (type == FB2 && forceFb2CompressForStore)
         FBZ
     else
         type
