@@ -11,10 +11,9 @@
         <p class="title">Книжный каталог</p>
 
         <div class="demo-section">
-            <h3>OPDS каталог: <!--/*@thymesVar id="opds" type="java.lang.String"*/-->
-                <span th:text="${opds}"></span></h3>
-            <!--/*@thymesVar id="opds" type="java.lang.String"*/-->
-            <a th:href="${opds}" target="_blank">(открыть в новой вкладке)</a>
+            <h3>OPDS каталог:
+                <span id="opds-url"></span></h3>
+            <a target="_blank">(открыть в новой вкладке)</a>
 
             <ul id="fieldlist">
                 <li>
@@ -31,7 +30,12 @@
         </div>
 
         <script>
+            let host = window.location.protocol + "//" + window.location.host + "/catalog";
+
             $(document).ready(function () {
+                $("#opds-url").text(host);
+                $("a").attr("href", host);
+
                 $("#books-count").kendoMaskedTextBox();
                 $("#authors-count").kendoMaskedTextBox();
 

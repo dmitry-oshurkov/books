@@ -13,9 +13,10 @@ class BooksController(val env: Environment) {
 
     @GetMapping("/")
     fun index(model: Model, request: HttpServletRequest) = run {
+
         model.addAttribute("booksCount", booksRep.count())
         model.addAttribute("authorsCount", authorsRep.count())
-        model.addAttribute("opds", "${request.requestURL}catalog")
+
         "index"
     }
 
@@ -28,6 +29,7 @@ class BooksController(val env: Environment) {
             "/home/dmitry/Загрузки/books"
 
         model.addAttribute("baseBooksDir", baseBooksDir)
+
         "admin"
     }
 }
