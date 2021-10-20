@@ -18,6 +18,11 @@ class BookRoutes {
 
             DELETE("{id}", ::delete)
             GET("{id}/image", ::image)
+
+            "import/batch".nest {
+
+                POST(::importBatch)
+            }
         }
     }
 
@@ -45,5 +50,13 @@ class BookRoutes {
                 .body(book.cover)
         else
             notFound().build()
+    }
+
+    fun importBatch(request: ServerRequest): ServerResponse = run {
+
+        val urls = request.body(String::class.java).split("\n")
+        importBooksBatch(urls)
+
+        ok().build()
     }
 }

@@ -12,11 +12,13 @@ import java.nio.file.StandardCopyOption.*
 @Component
 class BookFileMonitor {
 
+    init {
+        fileMonitorSource.mkdirs()
+        fileMonitorProcessed.mkdirs()
+    }
+
     @Scheduled(fixedDelay = 1_000)
     fun import() {
-
-        if (!fileMonitorSource.exists())
-            fileMonitorSource.mkdirs()
 
         val files = fileMonitorSource
             .listFiles(FileFilter { it.extension in listOf("fb2", "epub") || it.name.endsWith(".fb2.zip") })
@@ -24,8 +26,6 @@ class BookFileMonitor {
             .toList()
 
         if (files.isNotEmpty())
-            fileMonitorProcessed.mkdirs()
-
-        importBooks(files) { Files.move(it.toPath(), File(fileMonitorProcessed, it.name).toPath(), REPLACE_EXISTING) }
+            importBooks(files) { Files.move(it.toPath(), File(fileMonitorProcessed, it.name).toPath(), REPLACE_EXISTING) }
     }
 }

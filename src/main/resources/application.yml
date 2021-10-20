@@ -11,7 +11,8 @@ spring:
       ddl-auto: update
 
 books:
+  import:
+    forceFb2CompressForStore: true
   fileMonitor:
     source: /home/dmitry/Загрузки
     processed: /home/dmitry/Загрузки/books/processed
-    forceCompress: true

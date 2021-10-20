@@ -31,6 +31,15 @@ body::after {
     width: 500px !important;
 }
 
+.batch-import-list {
+    width: 900px !important;
+    height: 200px !important;
+}
+
+.demo-section {
+    max-width: 1000px !important;
+}
+
 .demo-section p {
-    width: 900px;
+    width: 1000px;
 }

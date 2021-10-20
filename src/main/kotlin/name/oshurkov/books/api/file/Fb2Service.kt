@@ -10,19 +10,14 @@ import name.oshurkov.books.api.sequence.Sequence
 import org.apache.tomcat.util.codec.binary.*
 import org.slf4j.*
 import java.io.*
-import java.util.zip.*
 
 fun parseFb2(files: Map<FileType, List<File>>) = run {
 
     val fbz = files[FBZ].orEmpty()
         .mapNotNull { file ->
+
             runCatching {
-
-                val bytes = ZipFile(file).use {
-                    val entry = it.entries().toList().first()
-                    it.getInputStream(entry).use { stream -> stream.readAllBytes() }
-                }
-
+                val bytes = unzipFile(file)
                 FictionBook(null, bytes) to file and FBZ
             }
                 .getOrNull()
