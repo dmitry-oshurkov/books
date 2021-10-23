@@ -23,6 +23,13 @@ class CatalogController {
         ),
         entries = listOf(
             Entry(
+                id = "tag:root:unread",
+                title = "Непрочитанные",
+                updated = Date(),
+                content = Content("Непрочитанные книги"),
+                links = listOf(Acquisition(rel = "subsection", href = unreadCat))
+            ),
+            Entry(
                 id = "tag:root:recommended",
                 title = "Рекомендуемые",
                 updated = Date(),
@@ -63,6 +70,20 @@ class CatalogController {
             Navigation(rel = "up", href = rootCat),
         ),
         entries = booksRep.findByRecommendedTrue()
+            .map { it.toEntry() }
+            .toList()
+    )
+
+    @GetMapping("unread", produces = [APPLICATION_XML_VALUE])
+    fun unread() = Feed(
+        id = "tag:unread",
+        title = "Непрочитанные книги",
+        links = listOf(
+            Acquisition(rel = "self", href = unreadCat),
+            Navigation(rel = "start", href = rootCat),
+            Navigation(rel = "up", href = rootCat),
+        ),
+        entries = booksRep.findByUnreadTrue()
             .map { it.toEntry() }
             .toList()
     )
@@ -230,6 +251,7 @@ class CatalogController {
 
     private val rootCat = "/catalog"
     private val recommendedCat = "$rootCat/recommended"
+    private val unreadCat = "$rootCat/unread"
     private val recentCat = "$rootCat/recent"
     private val authorsCat = "$rootCat/authors"
     private val genresCat = "$rootCat/genres"

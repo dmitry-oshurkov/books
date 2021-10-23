@@ -31,6 +31,7 @@ class Book(
     val cover: ByteArray?,
     val coverContentType: String?,
     var recommended: Boolean = false,
+    val unread: Boolean = true,
 
     @ManyToOne(cascade = [MERGE, REFRESH, DETACH])
     val sequence: Sequence?,
@@ -54,5 +55,6 @@ interface BookRepository : JpaRepository<Book, Int> {
     fun findByGenresIdOrderBySequenceAscSequenceNumber(id: Int): List<Book>
     fun findBySequenceIdOrderBySequenceNumber(id: Int): List<Book>
     fun findByRecommendedTrue(): List<Book>
+    fun findByUnreadTrue(): List<Book>
     fun findTop10ByOrderByUpdatedDesc(): List<Book>
 }
