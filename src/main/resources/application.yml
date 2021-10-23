@@ -1,14 +1,13 @@
 spring:
   datasource:
-    driverClassName: org.h2.Driver
-    password: password
-    url: jdbc:h2:file:~/.local/share/books/db;AUTO_SERVER=TRUE
-    username: sa
+    url: jdbc:postgresql://localhost:5711/books
+    password: postgres
+    username: postgres
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-#      ddl-auto: create
-      ddl-auto: update
+      ddl-auto: create
+#      ddl-auto: update
+
 
 books:
   import:

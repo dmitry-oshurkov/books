@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgres:12.6
+    volumes:
+      - ${STORAGE}/postgres/data:/var/lib/postgresql/data:delegated
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=books
+    ports:
+      - "5711:5432"
+    networks:
+      - back-tier
+
+
+  books:
+    image: dmitryoshurkov/books
+    volumes:
+      - /home/dmitry/.local/share/books:/var/lib/books
+    ports:
+      - "8091:8080"
+    networks:
+      - back-tier
+
+
+volumes:
+  db-data:
+  books-data:
+
+
+networks:
+  back-tier:

@@ -51,7 +51,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.tukaani:xz:1.8") // for commons-compress
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
