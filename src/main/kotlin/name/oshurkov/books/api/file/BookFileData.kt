@@ -2,9 +2,11 @@ package name.oshurkov.books.api.file
 
 import name.oshurkov.books.api.*
 import name.oshurkov.books.api.book.*
+import org.hibernate.annotations.*
 import org.springframework.data.jpa.repository.*
 import java.util.*
 import javax.persistence.*
+import javax.persistence.Entity
 
 @Entity
 class BookFile(
@@ -12,6 +14,7 @@ class BookFile(
     val book: Book,
     @Lob
     @Column(nullable = false)
+    @Type(type = "org.hibernate.type.ImageType")
     val content: ByteArray,
     @Column(nullable = false, unique = true)
     val hash: UUID,

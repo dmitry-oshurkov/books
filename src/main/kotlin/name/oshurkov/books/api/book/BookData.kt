@@ -28,6 +28,7 @@ class Book(
     val issued: String?,
     val publisher: String?,
     @Lob
+    @Type(type = "org.hibernate.type.ImageType")
     val cover: ByteArray?,
     val coverContentType: String?,
     var recommended: Boolean = false,
