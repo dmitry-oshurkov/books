@@ -56,12 +56,12 @@
                 $("#delete-id").kendoMaskedTextBox();
                 $("#recommended-id").kendoMaskedTextBox();
 
-                $("#backup").kendoButton({click: post("/api/book/backup", "#backup-dir", ".backup-results")});
-                $("#export").kendoButton({click: post("/api/book/export", "#export-dir", ".export-results")});
-                $("#import").kendoButton({click: post("/api/book/import", "#import-dir", ".import-results")});
-                $("#batch-import").kendoButton({click: post("/api/book/import/batch", "#batch-import-list", ".batch-import-results")});
-                $("#delete").kendoButton({click: del("/api/book/{id}", "#delete-id", ".delete-results")});
-                $("#recommended").kendoButton({click: postWithId("/api/book/{id}/recommended", "#recommended-id", ".recommended-results")});
+                $("#backup").kendoButton({click: post("/api/books/backup", "#backup-dir", ".backup-results")});
+                $("#export").kendoButton({click: post("/api/books/export", "#export-dir", ".export-results")});
+                $("#import").kendoButton({click: post("/api/books/import", "#import-dir", ".import-results")});
+                $("#batch-import").kendoButton({click: post("/api/books/import/batch", "#batch-import-list", ".batch-import-results")});
+                $("#delete").kendoButton({click: del("/api/books/{id}", "#delete-id", ".delete-results")});
+                $("#recommended").kendoButton({click: postWithId("/api/books/{id}/recommended", "#recommended-id", ".recommended-results")});
             });
 
             function post(url, selector, selector1) {
