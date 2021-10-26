@@ -5,13 +5,13 @@ services:
   postgres:
     image: postgres:12.6
     volumes:
-      - ${STORAGE}/postgres/data:/var/lib/postgresql/data:delegated
+      - ${STORAGE}/data:/var/lib/postgresql/data:delegated
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=books
     ports:
-      - "5711:5432"
+      - "5712:5432"
     networks:
       - back-tier
 

@@ -10,7 +10,7 @@ class RequestLoggingFilterConfig {
         setIncludeQueryString(true)
         setIncludePayload(true)
         setMaxPayloadLength(10000)
-        setIncludeHeaders(false)
+        setIncludeHeaders(true)
         setAfterMessagePrefix("REQUEST DATA : ")
     }
 }
