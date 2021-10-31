@@ -28,35 +28,55 @@ fun rootCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerRes
                         title = "Непрочитанные",
                         updated = Date(),
                         content = Content("Непрочитанные книги"),
-                        links = listOf(Acquisition(rel = "subsection", href = UNREAD_CAT))
+                        links = listOf(
+                            Acquisition(rel = "subsection", href = UNREAD_CAT),
+                            ImageThumbnail(href = "/abstract.png"),
+                            Thumbnail(href = "/abstract.png"),
+                        )
                     ),
                     Entry(
                         id = "tag:root:recommended",
                         title = "Рекомендуемые",
                         updated = Date(),
                         content = Content("Рекомендуемые книги"),
-                        links = listOf(Acquisition(rel = "subsection", href = RECOMMENDED_CAT))
+                        links = listOf(
+                            Acquisition(rel = "subsection", href = RECOMMENDED_CAT),
+                            ImageThumbnail(href = "/free.png"),
+                            Thumbnail(href = "/free.png"),
+                        )
                     ),
                     Entry(
                         id = "tag:root:recent",
                         title = "Недавно добавленные",
                         updated = Date(),
                         content = Content("Недавно добавленные книги"),
-                        links = listOf(Acquisition(rel = "subsection", href = RECENT_CAT))
+                        links = listOf(
+                            Acquisition(rel = "subsection", href = RECENT_CAT),
+                            ImageThumbnail(href = "/abstract.png"),
+                            Thumbnail(href = "/abstract.png"),
+                        )
                     ),
                     Entry(
                         id = "tag:root:authors",
                         title = "По авторам",
                         updated = Date(),
                         content = Content("Поиск книг по авторам"),
-                        links = listOf(Navigation(rel = "subsection", href = AUTHORS_CAT))
+                        links = listOf(
+                            Navigation(rel = "subsection", href = AUTHORS_CAT),
+                            ImageThumbnail(href = "/author.png"),
+                            Thumbnail(href = "/author.png"),
+                        )
                     ),
                     Entry(
                         id = "tag:root:genre",
                         title = "По жанрам",
                         updated = Date(),
                         content = Content("Поиск книг по жанрам"),
-                        links = listOf(Navigation(rel = "subsection", href = GENRES_CAT))
+                        links = listOf(
+                            Navigation(rel = "subsection", href = GENRES_CAT),
+                            ImageThumbnail(href = "/genre.png"),
+                            Thumbnail(href = "/genre.png"),
+                        )
                     )
                 )
             )
@@ -143,6 +163,8 @@ fun authorsCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): Server
                         updated = it.updated,
                         links = listOf(
                             Navigation(rel = "subsection", href = "/catalog/authors/${it.id}/books"),
+                            ImageThumbnail(href = "/author.png"),
+                            Thumbnail(href = "/author.png"),
                         )
                     )
                 }
@@ -246,6 +268,8 @@ fun genresCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerR
                         updated = it.updated,
                         links = listOf(
                             Navigation(rel = "subsection", href = "/catalog/genres/${it.id}/books"),
+                            ImageThumbnail(href = "/genre.png"),
+                            Thumbnail(href = "/genre.png"),
                         )
                     )
                 }

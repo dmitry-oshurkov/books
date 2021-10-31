@@ -35,6 +35,24 @@ data class Author(
 
 interface CatalogLink
 
+open class ImageThumbnail(
+    @JacksonXmlProperty(isAttribute = true)
+    val type: String = "image/png",
+    @JacksonXmlProperty(isAttribute = true)
+    val rel: String = "http://opds-spec.org/image/thumbnail",
+    @JacksonXmlProperty(isAttribute = true)
+    val href: String
+) : CatalogLink
+
+open class Thumbnail(
+    @JacksonXmlProperty(isAttribute = true)
+    val type: String = "image/png",
+    @JacksonXmlProperty(isAttribute = true)
+    val rel: String = "http://opds-spec.org/thumbnail",
+    @JacksonXmlProperty(isAttribute = true)
+    val href: String
+) : CatalogLink
+
 open class Link(
     @JacksonXmlProperty(isAttribute = true)
     val type: String = "application/atom+xml;profile=opds-catalog;",
