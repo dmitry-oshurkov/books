@@ -13,7 +13,7 @@ import java.util.*
 fun rootCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:root",
@@ -66,7 +66,7 @@ fun rootCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerRes
 fun recommendedCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:recommended",
@@ -86,7 +86,7 @@ fun recommendedCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): Se
 fun unreadCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:unread",
@@ -106,7 +106,7 @@ fun unreadCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerR
 fun recentCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:recent",
@@ -126,7 +126,7 @@ fun recentCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerR
 fun authorsCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:authors",
@@ -160,7 +160,7 @@ fun authorBooksCatalog(request: ServerRequest): ServerResponse = run {
         .toList()
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:authors:$id",
@@ -193,7 +193,7 @@ fun authorSequencesCatalog(request: ServerRequest): ServerResponse = run {
     }
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:authors",
@@ -213,7 +213,7 @@ fun authorSequenceBooksCatalog(request: ServerRequest): ServerResponse = run {
     val id = request.pathVariable("id").toInt()
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:sequences:$id",
@@ -229,7 +229,7 @@ fun authorSequenceBooksCatalog(request: ServerRequest): ServerResponse = run {
 fun genresCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:genres",
@@ -258,7 +258,7 @@ fun genreBooksCatalog(request: ServerRequest): ServerResponse = run {
     val id = request.pathVariable("id").toInt()
 
     ok()
-        .contentType(parseMediaType(APPLICATION_XML_VALUE))
+        .contentType(APPLICATION_XML)
         .body(
             Feed(
                 id = "tag:genre:$id",
