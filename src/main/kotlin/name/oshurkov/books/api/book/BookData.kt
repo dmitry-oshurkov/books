@@ -33,6 +33,7 @@ class Book(
     val coverContentType: String?,
     var recommended: Boolean = false,
     val unread: Boolean = true,
+    val verified: Boolean = false,
 
     @ManyToOne(cascade = [MERGE, REFRESH, DETACH])
     val sequence: Sequence?,
