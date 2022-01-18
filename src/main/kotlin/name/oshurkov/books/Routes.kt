@@ -6,21 +6,21 @@ import org.springframework.web.servlet.function.*
 
 val routes = router {
 
-    "/api/books".nest {
-        POST("/export", ::exportBooks)
-        POST("/backup", ::backupBooks)
+    "api/books".nest {
+        POST("export", ::exportBooks)
+        POST("backup", ::backupBooks)
 
-        "/import".nest {
-            POST("/batch", ::importBatch)
+        "import".nest {
+            POST("batch", ::importBatch)
             POST(::import)
         }
 
-        "/{id}".nest {
-            POST("/recommended", ::setBookAsRecommended)
-            GET("/files/{fileId}", ::downloadBook)
+        "{id}".nest {
+            POST("recommended", ::setBookAsRecommended)
+            GET("files/{fileId}", ::downloadBook)
 
-            "/image".nest {
-                GET("/thumbnail", ::bookThumbnail)
+            "image".nest {
+                GET("thumbnail", ::bookThumbnail)
                 GET(::bookImage)
             }
 
@@ -28,17 +28,17 @@ val routes = router {
         }
     }
 
-    "/catalog".nest {
-        GET("/recommended", ::recommendedCatalog)
-        GET("/unread", ::unreadCatalog)
-        GET("/recent", ::recentCatalog)
+    "catalog".nest {
+        GET("recommended", ::recommendedCatalog)
+        GET("unread", ::unreadCatalog)
+        GET("recent", ::recentCatalog)
 
-        "/authors".nest {
-            "/{id}".nest {
-                GET("/books", ::authorBooksCatalog)
+        "authors".nest {
+            "{id}".nest {
+                GET("books", ::authorBooksCatalog)
 
-                "/sequences".nest {
-                    GET("/{id}/books", ::authorSequenceBooksCatalog)
+                "sequences".nest {
+                    GET("{sequenceId}/books", ::authorSequenceBooksCatalog)
                     GET(::authorSequencesCatalog)
                 }
             }
@@ -46,8 +46,8 @@ val routes = router {
             GET(::authorsCatalog)
         }
 
-        "/genres".nest {
-            GET("/{id}/books", ::genreBooksCatalog)
+        "genres".nest {
+            GET("{id}/books", ::genreBooksCatalog)
             GET(::genresCatalog)
         }
 

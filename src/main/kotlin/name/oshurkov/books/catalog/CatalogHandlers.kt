@@ -162,7 +162,7 @@ fun authorsCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): Server
                         title = it.toStringForList(),
                         updated = it.updated,
                         links = listOf(
-                            Navigation(rel = "subsection", href = "/catalog/authors/${it.id}/books"),
+                            Navigation(rel = "subsection", href = "$AUTHORS_CAT/${it.id}/books"),
                             ImageThumbnail(href = "/author.png"),
                             Thumbnail(href = "/author.png"),
                         )
@@ -188,7 +188,7 @@ fun authorBooksCatalog(request: ServerRequest): ServerResponse = run {
                 id = "tag:authors:$id",
                 title = "Все книги автора ${author?.toString()}",
                 links = if (author?.sequences?.isNotEmpty() == true)
-                    listOf(Acquisition(rel = "http://opds-spec.org/facet", href = "/catalog/authors/$id/sequences", title = "По сериям", facetGroup = "Серии", activeFacet = true))
+                    listOf(Acquisition(rel = "http://opds-spec.org/facet", href = "$AUTHORS_CAT/$id/sequences", title = "По сериям", facetGroup = "Серии", activeFacet = true))
                 else
                     emptyList(),
                 entries = bookEntries
@@ -208,8 +208,8 @@ fun authorSequencesCatalog(request: ServerRequest): ServerResponse = run {
             title = it.name,
             updated = it.updated,
             links = listOf(
-                Navigation(rel = "subsection", href = "/catalog/sequences/${it.id}/books"),
-                Navigation(rel = "up", href = "/catalog/authors/$id/sequences"),
+                Navigation(rel = "subsection", href = "$AUTHORS_CAT/$id/sequences/${it.id}/books"),
+                Navigation(rel = "up", href = "$AUTHORS_CAT/$id/sequences"),
             )
         )
     }
@@ -221,7 +221,7 @@ fun authorSequencesCatalog(request: ServerRequest): ServerResponse = run {
                 id = "tag:authors",
                 title = "По сериям",
                 links = listOf(
-                    Acquisition(rel = "self", href = "/catalog/authors/$id/sequences"),
+                    Acquisition(rel = "self", href = "$AUTHORS_CAT/$id/sequences"),
                     Navigation(rel = "start", href = ROOT_CAT),
                     Navigation(rel = "up", href = AUTHORS_CAT),
                 ),
@@ -232,7 +232,7 @@ fun authorSequencesCatalog(request: ServerRequest): ServerResponse = run {
 
 fun authorSequenceBooksCatalog(request: ServerRequest): ServerResponse = run {
 
-    val id = request.pathVariable("id").toInt()
+    val id = request.pathVariable("sequenceId").toInt()
 
     ok()
         .contentType(APPLICATION_XML)
@@ -267,7 +267,7 @@ fun genresCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerR
                         title = it.name,
                         updated = it.updated,
                         links = listOf(
-                            Navigation(rel = "subsection", href = "/catalog/genres/${it.id}/books"),
+                            Navigation(rel = "subsection", href = "$GENRES_CAT/${it.id}/books"),
                             ImageThumbnail(href = "/genre.png"),
                             Thumbnail(href = "/genre.png"),
                         )
@@ -318,7 +318,7 @@ private fun Book.toEntry(includeSequenceNumber: Boolean = false, sequenceNumberF
     publisher = publisher,
     sources = listOf(),
     links = listOf(
-        *authors.map { Navigation(rel = "related", href = "/catalog/authors/${it.id}/books", title = "Все книги автора $it") }.toTypedArray(),
+        *authors.map { Navigation(rel = "related", href = "$AUTHORS_CAT/${it.id}/books", title = "Все книги автора $it") }.toTypedArray(),
         *coverContentType?.let {
             listOf(
                 Link(rel = "http://opds-spec.org/image", href = "/api/books/$id/image", type = coverContentType),

@@ -14,5 +14,5 @@ books:
   import:
     forceFb2CompressForStore: true
   fileMonitor:
-    source: /home/dmitry/Загрузки
+    source: /home/dmitry/Загрузки/books/autoimport
     processed: /home/dmitry/Загрузки/books/processed

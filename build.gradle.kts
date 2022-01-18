@@ -16,7 +16,7 @@ val ktorVersion: String by rootProject
 val buildNumber = (LocalDate.now().dayOfYear - 1) * 1440 + LocalTime.now().toSecondOfDay().div(60) // minute of year
 
 group = "name.oshurkov"
-version = "21.3.$buildNumber"
+version = "22.1.${buildNumber.toString().padStart(6, '0')}"
 java.sourceCompatibility = VERSION_11
 
 configurations {
