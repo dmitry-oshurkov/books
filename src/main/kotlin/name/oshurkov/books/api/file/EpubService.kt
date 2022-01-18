@@ -44,7 +44,7 @@ fun epubToBooks(
                     publisher = ep.metadata.publishers.firstOrNull(),
                     cover = ep.coverImage?.data,
                     coverContentType = ep.coverImage?.mediaType?.name,
-                    recommended = file.name.contains("*]") || file.name.startsWith("*"),
+                    recommended = file.name.isRecommended(),
                     sequence = null,
                     sequenceNumber = null,
                     hash = bookHash(bookAuthors, ep.title),

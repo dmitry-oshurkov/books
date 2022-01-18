@@ -72,7 +72,7 @@ fun fb2ToBooks(
                     publisher = null,
                     cover = binary?.binary?.let { Base64.decodeBase64(it) },
                     coverContentType = binary?.contentType,
-                    recommended = file.name.contains("*]") || file.name.startsWith("*"),
+                    recommended = file.name.isRecommended(),
                     sequence = bookSequence,
                     sequenceNumber = sequenceNumber,
                     hash = bookHash(bookAuthors, fb.title),

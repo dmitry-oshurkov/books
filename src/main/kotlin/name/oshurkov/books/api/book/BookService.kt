@@ -110,9 +110,9 @@ fun exportBooks(targetDir: String) {
             val baseName = "${it.title}.${f.type.extension}"
 
             val newFileName = if (it.sequence != null && it.sequenceNumber != null)
-                "[${it.sequenceNumber}${if (it.recommended) "*" else ""}] $baseName"
+                "[${it.sequenceNumber}${if (it.recommended) RECOMMENDED_TAG else ""}] $baseName"
             else
-                "${if (it.recommended) "* " else ""}$baseName"
+                "${if (it.recommended) "$RECOMMENDED_TAG " else ""}$baseName"
 
             File(newFileDir, newFileName).writeBytes(f.content)
         }
@@ -129,6 +129,9 @@ fun backupBooks(targetDir: String) {
     createSevenZipFile(File(root, "$backupName.7z"), exported)
     exported.deleteRecursively()
 }
+
+
+fun String.isRecommended() = contains("$RECOMMENDED_TAG]") || startsWith(RECOMMENDED_TAG)
 
 
 private fun bookFile(book: Book, file: File, type: FileType, title: String, seqNo: Int?) = run {
@@ -244,3 +247,6 @@ private fun zip(seqNo: Int?, title: String, bytes: ByteArray) =
 
 
 private val log = LoggerFactory.getLogger(::importBooks::class.java)
+
+
+private const val RECOMMENDED_TAG = "+"
