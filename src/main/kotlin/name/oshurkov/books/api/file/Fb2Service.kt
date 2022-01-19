@@ -60,6 +60,7 @@ fun fb2ToBooks(
                 val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
                 val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
                 val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
+                val attrs = file.name.parseAttrs()
 
                 Book(
                     title = fb.title,
@@ -72,7 +73,9 @@ fun fb2ToBooks(
                     publisher = null,
                     cover = binary?.binary?.let { Base64.decodeBase64(it) },
                     coverContentType = binary?.contentType,
-                    recommended = file.name.isRecommended(),
+                    recommended = attrs.isRecommended(),
+                    verified = !attrs.isNotVerified(),
+                    unread = attrs.isUnread(),
                     sequence = bookSequence,
                     sequenceNumber = sequenceNumber,
                     hash = bookHash(bookAuthors, fb.title),

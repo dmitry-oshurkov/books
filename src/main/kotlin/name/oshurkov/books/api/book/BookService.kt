@@ -107,12 +107,19 @@ fun exportBooks(targetDir: String) {
 
         it.files.forEach { f ->
 
-            val baseName = "${it.title}.${f.type.extension}"
+            val sequenceNumber = if (it.sequence != null && it.sequenceNumber != null) it.sequenceNumber.toString() else ""
+            val recommended = if (it.recommended) RECOMMENDED_TAG else ""
+            val unread = if (it.unread) UNREAD_TAG else ""
+            val notVerified = if (!it.verified) NOT_VERIFIED_TAG else ""
 
-            val newFileName = if (it.sequence != null && it.sequenceNumber != null)
-                "[${it.sequenceNumber}${if (it.recommended) RECOMMENDED_TAG else ""}] $baseName"
+            val attrs = listOf(sequenceNumber, recommended, unread, notVerified).joinToString("")
+
+            val prefix = if (attrs.isNotEmpty())
+                "[$attrs] "
             else
-                "${if (it.recommended) "$RECOMMENDED_TAG " else ""}$baseName"
+                ""
+
+            val newFileName = "$prefix${it.title}.${f.type.extension}"
 
             File(newFileDir, newFileName).writeBytes(f.content)
         }
@@ -131,7 +138,11 @@ fun backupBooks(targetDir: String) {
 }
 
 
-fun String.isRecommended() = contains("$RECOMMENDED_TAG]") || startsWith(RECOMMENDED_TAG)
+fun String.isRecommended() = contains(RECOMMENDED_TAG)
+fun String.isUnread() = contains(UNREAD_TAG)
+fun String.isNotVerified() = contains(NOT_VERIFIED_TAG)
+
+fun String.parseAttrs() = attrReg.find(this)?.groupValues?.get(1) ?: ""
 
 
 private fun bookFile(book: Book, file: File, type: FileType, title: String, seqNo: Int?) = run {
@@ -248,5 +259,8 @@ private fun zip(seqNo: Int?, title: String, bytes: ByteArray) =
 
 private val log = LoggerFactory.getLogger(::importBooks::class.java)
 
-
 private const val RECOMMENDED_TAG = "+"
+private const val UNREAD_TAG = "!"
+private const val NOT_VERIFIED_TAG = "^"
+
+private val attrReg = "^(?>\\[(?<ATTR>.+)\\])?.*".toRegex()

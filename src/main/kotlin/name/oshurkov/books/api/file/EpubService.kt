@@ -32,6 +32,7 @@ fun epubToBooks(
                     .toSet()
 
                 val summary = ep.metadata.descriptions.firstOrNull()
+                val attrs = file.name.parseAttrs()
 
                 Book(
                     title = ep.title,
@@ -44,7 +45,9 @@ fun epubToBooks(
                     publisher = ep.metadata.publishers.firstOrNull(),
                     cover = ep.coverImage?.data,
                     coverContentType = ep.coverImage?.mediaType?.name,
-                    recommended = file.name.isRecommended(),
+                    recommended = attrs.isRecommended(),
+                    verified = !attrs.isNotVerified(),
+                    unread = attrs.isUnread(),
                     sequence = null,
                     sequenceNumber = null,
                     hash = bookHash(bookAuthors, ep.title),
