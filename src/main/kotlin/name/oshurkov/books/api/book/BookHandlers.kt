@@ -19,7 +19,7 @@ fun deleteBook(request: ServerRequest): ServerResponse = run {
 
     if (book != null) {
         booksRep.delete(book)
-        ok().build()
+        noContent().build()
     } else
         notFound().build()
 }
@@ -79,7 +79,7 @@ fun setBookAsRecommended(request: ServerRequest): ServerResponse = run {
     if (book != null) {
         book.recommended = true
         booksRep.save(book)
-        ok().build()
+        noContent().build()
     } else
         notFound().build()
 }
@@ -94,7 +94,7 @@ fun import(request: ServerRequest): ServerResponse = run {
 
     importBooks(files)
 
-    ok().build()
+    noContent().build()
 }
 
 fun importBatch(request: ServerRequest): ServerResponse = run {
@@ -102,7 +102,7 @@ fun importBatch(request: ServerRequest): ServerResponse = run {
     val urls = request.body(String::class.java).split("\n")
     importBooksBatch(urls)
 
-    ok().build()
+    noContent().build()
 }
 
 fun exportBooks(request: ServerRequest): ServerResponse = run {
@@ -110,7 +110,7 @@ fun exportBooks(request: ServerRequest): ServerResponse = run {
     val targetDir = request.body<String>()
     exportBooks(targetDir)
 
-    ok().build()
+    noContent().build()
 }
 
 fun backupBooks(request: ServerRequest): ServerResponse = run {
@@ -118,5 +118,5 @@ fun backupBooks(request: ServerRequest): ServerResponse = run {
     val targetDir = request.body<String>()
     backupBooks(targetDir)
 
-    ok().build()
+    noContent().build()
 }
