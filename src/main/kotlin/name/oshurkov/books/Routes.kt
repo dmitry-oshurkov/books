@@ -32,6 +32,7 @@ val routes = router {
         GET("recommended", ::recommendedCatalog)
         GET("unread", ::unreadCatalog)
         GET("recent", ::recentCatalog)
+        GET("unverified", ::unverifiedCatalog)
 
         "authors".nest {
             "{id}".nest {

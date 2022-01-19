@@ -58,5 +58,6 @@ interface BookRepository : JpaRepository<Book, Int> {
     fun findBySequenceIdOrderBySequenceNumber(id: Int): List<Book>
     fun findByRecommendedTrue(): List<Book>
     fun findByUnreadTrue(): List<Book>
+    fun findByVerifiedFalse(): List<Book>
     fun findTop10ByOrderByUpdatedDesc(): List<Book>
 }

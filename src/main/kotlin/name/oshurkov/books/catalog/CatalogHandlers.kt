@@ -77,7 +77,18 @@ fun rootCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerRes
                             ImageThumbnail(href = "/genre.png"),
                             Thumbnail(href = "/genre.png"),
                         )
-                    )
+                    ),
+                    Entry(
+                        id = "tag:root:unverified",
+                        title = "Непроверенные",
+                        updated = Date(),
+                        content = Content("Непроверенные книги"),
+                        links = listOf(
+                            Acquisition(rel = "subsection", href = UNVERIFIED_CAT),
+                            ImageThumbnail(href = "/abstract.png"),
+                            Thumbnail(href = "/abstract.png"),
+                        )
+                    ),
                 )
             )
         )
@@ -142,6 +153,27 @@ fun recentCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerR
             )
         )
 }
+
+fun unverifiedCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
+
+    ok()
+        .contentType(APPLICATION_XML)
+        .body(
+            Feed(
+                id = "tag:unverified",
+                title = "Непроверенные книги",
+                links = listOf(
+                    Acquisition(rel = "self", href = UNVERIFIED_CAT),
+                    Navigation(rel = "start", href = ROOT_CAT),
+                    Navigation(rel = "up", href = ROOT_CAT),
+                ),
+                entries = booksRep.findByVerifiedFalse()
+                    .map { it.toEntry() }
+                    .toList()
+            )
+        )
+}
+
 
 fun authorsCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
 
@@ -248,6 +280,7 @@ fun authorSequenceBooksCatalog(request: ServerRequest): ServerResponse = run {
         )
 }
 
+
 fun genresCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerResponse = run {
 
     ok()
@@ -338,3 +371,4 @@ private const val UNREAD_CAT = "$ROOT_CAT/unread"
 private const val RECENT_CAT = "$ROOT_CAT/recent"
 private const val AUTHORS_CAT = "$ROOT_CAT/authors"
 private const val GENRES_CAT = "$ROOT_CAT/genres"
+private const val UNVERIFIED_CAT = "$ROOT_CAT/unverified"
