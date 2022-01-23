@@ -3,7 +3,7 @@ package name.oshurkov.books.catalog
 import name.oshurkov.books.*
 import name.oshurkov.books.Repositories.Companion.authorsRep
 import name.oshurkov.books.Repositories.Companion.booksRep
-import name.oshurkov.books.api.book.*
+import name.oshurkov.books.book.*
 import org.springframework.data.repository.*
 import org.springframework.http.MediaType.*
 import org.springframework.web.servlet.function.*
@@ -359,11 +359,11 @@ private fun Book.toEntry(includeSequenceNumber: Boolean = false, sequenceNumberF
         *authors.map { Navigation(rel = "related", href = "$AUTHORS_CAT/${it.id}/books", title = "Все книги автора $it") }.toTypedArray(),
         *coverContentType?.let {
             listOf(
-                Link(rel = "http://opds-spec.org/image", href = "/api/books/$id/image", type = coverContentType),
-                Link(rel = "http://opds-spec.org/image/thumbnail", href = "/api/books/$id/image/thumbnail", type = coverContentType),
+                Link(rel = "http://opds-spec.org/image", href = "/books/$id/image", type = coverContentType),
+                Link(rel = "http://opds-spec.org/image/thumbnail", href = "/books/$id/image/thumbnail", type = coverContentType),
             )
         }.orEmpty().toTypedArray(),
-        *files.map { Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/api/books/$id/files/${it.id}", type = it.type.contentType, title = it.type.contentType) }.toTypedArray()
+        *files.map { Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/books/$id/files/${it.id}", type = it.type.contentType, title = it.type.contentType) }.toTypedArray()
     )
 )
 

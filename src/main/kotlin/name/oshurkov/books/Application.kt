@@ -1,6 +1,6 @@
 package name.oshurkov.books
 
-import name.oshurkov.books.api.swagger.*
+import name.oshurkov.books.swagger.*
 import org.springframework.boot.*
 import org.springframework.boot.autoconfigure.*
 import org.springframework.boot.web.servlet.support.*

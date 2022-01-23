@@ -1,12 +1,13 @@
 package name.oshurkov.books
 
-import name.oshurkov.books.api.book.*
+import name.oshurkov.books.book.*
 import name.oshurkov.books.catalog.*
 import org.springframework.web.servlet.function.*
 
+
 val routes = router {
 
-    "api/books".nest {
+    "books".nest {
         POST("export", ::exportBooks)
         POST("backup", ::backupBooks)
 

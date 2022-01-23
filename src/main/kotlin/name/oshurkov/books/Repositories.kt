@@ -1,10 +1,9 @@
 package name.oshurkov.books
 
-import name.oshurkov.books.api.author.*
-import name.oshurkov.books.api.book.*
-import name.oshurkov.books.api.file.*
-import name.oshurkov.books.api.genre.*
-import name.oshurkov.books.api.sequence.*
+import name.oshurkov.books.author.*
+import name.oshurkov.books.book.*
+import name.oshurkov.books.genre.*
+import name.oshurkov.books.sequence.*
 import org.springframework.beans.factory.annotation.*
 import org.springframework.stereotype.*
 
@@ -25,7 +24,7 @@ class Repositories {
         lateinit var sequencesRep: SequenceRepository
             @Autowired set
 
-        lateinit var bookFilesRep: BookFileRepository
+        lateinit var bookFilesRep: name.oshurkov.books.file.BookFileRepository
             @Autowired set
     }
 }
