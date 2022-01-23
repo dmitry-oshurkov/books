@@ -12,7 +12,6 @@ plugins {
 }
 
 val jacksonVersion: String by rootProject
-val ktorVersion: String by rootProject
 val buildNumber = (LocalDate.now().dayOfYear - 1) * 1440 + LocalTime.now().toSecondOfDay().div(60) // minute of year
 
 group = "name.oshurkov"
@@ -33,10 +32,8 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.0.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation("org.apache.commons:commons-compress:1.21")
@@ -44,11 +41,11 @@ dependencies {
         exclude(group = "org.slf4j")
         exclude(group = "xmlpull")
     }
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("org.webjars:swagger-ui:4.1.2")
+    implementation("io.ktor:ktor-client-cio:1.6.7")
+    implementation("org.webjars:swagger-ui:4.1.3")
     implementation("org.webjars:webjars-locator:0.42")
 
-    runtimeOnly("org.postgresql:postgresql:42.3.0")
+    runtimeOnly("org.postgresql:postgresql:42.3.1")
     runtimeOnly("org.tukaani:xz:1.9") // for commons-compress
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 

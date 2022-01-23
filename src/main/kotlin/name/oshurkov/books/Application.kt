@@ -3,10 +3,10 @@ package name.oshurkov.books
 import name.oshurkov.books.swagger.*
 import org.springframework.boot.*
 import org.springframework.boot.autoconfigure.*
-import org.springframework.boot.web.servlet.support.*
 import org.springframework.context.annotation.*
 import org.springframework.scheduling.annotation.*
 import org.springframework.web.servlet.function.*
+
 
 fun main(args: Array<String>) {
     runApplication<Application>(*args)
@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
 
 @SpringBootApplication
 @EnableScheduling
-class Application : SpringBootServletInitializer()
+class Application
 
 @Configuration
 class Routes {
