@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: Books REST API
+  description: Title
+  version: 1.0.0
+servers: []
+paths:
+  /api/books/export:
+    post:
+      summary: экспорт
+      tags: []
+      responses:
+        '204':
+          description: No Content
+      operationId: post-api-books-export
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: object
+              properties: {}
+            examples:
+              example-1: {}
+        description: каталог назначения архива

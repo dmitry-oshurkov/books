@@ -45,6 +45,8 @@ dependencies {
         exclude(group = "xmlpull")
     }
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("org.webjars:swagger-ui:4.1.2")
+    implementation("org.webjars:webjars-locator:0.42")
 
     runtimeOnly("org.postgresql:postgresql:42.3.0")
     runtimeOnly("org.tukaani:xz:1.9") // for commons-compress
