@@ -167,7 +167,7 @@ fun unverifiedCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): Ser
                     Navigation(rel = "start", href = ROOT_CAT),
                     Navigation(rel = "up", href = ROOT_CAT),
                 ),
-                entries = booksRep.findByVerifiedFalse()
+                entries = booksRep.findByVerifiedFalseOrderByAuthors()
                     .map { it.toEntry() }
                     .toList()
             )
