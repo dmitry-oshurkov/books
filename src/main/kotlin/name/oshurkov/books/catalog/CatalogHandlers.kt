@@ -344,7 +344,12 @@ private fun Book.toEntry(includeSequenceNumber: Boolean = false, sequenceNumberF
     content = Content(content).toPlainText(),
     summary = Summary(summary, summaryContentType).toPlainText(),
     authors = authors.map { Author(name = it.toString(), uri = "http://opds-spec.org/authors/$id") },
-    categories = genres.map { Category(term = it.name, scheme = null) },
+    categories = genres.map { Category(term = it.name, scheme = null) } +
+        listOf(
+            Category(term = "Рекомендовано: ${recommended.asRus()}", scheme = null),
+            Category(term = "Не прочитано: ${unread.asRus()}", scheme = null),
+            Category(term = "Не проверено: ${verified.not().asRus()}", scheme = null)
+        ),
     rights = rights,
     language = language,
     issued = issued,
@@ -364,6 +369,8 @@ private fun Book.toEntry(includeSequenceNumber: Boolean = false, sequenceNumberF
 
 private fun Content.toPlainText() = Content(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
 private fun Summary.toPlainText() = Summary(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
+
+private fun Boolean.asRus() = if (this) "да" else "нет"
 
 private const val ROOT_CAT = "/catalog"
 private const val RECOMMENDED_CAT = "$ROOT_CAT/recommended"
