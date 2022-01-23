@@ -1,18 +1,24 @@
 openapi: 3.0.3
 info:
   title: Books REST API
-  description: Title
+  description: Программный интерфейс Books
   version: 1.0.0
-servers: []
+  contact:
+    email: dmitry@oshurkov.name
+  license:
+    name: MIT
+    url: 'https://github.com/dmitry-oshurkov/books/blob/develop/LICENSE'
+servers:
+  - description: Localhost
+    url: 'http://localhost:8080'
 paths:
   /books/export:
     post:
       summary: экспорт
-      tags: []
       responses:
         '204':
           description: No Content
-      operationId: post-api-books-export
+      operationId: post-books-export
       requestBody:
         content:
           text/plain:
@@ -20,5 +26,33 @@ paths:
               type: object
               properties: {}
             examples:
-              example-1: {}
+              example-1:
+                value: /var/lib/books/export/
         description: каталог назначения архива
+      tags:
+        - Книги
+      description: Выполняет экспорт всех книг в указанный серверный каталог
+  /books/backup:
+    post:
+      summary: резервное копирование
+      responses:
+        '204':
+          description: No Content
+      operationId: post-books-backup
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: object
+              properties: {}
+            examples:
+              example-1:
+                value: /var/lib/books/backup/
+        description: каталог назначения архива
+      tags:
+        - Книги
+      description: Выполняет резервное копирование всех книг в указанный серверный каталог
+    parameters: []
+tags:
+  - name: Книги
+    description: Управление книгами
