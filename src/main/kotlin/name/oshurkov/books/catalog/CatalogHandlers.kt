@@ -127,7 +127,7 @@ fun unreadCatalog(@Suppress("UNUSED_PARAMETER") request: ServerRequest): ServerR
                     Navigation(rel = "start", href = ROOT_CAT),
                     Navigation(rel = "up", href = ROOT_CAT),
                 ),
-                entries = booksRep.findByUnreadTrue()
+                entries = booksRep.findByUnreadTrueOrderByAuthorsAscSequenceAscSequenceNumber()
                     .map { it.toEntry() }
                     .toList()
             )
@@ -338,6 +338,7 @@ private fun Book.toEntry(includeSequenceNumber: Boolean = false, sequenceNumberF
                 else -> "$sequenceNumber. $title"
             }
         }
+
         else -> title
     },
     updated = updated,
