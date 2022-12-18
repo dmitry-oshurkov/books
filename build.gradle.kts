@@ -1,5 +1,6 @@
 import org.gradle.api.JavaVersion.*
 import java.time.*
+import java.time.format.DateTimeFormatter.*
 
 plugins {
     kotlin("jvm") version "1.5.31"
@@ -12,10 +13,9 @@ plugins {
 }
 
 val jacksonVersion: String by rootProject
-val buildNumber = (LocalDate.now().dayOfYear - 1) * 1440 + LocalTime.now().toSecondOfDay().div(60) // minute of year
 
 group = "name.oshurkov"
-version = "22.1.${buildNumber.toString().padStart(6, '0')}"
+version = "22.02.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
 java.sourceCompatibility = VERSION_11
 
 configurations {
@@ -71,7 +71,8 @@ tasks {
         dependsOn(ktlintFormat)
     }
     wrapper { gradleVersion = "7.1" }
-    withType<Test> { useJUnitPlatform() }
+    jar { enabled = false }
+    test { useJUnitPlatform() }
 
     runKtlintCheckOverMainSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverMainSourceSet) }
     runKtlintCheckOverTestSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverTestSourceSet) }

@@ -1,3 +1,5 @@
+@file:Suppress("unused", "UNUSED_PARAMETER")
+
 package name.oshurkov.books
 
 import org.springframework.http.*
@@ -173,7 +175,6 @@ class RouteInfo(
     fun header(name: String) = request.headers().firstHeader(name)
     fun param(name: String) = request.queryParamOrNull(name)
 }
-
 
 typealias HandleResult = Pair<HttpStatus, *>
 
