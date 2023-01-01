@@ -1,23 +1,20 @@
 package name.oshurkov.books
 
-import name.oshurkov.books.swagger.*
-import org.springframework.boot.*
-import org.springframework.boot.autoconfigure.*
-import org.springframework.context.annotation.*
-import org.springframework.scheduling.annotation.*
-import org.springframework.web.servlet.function.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import name.oshurkov.books.plugins.*
 
 
-fun main(args: Array<String>) {
-    runApplication<Application>(*args)
+fun main() {
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
+        .start(wait = true)
 }
 
-@SpringBootApplication
-@EnableScheduling
-class Application
 
-@Configuration
-class Routes {
-    @Bean
-    fun routerFunction() = routes + swaggerRoutes
+fun Application.module() {
+    configureHTTP()
+    configureTemplating()
+    configureSerialization()
+    configureRouting()
 }

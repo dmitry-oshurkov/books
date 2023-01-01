@@ -2,26 +2,25 @@ import org.gradle.api.JavaVersion.*
 import java.time.*
 import java.time.format.DateTimeFormatter.*
 
+
+val ktorVersion: String by project
+val kotlinVersion: String by project
+val jacksonVersion: String by project
+val logbackVersion: String by project
+
 plugins {
-    kotlin("jvm") version "1.5.31"
-    kotlin("plugin.spring") version "1.5.31"
-    kotlin("plugin.jpa") version "1.5.31"
-    id("org.springframework.boot") version "2.5.6"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
-    id("com.github.gmazzo.buildconfig") version "3.0.1"
+    kotlin("jvm") version "1.8.0"
+    id("io.ktor.plugin") version "2.2.1"
+    id("com.github.gmazzo.buildconfig") version "3.1.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
 }
 
-val jacksonVersion: String by rootProject
-
 group = "name.oshurkov"
-version = "22.02.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
+version = "23.1.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
 java.sourceCompatibility = VERSION_11
 
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
-    }
+application {
+    mainClass.set("name.oshurkov.books.ApplicationKt")
 }
 
 repositories {
@@ -29,28 +28,21 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("io.projectreactor:reactor-core:3.4.11")
+    implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-default-headers-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
+    implementation("io.ktor:ktor-server-thymeleaf-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-jackson-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
-    implementation("org.apache.commons:commons-compress:1.21")
-    implementation("com.positiondev.epublib:epublib-core:3.1") {
-        exclude(group = "org.slf4j")
-        exclude(group = "xmlpull")
-    }
-    implementation("io.ktor:ktor-client-cio:1.6.7")
-    implementation("org.webjars:swagger-ui:4.1.3")
-    implementation("org.webjars:webjars-locator:0.42")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
-    runtimeOnly("org.postgresql:postgresql:42.3.1")
-    runtimeOnly("org.tukaani:xz:1.9") // for commons-compress
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
+    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
 }
 
 sourceSets {
@@ -59,20 +51,16 @@ sourceSets {
 }
 
 buildConfig {
-    buildConfigField("String", "APP_VER", "\"$version\"")
+    packageName(project.group.toString())
+    useKotlinOutput { topLevelConstants = true }
+    buildConfigField("String", "BUILD_VERSION", "\"$version\"")
 }
 
 tasks {
     compileKotlin {
-        kotlinOptions {
-            freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget = java.sourceCompatibility.majorVersion
-        }
         dependsOn(ktlintFormat)
     }
-    wrapper { gradleVersion = "7.1" }
-    jar { enabled = false }
-    test { useJUnitPlatform() }
+    wrapper { gradleVersion = "7.6" }
 
     runKtlintCheckOverMainSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverMainSourceSet) }
     runKtlintCheckOverTestSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverTestSourceSet) }

@@ -1,0 +1,95 @@
+openapi: "3.0.3"
+info:
+  title: "Books REST API"
+  description: "Программный интерфейс ядра Books"
+  version: "23.1"
+servers:
+- url: "/"
+paths:
+  /html-thymeleaf:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ThymeleafContent"
+  /about:
+    get:
+      description: "Возвращает информацию о приложении."
+      responses:
+        "200":
+          description: "OK <br> ddfdffd"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+  /catalog/recent:
+    get:
+      description: ""
+  /catalog/recommended:
+    get:
+      description: "Рекомендуемые книги"
+  /catalog/unread:
+    get:
+      description: ""
+  /catalog/unverified:
+    get:
+      description: ""
+  /json/jackson:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Map"
+components:
+  schemas:
+    Map:
+      type: "object"
+      properties: {}
+    HeaderValueParam:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        value:
+          type: "string"
+        escapeValue:
+          type: "boolean"
+    ContentType:
+      type: "object"
+      properties:
+        contentType:
+          type: "string"
+        contentSubtype:
+          type: "string"
+        parameters:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HeaderValueParam"
+    Locale:
+      type: "object"
+      properties: {}
+    ThymeleafContent:
+      type: "object"
+      properties:
+        template:
+          type: "string"
+        model:
+          $ref: "#/components/schemas/Map"
+        etag:
+          type: "string"
+        contentType:
+          $ref: "#/components/schemas/ContentType"
+        locale:
+          $ref: "#/components/schemas/Locale"
+        fragments:
+          type: "array"
+          items:
+            type: "string"

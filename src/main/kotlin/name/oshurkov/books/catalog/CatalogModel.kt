@@ -3,6 +3,7 @@ package name.oshurkov.books.catalog
 import com.fasterxml.jackson.dataformat.xml.annotation.*
 import java.util.*
 
+
 @JacksonXmlRootElement(localName = "feed")
 data class Feed(
 
@@ -28,12 +29,15 @@ data class Feed(
     val entries: List<Entry>?
 )
 
+
 data class Author(
     val name: String,
     val uri: String?
 )
 
+
 interface CatalogLink
+
 
 open class ImageThumbnail(
     @JacksonXmlProperty(isAttribute = true)
@@ -44,6 +48,7 @@ open class ImageThumbnail(
     val href: String
 ) : CatalogLink
 
+
 open class Thumbnail(
     @JacksonXmlProperty(isAttribute = true)
     val type: String = "image/png",
@@ -52,6 +57,7 @@ open class Thumbnail(
     @JacksonXmlProperty(isAttribute = true)
     val href: String
 ) : CatalogLink
+
 
 open class Link(
     @JacksonXmlProperty(isAttribute = true)
@@ -63,6 +69,7 @@ open class Link(
     @JacksonXmlProperty(isAttribute = true)
     val href: String
 ) : CatalogLink
+
 
 class Acquisition(
     @JacksonXmlProperty(isAttribute = true)
@@ -79,6 +86,7 @@ class Acquisition(
     val activeFacet: Boolean = false,
 ) : CatalogLink
 
+
 class Navigation(
     @JacksonXmlProperty(isAttribute = true)
     val type: String = "application/atom+xml;profile=opds-catalog;kind=navigation",
@@ -89,6 +97,7 @@ class Navigation(
     @JacksonXmlProperty(isAttribute = true)
     val href: String
 ) : CatalogLink
+
 
 data class Entry(
     val id: String,
@@ -122,6 +131,7 @@ data class Entry(
     val links: List<CatalogLink>?,
 )
 
+
 data class Category(
     @JacksonXmlProperty(isAttribute = true)
     val scheme: String?,
@@ -129,12 +139,14 @@ data class Category(
     val term: String?
 )
 
+
 data class Content(
     @JacksonXmlText
     val content: String?,
     @JacksonXmlProperty(isAttribute = true)
     val type: String? = "text"
 )
+
 
 data class Summary(
     @JacksonXmlText

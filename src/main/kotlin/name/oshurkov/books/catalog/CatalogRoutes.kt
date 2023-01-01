@@ -1,35 +1,25 @@
-package name.oshurkov.books
+package name.oshurkov.books.catalog
 
-import name.oshurkov.books.book.*
-import name.oshurkov.books.catalog.*
-import org.springframework.web.servlet.function.*
+import io.ktor.server.routing.*
 
 
-val routes = router {
+fun Routing.catalog() {
 
-    "books".nest {
-        POST("export", ::exportBooks)
-        POST("backup", ::backupBooks)
+    route("catalog") {
 
-        "import".nest {
-            POST("batch", ::importBatch)
-            POST(::import)
+        /**
+         * Рекомендуемые книги
+         */
+        get("recommended") {
         }
 
-        "{id}".nest {
-            POST("recommended", ::setBookAsRecommended)
-            GET("files/{fileId}", ::downloadBook)
-
-            "image".nest {
-                GET("thumbnail", ::bookThumbnail)
-                GET(::bookImage)
-            }
-
-            DELETE(::deleteBook)
-        }
+        get("unread") {}
+        get("recent") {}
+        get("unverified") {}
     }
 
-    "catalog".nest {
+    /*
+        "catalog".nest {
         GET("recommended", ::recommendedCatalog)
         GET("unread", ::unreadCatalog)
         GET("recent", ::recentCatalog)
@@ -55,4 +45,5 @@ val routes = router {
 
         GET(::rootCatalog)
     }
+         */
 }
