@@ -1,31 +1,21 @@
 package name.oshurkov.books.file
 
 import name.oshurkov.books.*
-import name.oshurkov.books.book.*
-import org.hibernate.annotations.*
-import org.springframework.data.jpa.repository.*
-import java.util.*
-import javax.persistence.*
-import javax.persistence.Entity
+import name.oshurkov.books.core.data.*
+import org.ktorm.dsl.*
+import org.ktorm.schema.*
 
-@Entity
-class BookFile(
-    @ManyToOne(optional = false)
-    val book: Book,
-    @Lob
-    @Column(nullable = false)
-    @Type(type = "org.hibernate.type.ImageType")
-    val content: ByteArray,
-    @Column(nullable = false, unique = true)
-    val hash: UUID,
-    @Column(nullable = false)
-    val type: FileType,
-) : EntityBase()
 
-enum class FileType(val contentType: String, val extension: String) {
-    FB2("application/fb2", "fb2"),
-    FBZ("application/fb2+zip", "fb2.zip"),
-    EPUB("application/epub+zip", "epub")
+object BookFiles : BksTable("book_file") {
+    val book_id = int("book_id")
+    val content = bytes("content")
+    val hash = uuid("hash")
+    val type = enumOrd<FileType>("type")
 }
 
-interface BookFileRepository : JpaRepository<BookFile, Int>
+
+fun selectBookFiles() = db
+    .from(BookFiles)
+    .select(BookFiles.book_id, BookFiles.id, BookFiles.type)
+    .map { it[BookFiles.book_id]!! to (it[BookFiles.id]!! to it[BookFiles.type]!!) }
+    .groupedValues()

@@ -21,33 +21,150 @@ paths:
       description: "Возвращает информацию о приложении."
       responses:
         "200":
-          description: "OK <br> ddfdffd"
+          description: "OK"
           content:
             text/plain:
               schema:
                 type: "string"
-  /catalog/recent:
+  /catalog:
     get:
-      description: ""
-  /catalog/recommended:
-    get:
-      description: "Рекомендуемые книги"
-  /catalog/unread:
-    get:
-      description: ""
-  /catalog/unverified:
-    get:
-      description: ""
-  /json/jackson:
-    get:
-      description: ""
+      description: "Книжный каталог."
       responses:
         "200":
           description: "OK"
           content:
-            '*/*':
+            application/xml:
               schema:
-                $ref: "#/components/schemas/Map"
+                type: "string"
+  /catalog/authors:
+    get:
+      description: "По авторам."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/authors/{id}/books:
+    get:
+      description: "Все книги автора."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/authors/{id}/sequences:
+    get:
+      description: "По сериям."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/authors/{id}/sequences/{sequenceId}/books:
+    get:
+      description: "Все книги серии."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "sequenceId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/genres:
+    get:
+      description: "По жанрам."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/genres/{id}/books:
+    get:
+      description: "Все книги жанра."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/recent:
+    get:
+      description: "Недавно добавленные книги."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/recommended:
+    get:
+      description: "Рекомендуемые книги."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/unread:
+    get:
+      description: "Непрочитанные книги."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/unverified:
+    get:
+      description: "Непроверенные книги."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
 components:
   schemas:
     Map:

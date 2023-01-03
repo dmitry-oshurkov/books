@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter.*
 val ktorVersion: String by project
 val kotlinVersion: String by project
 val jacksonVersion: String by project
+val ktormVersion: String by project
 val logbackVersion: String by project
 
 plugins {
@@ -29,6 +30,7 @@ repositories {
 
 dependencies {
     implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-status-pages-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
@@ -39,6 +41,9 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
+    implementation("org.ktorm:ktorm-core:$ktormVersion")
+    implementation("org.ktorm:ktorm-jackson:$ktormVersion")
+    implementation("org.ktorm:ktorm-support-postgresql:$ktormVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")

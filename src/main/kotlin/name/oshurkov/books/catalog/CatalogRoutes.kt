@@ -1,6 +1,9 @@
 package name.oshurkov.books.catalog
 
+import io.ktor.server.application.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
+import name.oshurkov.books.plugins.*
 
 
 fun Routing.catalog() {
@@ -8,42 +11,85 @@ fun Routing.catalog() {
     route("catalog") {
 
         /**
-         * Рекомендуемые книги
+         * Книжный каталог.
          */
-        get("recommended") {
-        }
+        get { call.respondXml(root()) }
 
-        get("unread") {}
-        get("recent") {}
-        get("unverified") {}
-    }
+        /**
+         * Рекомендуемые книги.
+         */
+        get("recommended") { call.respondXml(recommended()) }
 
-    /*
-        "catalog".nest {
-        GET("recommended", ::recommendedCatalog)
-        GET("unread", ::unreadCatalog)
-        GET("recent", ::recentCatalog)
-        GET("unverified", ::unverifiedCatalog)
+        /**
+         * Непрочитанные книги.
+         */
+        get("unread") { call.respondXml(unread()) }
 
-        "authors".nest {
-            "{id}".nest {
-                GET("books", ::authorBooksCatalog)
+        /**
+         * Недавно добавленные книги.
+         */
+        get("recent") { call.respondXml(recent()) }
 
-                "sequences".nest {
-                    GET("{sequenceId}/books", ::authorSequenceBooksCatalog)
-                    GET(::authorSequencesCatalog)
+        /**
+         * Непроверенные книги.
+         */
+        get("unverified") { call.respondXml(unverified()) }
+
+
+        route("authors") {
+
+            /**
+             * По авторам.
+             */
+            get { call.respondXml(authors()) }
+
+            route("{id}") {
+
+                /**
+                 * Все книги автора.
+                 */
+                get("books") {
+                    val id: Int by call.parameters
+                    call.respondXml(authorBooks(id))
+                }
+
+                route("sequences") {
+
+                    /**
+                     * По сериям.
+                     */
+                    get {
+                        val id: Int by call.parameters
+                        call.respondXml(authorSequences(id))
+                    }
+
+                    /**
+                     * Все книги серии.
+                     */
+                    get("{sequenceId}/books") {
+                        val id: Int by call.parameters
+                        val sequenceId: Int by call.parameters
+                        call.respondXml(authorSequenceBooks(id, sequenceId))
+                    }
                 }
             }
-
-            GET(::authorsCatalog)
         }
 
-        "genres".nest {
-            GET("{id}/books", ::genreBooksCatalog)
-            GET(::genresCatalog)
-        }
 
-        GET(::rootCatalog)
+        route("genres") {
+
+            /**
+             * По жанрам.
+             */
+            get { call.respondXml(genres()) }
+
+            /**
+             * Все книги жанра.
+             */
+            get("{id}/books") {
+                val id: Int by call.parameters
+                call.respondXml(genreBooks(id))
+            }
+        }
     }
-         */
 }

@@ -1,6 +1,7 @@
 package name.oshurkov.books.catalog
 
 import com.fasterxml.jackson.dataformat.xml.annotation.*
+import java.time.*
 import java.util.*
 
 
@@ -102,7 +103,7 @@ class Navigation(
 data class Entry(
     val id: String,
     val title: String,
-    val updated: Date,
+    val updated: OffsetDateTime,
     val content: Content? = null,
     val summary: Summary? = null,
 
