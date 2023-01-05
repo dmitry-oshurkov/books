@@ -62,16 +62,19 @@ fun Routing.catalog() {
                         val id: Int by call.parameters
                         call.respondXml(authorSequences(id))
                     }
-
-                    /**
-                     * Все книги серии.
-                     */
-                    get("{sequenceId}/books") {
-                        val id: Int by call.parameters
-                        val sequenceId: Int by call.parameters
-                        call.respondXml(authorSequenceBooks(id, sequenceId))
-                    }
                 }
+            }
+        }
+
+
+        route("sequences") {
+
+            /**
+             * Все книги серии.
+             */
+            get("{id}/books") {
+                val id: Int by call.parameters
+                call.respondXml(sequenceBooks(id))
             }
         }
 

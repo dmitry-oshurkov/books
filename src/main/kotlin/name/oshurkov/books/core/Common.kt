@@ -1,4 +1,4 @@
-package name.oshurkov.books
+package name.oshurkov.books.core
 
 import kotlinx.coroutines.*
 import org.slf4j.*

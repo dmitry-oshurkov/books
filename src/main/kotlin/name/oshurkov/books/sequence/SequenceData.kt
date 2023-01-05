@@ -5,13 +5,10 @@ import name.oshurkov.books.author.*
 import name.oshurkov.books.core.*
 import name.oshurkov.books.core.data.*
 import org.ktorm.dsl.*
-import org.ktorm.schema.*
 import java.time.*
 
 
-object Sequences : BksTable("sequence") {
-    val name = varchar("name")
-}
+object Sequences : NamedBksTable("sequence")
 
 
 class Sequence(
@@ -19,6 +16,18 @@ class Sequence(
     val updated: OffsetDateTime,
     val name: String,
 )
+
+
+fun selectSequences() = db
+    .from(Sequences)
+    .select(Sequences.columns)
+    .map {
+        Sequence(
+            id = it[Sequences.id]!!,
+            updated = it[Sequences.updated]!!.atMoscowOffset(),
+            name = it[Sequences.name]!!,
+        )
+    }
 
 
 fun selectSequences(authorId: Int) = db

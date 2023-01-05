@@ -36,6 +36,7 @@ class DocumentInfo {
                         if (publishers == null) publishers = ArrayList()
                         publishers!!.add(Person(node))
                     }
+
                     "program-used" -> programUsed = node.textContent
                     "email" -> email = node.textContent
                     "src-url" -> srcUrl = node.textContent

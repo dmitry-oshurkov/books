@@ -35,18 +35,22 @@ open class P : Element {
                     if (images == null) images = ArrayList()
                     images!!.add(Image(node))
                 }
+
                 "strikethrough" -> {
                     if (strikeThrough == null) strikeThrough = ArrayList()
                     strikeThrough!!.add(StrikeThrough(node.textContent, p.textContent))
                 }
+
                 "strong" -> {
                     if (strong == null) strong = ArrayList()
                     strong!!.add(Strong(node.textContent, p.textContent))
                 }
+
                 "emphasis" -> {
                     if (emphasis == null) emphasis = ArrayList()
                     emphasis!!.add(Emphasis(node.textContent, p.textContent))
                 }
+
                 "subtitle" -> {
                     if (emphasis == null) emphasis = ArrayList()
                     emphasis!!.add(Emphasis(node.textContent, p.textContent))

@@ -1,15 +1,14 @@
 package name.oshurkov.books.file
 
-import name.oshurkov.books.*
+import io.ktor.util.*
 import name.oshurkov.books.author.*
 import name.oshurkov.books.book.*
+import name.oshurkov.books.core.*
 import name.oshurkov.books.file.FileType.*
 import name.oshurkov.books.file.fb2.parser.*
-import name.oshurkov.books.genre.*
-import name.oshurkov.books.sequence.Sequence
-import org.apache.tomcat.util.codec.binary.*
 import org.slf4j.*
 import java.io.*
+
 
 fun parseFb2(files: Map<FileType, List<File>>) = run {
 
@@ -29,76 +28,50 @@ fun parseFb2(files: Map<FileType, List<File>>) = run {
     fb2plain + fbz
 }
 
-fun fb2ToBooks(
-    fb2: List<Triple<FictionBook, File, FileType>>,
-    authors: List<Author>,
-    genres: List<Genre>,
-    bookFileFn: (Book, File, FileType, String, Int?) -> BookFile,
-    afterSaveFile: (File) -> Unit,
-    sequences: List<Sequence>
-) =
-    fb2
-        .mapNotNull { (fb, file, type) ->
 
-            runCatching {
+fun fb2ToBooks(fb2: List<Triple<FictionBook, File, FileType>>, afterSaveFile: (File) -> Unit) = fb2.mapNotNull { (fb, file, type) ->
 
-                val bookSequence = sequences.find { g -> g.name == fb.description.titleInfo.sequence?.name }
+    runCatching {
 
-                val bookAuthors = fb.description.titleInfo.authors
-                    .mapNotNull { authors.find { a -> a.firstName == it.firstName && a.middleName == it.middleName && a.lastName == it.lastName } }
-                    .onEach {
-                        if (bookSequence != null && !it.sequences.contains(bookSequence))
-                            it.sequences.add(bookSequence)
-                    }
-                    .toSet()
+        val bookAuthors = fb.description.titleInfo.authors.map { ImportedAuthor(lastName = it.lastName!!, firstName = it.firstName, middleName = it.middleName) }
+        val bookGenres = fb.description.titleInfo.genres.map { fb2GenreToString(it) }
+        val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
+        val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
+        val attrs = file.name.parseAttrs()
 
-                val bookGenres = fb.description.titleInfo.genres
-                    .map { fb2GenreToString(it) }
-                    .mapNotNull { genres.find { g -> g.name == it } }
-                    .toSet()
-
-                val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
-                val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
-                val sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt()
-                val attrs = file.name.parseAttrs()
-
-                Book(
-                    title = fb.title,
-                    content = null,
-                    summary = summary,
-                    summaryContentType = summaryType(summary),
-                    rights = null,
-                    language = lang(fb.lang),
-                    issued = fb.description.titleInfo.date,
-                    publisher = null,
-                    cover = binary?.binary?.let { Base64.decodeBase64(it) },
-                    coverContentType = binary?.contentType,
-                    recommended = attrs.isRecommended(),
-                    verified = !attrs.isNotVerified(),
-                    unread = attrs.isUnread(),
-                    sequence = bookSequence,
-                    sequenceNumber = sequenceNumber,
-                    hash = bookHash(bookAuthors, fb.title),
-                    authors = bookAuthors,
-                    genres = bookGenres
-                )
-                    .also {
-                        val bookFile = bookFileFn(it, file, type, it.title, sequenceNumber)
-                        it.files += bookFile
-                    }
-            }
-                .onSuccess {
-                    afterSaveFile(file)
-                    log.info("Parsed: [${file.absolutePath}]")
-                }
-                .onFailure {
-                    afterSaveFile(file)
-                    log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
-                }
-                .getOrNull()
+        ImportedBook(
+            title = fb.title,
+            summary = summary,
+            summaryContentType = summaryType(summary),
+            language = lang(fb.lang),
+            issued = fb.description.titleInfo.date,
+            publisher = fb.description.publishInfo.publisher,
+            cover = binary?.binary?.decodeBase64Bytes(),
+            coverContentType = binary?.contentType,
+            recommended = attrs.isRecommended(),
+            verified = !attrs.isNotVerified(),
+            unread = attrs.isUnread(),
+            sequence = fb.description.titleInfo.sequence?.name,
+            sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt(),
+            hash = bookHash(bookAuthors, fb.title),
+            authors = bookAuthors,
+            genres = bookGenres,
+            files = listOf(bookFile(file, type, fb.title, null)),
+        )
+    }
+        .onSuccess {
+            afterSaveFile(file)
+            log.info("Parsed: [${file.absolutePath}]")
         }
+        .onFailure {
+            afterSaveFile(file)
+            log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
+        }
+        .getOrNull()
+}
 
-fun fb2GenreToString(code: String) = when (code) {
+
+private fun fb2GenreToString(code: String) = when (code) {
     "sf_history" -> "Альтернативная история"
     "sf_action" -> "Боевая фантастика"
     "sf_epic" -> "Эпическая фантастика"
@@ -210,5 +183,6 @@ fun fb2GenreToString(code: String) = when (code) {
     "home" -> "Прочее домоводство (то, что не вошло в другие категории)"
     else -> "Прочее"
 }
+
 
 private val log = LoggerFactory.getLogger(::parseFb2::class.java)

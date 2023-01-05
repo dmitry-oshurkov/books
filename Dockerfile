@@ -3,7 +3,7 @@ FROM gradle:7.6-jdk17 AS build
 WORKDIR /bks
 COPY . .
 
-RUN gradle build
+RUN gradle clean build
 
 
 FROM openjdk:17

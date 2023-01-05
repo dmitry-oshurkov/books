@@ -116,7 +116,7 @@ fun authorBooks(authorId: Int) = Feed(
         listOf(Acquisition(rel = "http://opds-spec.org/facet", href = "$AUTHORS_CAT/$authorId/sequences", title = "По сериям", facetGroup = "Серии", activeFacet = true))
     else
         emptyList(),
-    entries = bookEntries({ selectAuthorsBooks(authorId) })
+    entries = bookEntries({ selectAuthorBooks(authorId) })
 )
 
 
@@ -130,7 +130,7 @@ fun authorSequences(authorId: Int) = Feed(
             title = it.name,
             updated = it.updated,
             links = listOf(
-                Navigation(rel = "subsection", href = "$AUTHORS_CAT/$authorId/sequences/${it.id}/books"),
+                Navigation(rel = "subsection", href = "$SEQUENCES_CAT/${it.id}/books"),
                 Navigation(rel = "up", href = "$AUTHORS_CAT/$authorId/sequences"),
             )
         )
@@ -138,11 +138,11 @@ fun authorSequences(authorId: Int) = Feed(
 )
 
 
-fun authorSequenceBooks(authorId: Int, sequenceId: Int) = Feed(
-    id = "tag:sequences:$sequenceId",
+fun sequenceBooks(id: Int) = Feed(
+    id = "tag:sequences:$id",
     title = "Все книги серии",
     links = listOf(),
-    entries = bookEntries({ selectSequenceBooks(sequenceId) })
+    entries = bookEntries({ selectSequenceBooks(id) })
 )
 
 
@@ -212,7 +212,7 @@ private fun bookEntries(
 private fun Book.toEntry(
     authors: List<name.oshurkov.books.author.Author>,
     genres: List<String>,
-    files: List<Pair<Int, FileType>>,
+    files: List<BookFile>,
     includeSequenceNumber: Boolean = false,
     sequenceNumberForRecent: Boolean = false
 ) = Entry(
@@ -250,7 +250,7 @@ private fun Book.toEntry(
                 Link(rel = "http://opds-spec.org/image/thumbnail", href = "/books/$id/image/thumbnail", type = coverContentType),
             )
         }.orEmpty().toTypedArray(),
-        *files.map { (fileId, type) -> Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/books/$id/files/$fileId", type = type.contentType, title = type.contentType) }.toTypedArray()
+        *files.map { Link(rel = "http://opds-spec.org/acquisition/open-access", href = "/books/files/${it.id}", type = it.type.contentType, title = it.type.contentType) }.toTypedArray()
     )
 )
 
@@ -265,5 +265,6 @@ private const val RECOMMENDED_CAT = "$ROOT_CAT/recommended"
 private const val UNREAD_CAT = "$ROOT_CAT/unread"
 private const val RECENT_CAT = "$ROOT_CAT/recent"
 private const val AUTHORS_CAT = "$ROOT_CAT/authors"
+private const val SEQUENCES_CAT = "$ROOT_CAT/sequences"
 private const val GENRES_CAT = "$ROOT_CAT/genres"
 private const val UNVERIFIED_CAT = "$ROOT_CAT/unverified"

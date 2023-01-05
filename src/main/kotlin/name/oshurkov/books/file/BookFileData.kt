@@ -1,6 +1,7 @@
 package name.oshurkov.books.file
 
 import name.oshurkov.books.*
+import name.oshurkov.books.core.*
 import name.oshurkov.books.core.data.*
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
@@ -16,6 +17,32 @@ object BookFiles : BksTable("book_file") {
 
 fun selectBookFiles() = db
     .from(BookFiles)
-    .select(BookFiles.book_id, BookFiles.id, BookFiles.type)
-    .map { it[BookFiles.book_id]!! to (it[BookFiles.id]!! to it[BookFiles.type]!!) }
+    .select(BookFiles.columns)
+    .map {
+        it[BookFiles.book_id]!! to BookFile(
+            id = it[BookFiles.id]!!,
+            bookId = it[BookFiles.book_id]!!,
+            updated = it[BookFiles.updated]!!.atMoscowOffset(),
+            content = it[BookFiles.content]!!,
+            hash = it[BookFiles.hash]!!,
+            type = it[BookFiles.type]!!
+        )
+    }
     .groupedValues()
+
+
+fun selectBookFile(id: Int) = db
+    .from(BookFiles)
+    .select(BookFiles.columns)
+    .where { BookFiles.id eq id }
+    .map {
+        BookFile(
+            id = it[BookFiles.id]!!,
+            bookId = it[BookFiles.book_id]!!,
+            updated = it[BookFiles.updated]!!.atMoscowOffset(),
+            content = it[BookFiles.content]!!,
+            hash = it[BookFiles.hash]!!,
+            type = it[BookFiles.type]!!
+        )
+    }
+    .singleOrNull()

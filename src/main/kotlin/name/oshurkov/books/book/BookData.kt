@@ -7,50 +7,35 @@ import name.oshurkov.books.core.data.*
 import name.oshurkov.books.genre.*
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
-import java.time.*
-import java.util.*
 
 
 object Books : BksTable("book") {
-    val content = varchar("content")
+    val title = varchar("title")
+    val summary = varchar("summary")
+    val recommended = boolean("recommended")
+    val verified = boolean("verified")
+    val unread = boolean("unread")
+    val content = varchar("content") // todo unused
     val cover = bytes("cover")
     val cover_content_type = varchar("cover_content_type")
     val hash = uuid("hash")
     val issued = varchar("issued")
     val language = varchar("language")
     val publisher = varchar("publisher")
-    val recommended = boolean("recommended")
     val rights = varchar("rights")
     val sequence_id = int("sequence_id")
     val sequence_number = int("sequence_number")
-    val summary = varchar("summary")
     val summary_content_type = varchar("summary_content_type")
-    val title = varchar("title")
-    val unread = boolean("unread")
-    val verified = boolean("verified")
 }
 
 
-class Book(
-    val id: Int,
-    val updated: OffsetDateTime,
-    val content: String?,
-    val cover: ByteArray?,
-    val coverContentType: String?,
-    val hash: UUID,
-    val issued: String?,
-    val language: String?,
-    val publisher: String?,
-    val recommended: Boolean,
-    val rights: String?,
-    val sequenceId: Int?,
-    val sequenceNumber: Int?,
-    val summary: String?,
-    val summaryContentType: String?,
-    val title: String,
-    val unread: Boolean,
-    val verified: Boolean,
-)
+fun selectBooks() = Books.select(db, transform = ::book)
+
+
+fun selectBook(id: Int) = Books.find(id, db, transform = ::book)
+
+
+fun deleteBook(id: Int) = db.delete(Books) { it.id eq id }
 
 
 fun selectRecommendedBooks() = db
@@ -83,7 +68,7 @@ fun selectUnverifiedBooks() = db
     .map(::book)
 
 
-fun selectAuthorsBooks(authorId: Int) = db
+fun selectAuthorBooks(authorId: Int) = db
     .from(Books)
     .innerJoin(BookAuthors, on = BookAuthors.book_id eq Books.id)
     .select(Books.columns)

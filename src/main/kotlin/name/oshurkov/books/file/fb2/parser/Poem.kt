@@ -25,6 +25,7 @@ class Poem : Element {
                     if (epigraphs == null) epigraphs = ArrayList()
                     epigraphs!!.add(Epigraph(paragraph))
                 }
+
                 "date" -> date = paragraph.textContent
                 "stanza" -> stanza.add(Stanza(paragraph))
             }

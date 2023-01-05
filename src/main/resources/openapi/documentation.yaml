@@ -6,16 +6,6 @@ info:
 servers:
 - url: "/"
 paths:
-  /html-thymeleaf:
-    get:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ThymeleafContent"
   /about:
     get:
       description: "Возвращает информацию о приложении."
@@ -26,6 +16,114 @@ paths:
             text/plain:
               schema:
                 type: "string"
+  /books/{id}:
+    delete:
+      description: "Удаление книги."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /books/{id}/image:
+    get:
+      description: "Обложка книги."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+            text/plain:
+              schema:
+                type: "string"
+                format: "byte"
+  /books/{id}/image/thumbnail:
+    get:
+      description: "Миниатюра обложки книги."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+            text/plain:
+              schema:
+                type: "string"
+                format: "byte"
+  /books/backup:
+    post:
+      description: "Выполняет архивирование книг в указанный каталог файловой сист\
+        емы. Архив 7Z."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /books/export:
+    post:
+      description: "Выполняет экспорт книг в указанный каталог файловой системы."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /books/files/{id}:
+    get:
+      description: "Загрузка файла книги."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+            text/plain:
+              schema:
+                type: "string"
+                format: "byte"
+  /books/import:
+    post:
+      description: "Выполняет импорт книг из указанного каталога файловой системы\
+        . Файлы книг могут быть находиться во вложенных каталогах."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
   /catalog:
     get:
       description: "Книжный каталог."
@@ -67,27 +165,6 @@ paths:
       description: "По сериям."
       parameters:
       - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/xml:
-              schema:
-                type: "string"
-  /catalog/authors/{id}/sequences/{sequenceId}/books:
-    get:
-      description: "Все книги серии."
-      parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      - name: "sequenceId"
         in: "path"
         required: true
         schema:
@@ -145,6 +222,22 @@ paths:
             application/xml:
               schema:
                 type: "string"
+  /catalog/sequences/{id}/books:
+    get:
+      description: "Все книги серии."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
   /catalog/unread:
     get:
       description: "Непрочитанные книги."
@@ -165,6 +258,16 @@ paths:
             application/xml:
               schema:
                 type: "string"
+  /html-thymeleaf:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ThymeleafContent"
 components:
   schemas:
     Map:

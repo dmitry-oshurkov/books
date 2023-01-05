@@ -8,14 +8,12 @@ import org.ktorm.schema.*
 import java.time.*
 
 
-object Genres : BksTable("genre") {
-    val name = varchar("name")
-}
+object Genres : NamedBksTable("genre")
 
 
 object BookGenres : SimpleTable("book_genres") {
-    val book_id = int("book_id")
-    val genres_id = int("genres_id")
+    val book_id = int("book_id").primaryKey()
+    val genres_id = int("genres_id").primaryKey()
 }
 
 

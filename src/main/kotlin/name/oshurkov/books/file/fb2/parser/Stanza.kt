@@ -15,10 +15,12 @@ class Stanza internal constructor(node: Node) {
                     if (title == null) title = ArrayList()
                     title!!.add(Title(paragraph))
                 }
+
                 "subtitle" -> {
                     if (stanza == null) stanza = ArrayList()
                     stanza!!.add(Subtitle(paragraph))
                 }
+
                 "v" -> {
                     if (stanza == null) stanza = ArrayList()
                     stanza!!.add(V(paragraph))

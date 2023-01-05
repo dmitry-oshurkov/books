@@ -23,10 +23,12 @@ open class Person {
                     if (homePages == null) homePages = ArrayList()
                     homePages!!.add(author.textContent)
                 }
+
                 "email" -> {
                     if (emails == null) emails = ArrayList()
                     emails!!.add(author.textContent)
                 }
+
                 "nickname" -> nickname = author.textContent
                 "first-name" -> firstName = author.textContent
                 "middle-name" -> middleName = author.textContent

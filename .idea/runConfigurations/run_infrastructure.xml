@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="run books (skyserver)" type="docker-deploy" factoryName="docker-compose.yml" server-name="Skyserver docker">
+  <configuration default="false" name="run infrastructure" type="docker-deploy" factoryName="docker-compose.yml" server-name="Local docker">
     <deployment type="docker-compose.yml">
       <settings>
         <option name="envFilePath" value="" />
