@@ -199,4 +199,4 @@ private fun createSevenZipFile(sevenZ: File, folder: File) {
 }
 
 
-private val log = LoggerFactory.getLogger(::createSevenZipFile::class.java)
+private val log by logger()

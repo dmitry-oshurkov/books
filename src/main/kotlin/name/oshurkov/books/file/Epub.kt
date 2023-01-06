@@ -15,7 +15,7 @@ fun parseEpub(files: Map<FileType, List<File>>) = files[EPUB].orEmpty().map { Ep
 fun epubToBooks(epub: List<Triple<EpubBook, File, FileType>>, afterSaveFile: (File) -> Unit) = epub.mapNotNull { (ep, file, type) ->
 
     runCatching {
-        val bookAuthors = ep.metadata.authors.map { ImportedAuthor(lastName = it.lastname, firstName = it.firstname, middleName = null) }
+        val bookAuthors = ep.metadata.authors.map { ImportedAuthor(lastName = it.lastname, firstName = it.firstname, middleName = null) }.distinct()
         val summary = ep.metadata.descriptions.firstOrNull()
         val attrs = file.name.parseAttrs()
 
@@ -35,7 +35,7 @@ fun epubToBooks(epub: List<Triple<EpubBook, File, FileType>>, afterSaveFile: (Fi
             sequenceNumber = null,
             hash = bookHash(bookAuthors, ep.title),
             authors = bookAuthors,
-            genres = ep.metadata.subjects,
+            genres = ep.metadata.subjects.distinct(),
             files = listOf(bookFile(file, type, ep.title, null)),
         )
     }
@@ -54,4 +54,4 @@ fun epubToBooks(epub: List<Triple<EpubBook, File, FileType>>, afterSaveFile: (Fi
 typealias EpubBook = nl.siegmann.epublib.domain.Book
 
 
-private val log = LoggerFactory.getLogger(::parseEpub::class.java)
+private val log by logger()

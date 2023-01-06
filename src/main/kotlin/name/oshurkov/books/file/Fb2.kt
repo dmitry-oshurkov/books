@@ -6,7 +6,6 @@ import name.oshurkov.books.book.*
 import name.oshurkov.books.core.*
 import name.oshurkov.books.file.FileType.*
 import name.oshurkov.books.file.fb2.parser.*
-import org.slf4j.*
 import java.io.*
 
 
@@ -16,7 +15,7 @@ fun parseFb2(files: Map<FileType, List<File>>) = run {
         .mapNotNull { file ->
 
             runCatching {
-                val bytes = unzipFile(file)
+                val bytes = unzip(file)
                 FictionBook(null, bytes) to file and FBZ
             }
                 .getOrNull()
@@ -33,8 +32,8 @@ fun fb2ToBooks(fb2: List<Triple<FictionBook, File, FileType>>, afterSaveFile: (F
 
     runCatching {
 
-        val bookAuthors = fb.description.titleInfo.authors.map { ImportedAuthor(lastName = it.lastName!!, firstName = it.firstName, middleName = it.middleName) }
-        val bookGenres = fb.description.titleInfo.genres.map { fb2GenreToString(it) }
+        val bookAuthors = fb.description.titleInfo.authors.map { ImportedAuthor(lastName = it.lastName!!, firstName = it.firstName, middleName = it.middleName) }.distinct()
+        val bookGenres = fb.description.titleInfo.genres.map { fb2GenreToString(it) }.distinct()
         val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
         val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
         val attrs = file.name.parseAttrs()
@@ -116,7 +115,7 @@ private fun fb2GenreToString(code: String) = when (code) {
     "adventure" -> "Прочие приключения (то, что не вошло в другие категории)"
     "child_tale" -> "Сказка"
     "child_verse" -> "Детские стихи"
-    "child_prose" -> "Детскиая проза"
+    "child_prose" -> "Детская проза"
     "child_sf" -> "Детская фантастика"
     "child_det" -> "Детские остросюжетные"
     "child_adv" -> "Детские приключения"
@@ -148,11 +147,11 @@ private fun fb2GenreToString(code: String) = when (code) {
     "science" -> "Прочая научная литература (то, что не вошло в другие категории)"
     "comp_www" -> "Интернет"
     "comp_programming" -> "Программирование"
-    "comp_hard" -> "Компьютерное \"железо\" (аппаратное обеспечение)"
+    "comp_hard" -> "Компьютерное «железо» (аппаратное обеспечение)"
     "comp_soft" -> "Программы"
     "comp_db" -> "Базы данных"
     "comp_osnet" -> "ОС и сети"
-    "computers" -> "Прочая околокомпьтерная литература (то, что не вошло в другие категории)"
+    "computers" -> "Прочая около-компьютерная литература (то, что не вошло в другие категории)"
     "ref_encyc" -> "Энциклопедии"
     "ref_dict" -> "Словари"
     "ref_ref" -> "Справочники"
@@ -166,7 +165,7 @@ private fun fb2GenreToString(code: String) = when (code) {
     "religion_rel" -> "Религия"
     "religion_esoterics" -> "Эзотерика"
     "religion_self" -> "Самосовершенствование"
-    "religion" -> "Прочая религионая литература (то, что не вошло в другие категории)"
+    "religion" -> "Прочая религиозная литература (то, что не вошло в другие категории)"
     "humor_anecdote" -> "Анекдоты"
     "humor_prose" -> "Юмористическая проза"
     "humor_verse" -> "Юмористические стихи"
@@ -181,8 +180,22 @@ private fun fb2GenreToString(code: String) = when (code) {
     "home_sport" -> "Спорт"
     "home_sex" -> "Эротика, секс"
     "home" -> "Прочее домоводство (то, что не вошло в другие категории)"
-    else -> "Прочее"
+    "sf_etc" -> "Фантастика: прочее"
+    "romance" -> "Неоромантический приключенческий роман"
+    "romance_multicultural" -> "Неоромантический приключенческий роман"
+    "foreign_prose" -> "Зарубежная классическая проза"
+    "russian_contemporary" -> "Русская современная проза"
+    "hronoopera" -> "Хроноопера"
+    "sci_cosmos" -> "Астрономия и Космос"
+    "foreign_contemporary" -> "Зарубежная современная проза"
+    "literature_20" -> "Литература ХX века (эпоха Социальных революций)"
+    "foreign_detective" -> "Зарубежный детектив"
+    "sf_fantasy_city" -> "Городское фэнтези"
+    else -> {
+        log.warn("Genre [$code] is unknown; use Прочее")
+        "Прочее"
+    }
 }
 
 
-private val log = LoggerFactory.getLogger(::parseFb2::class.java)
+private val log by logger()

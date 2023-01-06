@@ -26,6 +26,10 @@ fun Application.configureTemplating() {
     }
 
     routing {
+
+        /**
+         * Главная страница веб-сайта.
+         */
         get("/") {
             call.respond(
                 ThymeleafContent(
@@ -39,6 +43,9 @@ fun Application.configureTemplating() {
             )
         }
 
+        /**
+         * Страница администрирования.
+         */
         get("/admin") {
             call.respond(
                 ThymeleafContent(

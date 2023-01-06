@@ -6,6 +6,7 @@ import name.oshurkov.books.core.*
 import name.oshurkov.books.file.FileType.*
 import name.oshurkov.books.sequence.*
 import java.io.*
+import java.nio.charset.*
 import java.util.zip.*
 import java.util.zip.Deflater.*
 
@@ -31,7 +32,7 @@ fun bookFile(file: File, type: FileType, title: String, seqNo: Int?) = run {
     val (content, hash) = when (type) {
 
         FBZ -> {
-            val bytes = unzipFile(file)
+            val bytes = unzip(file)
             zip(seqNo, title, bytes) to uuid(bytes)
         }
 
@@ -73,6 +74,15 @@ fun prefix(book: Book, sequence: Sequence?) = run {
     else
         ""
 }
+
+
+fun unzip(file: File) =
+    runCatching { ZipFile(file) }
+        .getOrElse { ZipFile(file, Charset.forName("cp1251")) }
+        .use {
+            val entry = it.entries().toList().first()
+            it.getInputStream(entry).use { stream -> stream.readAllBytes() }
+        }!!
 
 
 private fun zip(seqNo: Int?, title: String, bytes: ByteArray) =

@@ -2,12 +2,12 @@ import org.gradle.api.JavaVersion.*
 import java.time.*
 import java.time.format.DateTimeFormatter.*
 
-
 val ktorVersion: String by project
 val kotlinVersion: String by project
 val jacksonVersion: String by project
 val ktormVersion: String by project
 val logbackVersion: String by project
+
 
 plugins {
     kotlin("jvm") version "1.8.0"
@@ -16,17 +16,21 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
 }
 
+
 group = "name.oshurkov.books"
 version = "23.1.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
 java.sourceCompatibility = VERSION_17
+
 
 application {
     mainClass.set("name.oshurkov.books.ApplicationKt")
 }
 
+
 repositories {
     mavenCentral()
 }
+
 
 dependencies {
     implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktorVersion")
@@ -40,6 +44,7 @@ dependencies {
     implementation("io.ktor:ktor-server-thymeleaf-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-compression-jvm:$ktorVersion")
     implementation("io.ktor:ktor-utils:$ktorVersion")
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -50,22 +55,20 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.10.2")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("org.slf4j:slf4j-simple:2.0.6")
     implementation("org.apache.commons:commons-compress:1.22")
     implementation("com.positiondev.epublib:epublib-core:3.1") {
         exclude(group = "org.slf4j")
         exclude(group = "xmlpull")
     }
     runtimeOnly("org.tukaani:xz:1.9") // for commons-compress
-
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
 }
+
 
 sourceSets {
     main { java.setSrcDirs(emptyList<Any>()) }
     test { java.setSrcDirs(emptyList<Any>()) }
 }
+
 
 buildConfig {
     packageName(project.group.toString())
@@ -73,11 +76,18 @@ buildConfig {
     buildConfigField("String", "BUILD_VERSION", "\"$version\"")
 }
 
+
 tasks {
     compileKotlin {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = java.sourceCompatibility.majorVersion
+        }
         dependsOn(ktlintFormat)
     }
+    compileTestKotlin { kotlinOptions.jvmTarget = compileKotlin.get().kotlinOptions.jvmTarget }
     wrapper { gradleVersion = "7.6" }
+    jar { enabled = false }
 
     runKtlintCheckOverMainSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverMainSourceSet) }
     runKtlintCheckOverTestSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverTestSourceSet) }

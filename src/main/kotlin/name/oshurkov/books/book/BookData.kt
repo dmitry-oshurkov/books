@@ -236,4 +236,4 @@ private fun book(row: QueryRowSet) = Book(
 )
 
 
-private val log = LoggerFactory.getLogger(::insertBook::class.java)
+private val log by logger()
