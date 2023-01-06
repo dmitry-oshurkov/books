@@ -11,7 +11,7 @@ import java.time.*
 object Genres : NamedBksTable("genre")
 
 
-object BookGenres : SimpleTable("book_genres") {
+object BookGenres : SimpleTable("book_genre") {
     val book_id = int("book_id").primaryKey()
     val genres_id = int("genres_id").primaryKey()
 }

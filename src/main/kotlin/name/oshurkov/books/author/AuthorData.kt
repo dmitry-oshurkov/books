@@ -15,7 +15,7 @@ object Authors : BksTable("author") {
 }
 
 
-object BookAuthors : SimpleTable("book_authors") {
+object BookAuthors : SimpleTable("book_author") {
     val book_id = int("book_id").primaryKey()
     val authors_id = int("authors_id").primaryKey()
 }

@@ -228,7 +228,7 @@ private fun Book.toEntry(
         else -> title
     },
     updated = updated,
-    content = Content(content).toPlainText(),
+    content = null,
     summary = Summary(summary, summaryContentType).toPlainText(),
     authors = authors.map { Author(name = it.toString(), uri = "http://opds-spec.org/authors/${it.id}") },
     categories = genres.map { Category(term = it, scheme = null) } +
@@ -237,7 +237,7 @@ private fun Book.toEntry(
             Category(term = "Не прочитано: ${unread.asRus()}", scheme = null),
             Category(term = "Не проверено: ${verified.not().asRus()}", scheme = null)
         ),
-    rights = rights,
+    rights = null,
     language = language,
     issued = issued,
     publisher = publisher,

@@ -9,7 +9,6 @@ import java.util.*
 class Book(
     val id: Int,
     val updated: OffsetDateTime,
-    val content: String?,
     val cover: ByteArray?,
     val coverContentType: String?,
     val hash: UUID,
@@ -17,7 +16,6 @@ class Book(
     val language: String?,
     val publisher: String?,
     val recommended: Boolean,
-    val rights: String?,
     val sequenceId: Int?,
     val sequenceNumber: Int?,
     val summary: String?,

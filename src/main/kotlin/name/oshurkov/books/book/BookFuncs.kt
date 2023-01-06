@@ -27,6 +27,8 @@ import kotlin.time.*
  */
 fun importBooks(rootDir: String, afterSaveFile: (File) -> Unit = {}) {
 
+    log.info("Import: reading files")
+
     val files = Files.find(Path(rootDir), 10, { path, _ -> path.extension in listOf("fb2", "epub") || path.name.endsWith(".fb2.zip") })
         .map { it.toFile() }
         .toList()
@@ -43,6 +45,8 @@ fun importBooks(rootDir: String, afterSaveFile: (File) -> Unit = {}) {
  */
 @OptIn(ExperimentalTime::class)
 fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
+
+    log.info("Import started")
 
     val monotonic = TimeSource.Monotonic
     val start = monotonic.markNow()
@@ -76,7 +80,7 @@ fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
 
     val stop = monotonic.markNow()
 
-    log.info("Imports finished: ${stop - start}")
+    log.info("Import finished: ${stop - start}")
 }
 
 
@@ -169,125 +173,6 @@ fun bookImage(bookId: Int) = run {
 
 
 fun bookThumbnail(bookId: Int) = bookImage(bookId) // todo not implemented yet
-
-
-private fun insertBooksMetadata(books: List<ImportedBook>) {
-
-    val importedAuthors = books.flatMap { it.authors }.distinct()
-    val importedGenres = books.flatMap { it.genres }.distinct()
-    val importedSequences = books.mapNotNull { it.sequence }.distinct()
-
-
-    db.bulkInsertOrUpdate(Authors) {
-        importedAuthors.map { author ->
-            item {
-                set(it.last_name, author.lastName)
-                set(it.first_name, author.firstName)
-                set(it.middle_name, author.middleName)
-            }
-        }
-
-        onConflict(it.last_name, it.first_name) { doNothing() }
-    }
-
-    db.bulkInsertOrUpdate(Genres) {
-        importedGenres.map { genre ->
-            item {
-                set(it.name, genre)
-            }
-        }
-        onConflict(it.name) { doNothing() }
-    }
-
-    db.bulkInsertOrUpdate(Sequences) {
-        importedSequences.map { sequence ->
-            item {
-                set(it.name, sequence)
-            }
-        }
-        onConflict(it.name) { doNothing() }
-    }
-}
-
-
-private fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>) {
-
-    try {
-        db.useTransaction {
-
-        val sequence = sequences.find { g -> g.name == book.sequence }!!
-
-            val id = db.insertOrUpdateReturning(Books, Books.id) {
-                set(it.title, book.title)
-                set(it.summary, book.summary)
-                set(it.recommended, book.recommended)
-                set(it.verified, book.verified)
-                set(it.unread, book.unread)
-                set(it.cover, book.cover)
-                set(it.cover_content_type, book.coverContentType)
-                set(it.hash, book.hash)
-                set(it.issued, book.issued)
-                set(it.language, book.language)
-                set(it.publisher, book.publisher)
-                set(it.sequence_id, sequence?.id)
-                set(it.sequence_number, book.sequenceNumber)
-                set(it.summary_content_type, book.summaryContentType)
-                onConflict(it.hash) { doNothing() }
-            }
-
-
-            if (id != null) {
-
-                db.bulkInsert(BookAuthors) {
-                    authors
-                        .filter { author -> book.authors.singleOrNull { author.lastName == it.lastName && author.firstName == it.firstName } != null }
-                        .onEach { author ->
-                            if (sequence != null)
-                                db.insertOrUpdate(AuthorSequences) {
-                                    set(it.author_id, author.id)
-                                    set(it.sequences_id, sequence.id)
-                                    onConflict { doNothing() }
-                                }
-                        }
-                        .map { author ->
-                            item {
-                                set(it.book_id, id)
-                                set(it.authors_id, author.id)
-                            }
-                        }
-                }
-
-
-                db.bulkInsert(BookGenres) {
-                    genres
-                        .filter { genre -> book.genres.singleOrNull { genre.name == it } != null }
-                        .map { genre ->
-                            item {
-                                set(it.book_id, id)
-                                set(it.genres_id, genre.id)
-                            }
-                        }
-                }
-
-
-                db.bulkInsert(BookFiles) {
-                    book.files.map { file ->
-                        item {
-                            set(it.book_id, id)
-                            set(it.content, file.content)
-                            set(it.hash, file.hash)
-                            set(it.type, file.type)
-                        }
-                    }
-                }
-
-                log.info("Imported: ${book.title}")
-            }
-        }
-    } catch (e: Exception) {
-        log.error("Error import: ${book.title}")
-    }
-}
 
 
 private fun createSevenZipFile(sevenZ: File, folder: File) {
