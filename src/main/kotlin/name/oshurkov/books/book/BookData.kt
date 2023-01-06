@@ -213,6 +213,9 @@ fun selectGenreBooks(genreId: Int) = db
     .map(::book)
 
 
+fun selectBooksCount() = Books.count(db)
+
+
 private fun book(row: QueryRowSet) = Book(
     id = row[Books.id]!!,
     updated = row[Books.updated]!!.atMoscowOffset(),
