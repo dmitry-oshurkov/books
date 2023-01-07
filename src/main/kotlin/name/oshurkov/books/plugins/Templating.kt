@@ -7,7 +7,6 @@ import io.ktor.server.thymeleaf.*
 import name.oshurkov.books.*
 import name.oshurkov.books.author.*
 import name.oshurkov.books.book.*
-import nz.net.ultraq.thymeleaf.layoutdialect.*
 import org.thymeleaf.templateresolver.*
 import kotlin.text.Charsets.UTF_8
 
@@ -15,7 +14,6 @@ import kotlin.text.Charsets.UTF_8
 fun Application.configureTemplating() {
 
     install(Thymeleaf) {
-        addDialect(LayoutDialect())
         setTemplateResolver(
             ClassLoaderTemplateResolver().apply {
                 prefix = "templates/thymeleaf/"
