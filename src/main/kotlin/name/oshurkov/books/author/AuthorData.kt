@@ -1,10 +1,8 @@
 package name.oshurkov.books.author
 
-import name.oshurkov.books.*
-import name.oshurkov.books.author.BookAuthors.primaryKey
-import name.oshurkov.books.book.*
 import name.oshurkov.books.core.*
 import name.oshurkov.books.core.data.*
+import name.oshurkov.books.plugins.*
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
 

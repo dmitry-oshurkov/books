@@ -1,9 +1,9 @@
 package name.oshurkov.books.sequence
 
-import name.oshurkov.books.*
 import name.oshurkov.books.author.*
 import name.oshurkov.books.core.*
 import name.oshurkov.books.core.data.*
+import name.oshurkov.books.plugins.*
 import org.ktorm.dsl.*
 import java.time.*
 

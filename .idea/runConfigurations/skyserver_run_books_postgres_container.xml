@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="skyserver run postgres-container" type="docker-deploy" factoryName="docker-image" server-name="Skyserver docker">
+  <configuration default="false" name="skyserver run books-postgres-container" type="docker-deploy" factoryName="docker-image" server-name="Skyserver docker">
     <deployment type="docker-image">
       <settings>
-        <option name="imageTag" value="postgres:12.6" />
-        <option name="containerName" value="postgres-container" />
+        <option name="imageTag" value="postgres:15.1" />
+        <option name="containerName" value="books-postgres-container" />
         <option name="envVars">
           <list>
             <DockerEnvVarImpl>
@@ -33,7 +33,7 @@
           <list>
             <DockerVolumeBindingImpl>
               <option name="containerPath" value="/var/lib/postgresql/data" />
-              <option name="hostPath" value="/public/services/postgresql" />
+              <option name="hostPath" value="/public/services/books/data" />
             </DockerVolumeBindingImpl>
           </list>
         </option>

@@ -1,8 +1,8 @@
 package name.oshurkov.books.file
 
-import name.oshurkov.books.*
 import name.oshurkov.books.core.*
 import name.oshurkov.books.core.data.*
+import name.oshurkov.books.plugins.*
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
 

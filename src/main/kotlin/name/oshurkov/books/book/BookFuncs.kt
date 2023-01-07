@@ -117,7 +117,7 @@ fun exportBooks(targetDir: String) {
 
             val prefix = prefix(it, sequence)
             val newFileName = "$prefix${it.title}.${file.type.extension}"
-
+// todo check filename size 255 bytes
             File(newFileDir, newFileName).writeBytes(file.content)
         }
     }

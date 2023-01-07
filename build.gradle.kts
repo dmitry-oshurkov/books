@@ -23,7 +23,7 @@ java.sourceCompatibility = VERSION_17
 
 
 application {
-    mainClass.set("name.oshurkov.books.ApplicationKt")
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 
