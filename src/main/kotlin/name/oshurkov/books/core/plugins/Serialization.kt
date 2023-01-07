@@ -1,4 +1,4 @@
-package name.oshurkov.books.plugins
+package name.oshurkov.books.core.plugins
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include.*
 import com.fasterxml.jackson.databind.SerializationFeature.*

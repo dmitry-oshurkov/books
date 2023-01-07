@@ -3,7 +3,7 @@ package name.oshurkov.books.catalog
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import name.oshurkov.books.plugins.*
+import name.oshurkov.books.core.plugins.*
 
 
 fun Routing.catalog() {

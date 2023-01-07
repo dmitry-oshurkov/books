@@ -1,4 +1,4 @@
-package name.oshurkov.books.plugins
+package name.oshurkov.books.core.plugins
 
 import io.ktor.server.application.*
 import io.ktor.server.response.*

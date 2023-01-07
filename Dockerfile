@@ -3,6 +3,8 @@ FROM gradle:7.6-jdk17-alpine AS build
 WORKDIR /bks
 COPY . .
 
+ENV BUILD_MODE=PROD
+
 RUN gradle clean buildFatJar --no-daemon
 
 

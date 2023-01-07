@@ -1,4 +1,4 @@
-package name.oshurkov.books.plugins
+package name.oshurkov.books.core.plugins
 
 import com.zaxxer.hikari.*
 import io.ktor.server.application.*

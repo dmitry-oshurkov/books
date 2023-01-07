@@ -35,6 +35,8 @@
                 <p class="title">Администрирование</p>
 
                 <div class="demo-section">
+                    <h3>API:&nbsp;<a target="_blank"><span id="api-url"></span></a></h3>
+
                     <p>
                         <button id="backup" class="k-primary">Сделать резервную копию в каталог</button>
                         <label for="backup-dir"></label><!--/*@thymesVar id="baseBooksDir" type="java.lang.String"*/-->
@@ -72,7 +74,12 @@
                 </div>
 
                 <script>
+                    let host = window.location.protocol + "//" + window.location.host + "/openapi";
+
                     $(document).ready(function () {
+                        $("#api-url").text(host);
+                        $("a").attr("href", host);
+
                         $("#backup-dir").kendoMaskedTextBox();
                         $("#export-dir").kendoMaskedTextBox();
                         $("#import-dir").kendoMaskedTextBox();

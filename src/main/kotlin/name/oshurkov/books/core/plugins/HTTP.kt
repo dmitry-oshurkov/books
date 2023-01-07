@@ -1,4 +1,4 @@
-package name.oshurkov.books.plugins
+package name.oshurkov.books.core.plugins
 
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpMethod.Companion.Delete

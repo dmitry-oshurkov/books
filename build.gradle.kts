@@ -21,6 +21,8 @@ group = "name.oshurkov.books"
 version = "23.1.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
 java.sourceCompatibility = VERSION_17
 
+val buildMode by extra { (System.getenv("BUILD_MODE") ?: "DEV").also { println("Build mode: $it") } }
+
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
@@ -72,6 +74,7 @@ sourceSets {
 buildConfig {
     packageName(project.group.toString())
     useKotlinOutput { topLevelConstants = true }
+    buildConfigField("${project.group}.core.BuildMode", "BUILD_MODE", "BuildMode.$buildMode")
     buildConfigField("String", "BUILD_VERSION", "\"$version\"")
 }
 

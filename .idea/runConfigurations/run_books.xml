@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="run books" type="JetRunConfigurationType">
-    <option name="MAIN_CLASS_NAME" value="name.oshurkov.books.ApplicationKt" />
+    <option name="MAIN_CLASS_NAME" value="name.oshurkov.books.core.ApplicationKt" />
     <module name="books.main" />
     <shortenClasspath name="NONE" />
     <method v="2">

@@ -1,4 +1,4 @@
-package name.oshurkov.books.plugins
+package name.oshurkov.books.core.plugins
 
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
@@ -12,14 +12,18 @@ import io.ktor.server.routing.*
 import name.oshurkov.books.*
 import name.oshurkov.books.book.*
 import name.oshurkov.books.catalog.*
+import name.oshurkov.books.core.*
 
 
 fun Application.configureRouting() {
 
     install(AutoHeadResponse)
-    install(CallLogging)
     install(StatusPages) {
         exception<Throwable> { call, cause -> call.respondText(text = "500: $cause", status = InternalServerError) }
+    }
+
+    dev {
+        install(CallLogging)
     }
 
     routing {
