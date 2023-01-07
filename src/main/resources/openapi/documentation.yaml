@@ -1,0 +1,374 @@
+openapi: "3.0.3"
+info:
+  title: "Books REST API"
+  description: "Программный интерфейс ядра приложения «Книжный каталог»"
+  version: "23.1"
+servers:
+- url: "/"
+paths:
+  /:
+    get:
+      tags:
+        - Веб-сайт
+      description: "Главная страница веб-сайта."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ThymeleafContent"
+  /admin:
+    get:
+      tags:
+        - Веб-сайт
+      description: "Страница администрирования."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ThymeleafContent"
+  /about:
+    get:
+      tags:
+        - Веб-сайт
+      description: "Возвращает информацию о приложении."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+  /books/{id}:
+    delete:
+      tags:
+        - Книги
+      description: "Удаление книги."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /books/{id}/image:
+    get:
+      tags:
+        - Книги
+      description: "Обложка книги."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+            text/plain:
+              schema:
+                type: "string"
+                format: "byte"
+  /books/{id}/image/thumbnail:
+    get:
+      tags:
+        - Книги
+      description: "Миниатюра обложки книги."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+            text/plain:
+              schema:
+                type: "string"
+                format: "byte"
+  /books/backup:
+    post:
+      tags:
+        - Книги
+      description: "Выполняет архивирование книг в указанный каталог файловой сист\
+        емы. Архив 7Z."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /books/export:
+    post:
+      tags:
+        - Книги
+      description: "Выполняет экспорт книг в указанный каталог файловой системы."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /books/files/{id}:
+    get:
+      tags:
+        - Книги
+      description: "Загрузка файла книги."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+            text/plain:
+              schema:
+                type: "string"
+                format: "byte"
+  /books/import:
+    post:
+      tags:
+        - Книги
+      description: "Выполняет импорт книг из указанного каталога файловой системы\
+        . Файлы книг могут быть находиться во вложенных каталогах."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /catalog:
+    get:
+      tags:
+        - Каталог
+      description: "Книжный каталог."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/authors:
+    get:
+      tags:
+        - Каталог
+      description: "По авторам."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/authors/{id}/books:
+    get:
+      tags:
+        - Каталог
+      description: "Все книги автора."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/authors/{id}/sequences:
+    get:
+      tags:
+        - Каталог
+      description: "По сериям."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/genres:
+    get:
+      tags:
+        - Каталог
+      description: "По жанрам."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/genres/{id}/books:
+    get:
+      tags:
+        - Каталог
+      description: "Все книги жанра."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/recent:
+    get:
+      tags:
+        - Каталог
+      description: "Недавно добавленные книги."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/recommended:
+    get:
+      tags:
+        - Каталог
+      description: "Рекомендуемые книги."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/sequences/{id}/books:
+    get:
+      tags:
+        - Каталог
+      description: "Все книги серии."
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/unread:
+    get:
+      tags:
+        - Каталог
+      description: "Непрочитанные книги."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+  /catalog/unverified:
+    get:
+      tags:
+        - Каталог
+      description: "Непроверенные книги."
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/xml:
+              schema:
+                type: "string"
+components:
+  schemas:
+    Map:
+      type: "object"
+      properties: {}
+    HeaderValueParam:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        value:
+          type: "string"
+        escapeValue:
+          type: "boolean"
+    ContentType:
+      type: "object"
+      properties:
+        contentType:
+          type: "string"
+        contentSubtype:
+          type: "string"
+        parameters:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HeaderValueParam"
+    Locale:
+      type: "object"
+      properties: {}
+    ThymeleafContent:
+      type: "object"
+      properties:
+        template:
+          type: "string"
+        model:
+          $ref: "#/components/schemas/Map"
+        etag:
+          type: "string"
+        contentType:
+          $ref: "#/components/schemas/ContentType"
+        locale:
+          $ref: "#/components/schemas/Locale"
+        fragments:
+          type: "array"
+          items:
+            type: "string"
+tags:
+  - name: Книги
+    description: Управление книгами
+  - name: Каталог
+    description: Управление каталогом
+  - name: Веб-сайт
+    description: Управление веб-сайтом

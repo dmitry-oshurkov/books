@@ -1,79 +1,95 @@
 import org.gradle.api.JavaVersion.*
 import java.time.*
+import java.time.format.DateTimeFormatter.*
+
+val ktorVersion: String by project
+val kotlinVersion: String by project
+val jacksonVersion: String by project
+val ktormVersion: String by project
+val logbackVersion: String by project
+
 
 plugins {
-    kotlin("jvm") version "1.5.20"
-    kotlin("plugin.spring") version "1.5.20"
-    kotlin("plugin.jpa") version "1.5.20"
-    id("org.springframework.boot") version "2.5.2"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
-    id("com.github.gmazzo.buildconfig") version "3.0.1"
+    kotlin("jvm") version "1.8.0"
+    id("io.ktor.plugin") version "2.2.1"
+    id("com.github.gmazzo.buildconfig") version "3.1.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
 }
 
-val jacksonVersion: String by rootProject
-val buildNumber = (LocalDate.now().dayOfYear - 1) * 1440 + LocalTime.now().toSecondOfDay().div(60) // minute of year
 
-group = "name.oshurkov"
-version = "21.1.$buildNumber"
-java.sourceCompatibility = VERSION_11
+group = "name.oshurkov.books"
+version = "23.1.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
+java.sourceCompatibility = VERSION_17
 
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
-    }
+val buildMode by extra { (System.getenv("BUILD_MODE") ?: "DEV").also { println("Build mode: $it") } }
+
+
+application {
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
+
 
 repositories {
     mavenCentral()
 }
 
+
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-websocket")
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.5.1")
+    implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-status-pages-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-default-headers-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
+    implementation("io.ktor:ktor-server-thymeleaf-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-jackson-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-compression-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-utils:$ktorVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
-    implementation("org.apache.commons:commons-compress:1.20")
+    implementation("org.ktorm:ktorm-core:$ktormVersion")
+    implementation("org.ktorm:ktorm-jackson:$ktormVersion")
+    implementation("org.ktorm:ktorm-support-postgresql:$ktormVersion")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.flywaydb:flyway-core:9.10.2")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("org.apache.commons:commons-compress:1.22")
     implementation("com.positiondev.epublib:epublib-core:3.1") {
         exclude(group = "org.slf4j")
         exclude(group = "xmlpull")
     }
-
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    runtimeOnly("com.h2database:h2")
-    runtimeOnly("org.tukaani:xz:1.8") // for commons-compress
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
+    runtimeOnly("org.tukaani:xz:1.9") // for commons-compress
 }
+
 
 sourceSets {
     main { java.setSrcDirs(emptyList<Any>()) }
     test { java.setSrcDirs(emptyList<Any>()) }
 }
 
+
 buildConfig {
-    buildConfigField("String", "APP_VER", "\"$version\"")
+    packageName(project.group.toString())
+    useKotlinOutput { topLevelConstants = true }
+    buildConfigField("${project.group}.core.BuildMode", "BUILD_MODE", "BuildMode.$buildMode")
+    buildConfigField("String", "BUILD_VERSION", "\"$version\"")
 }
+
 
 tasks {
     compileKotlin {
         kotlinOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget = "11"
+            jvmTarget = java.sourceCompatibility.majorVersion
         }
         dependsOn(ktlintFormat)
     }
-    wrapper { gradleVersion = "7.1" }
-    withType<Test> { useJUnitPlatform() }
+    compileTestKotlin { kotlinOptions.jvmTarget = compileKotlin.get().kotlinOptions.jvmTarget }
+    wrapper { gradleVersion = "7.6" }
+    jar { enabled = false }
 
     runKtlintCheckOverMainSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverMainSourceSet) }
     runKtlintCheckOverTestSourceSet { dependsOn(runKtlintFormatOverKotlinScripts, runKtlintFormatOverTestSourceSet) }
