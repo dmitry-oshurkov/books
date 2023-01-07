@@ -13,6 +13,7 @@
 .idea/modules/
 .idea/httpRequests/
 .idea/dataSources/
+.idea/kotlinc.xml
 
 .idea/workspace.xml
 .idea/shelf/

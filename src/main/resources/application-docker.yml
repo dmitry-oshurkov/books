@@ -1,9 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://192.168.15.100:5712/books
-
-
-books:
-  fileMonitor:
-    source: /var/lib/books/autoimport
-    processed: /var/lib/books/processed

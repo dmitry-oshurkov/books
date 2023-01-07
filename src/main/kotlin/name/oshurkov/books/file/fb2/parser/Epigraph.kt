@@ -23,6 +23,7 @@ class Epigraph : IdElement {
                     if (textAuthor == null) textAuthor = ArrayList()
                     textAuthor!!.add(TextAuthor(node))
                 }
+
                 "poem" -> elements.add(Poem(node))
                 "cite" -> elements.add(Cite(node))
                 "p" -> elements.add(P(node))

@@ -29,18 +29,22 @@ class Cite : Element {
                     if (textAuthor == null) textAuthor = ArrayList()
                     textAuthor!!.add(TextAuthor(paragraph))
                 }
+
                 "poem" -> {
                     if (elements == null) elements = ArrayList()
                     elements!!.add(Poem(paragraph))
                 }
+
                 "subtitle" -> {
                     if (elements == null) elements = ArrayList()
                     elements!!.add(Subtitle(paragraph))
                 }
+
                 "p" -> {
                     if (elements == null) elements = ArrayList()
                     elements!!.add(P(paragraph))
                 }
+
                 "empty-line" -> {
                     if (elements == null) elements = ArrayList()
                     elements!!.add(EmptyLine())
