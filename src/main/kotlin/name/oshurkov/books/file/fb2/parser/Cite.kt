@@ -9,7 +9,7 @@ class Cite : Element {
     var elements: ArrayList<Element>? = null
     var textAuthor: ArrayList<TextAuthor>? = null
 
-    constructor() {}
+    constructor()
     internal constructor(node: Node) {
         val attrs = node.attributes
         for (index in 0 until attrs.length) {

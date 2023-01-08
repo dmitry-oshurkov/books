@@ -7,7 +7,7 @@ class Binary : IdElement {
     var contentType: String? = null
     var binary: String? = null
 
-    constructor() {}
+    constructor()
     internal constructor(node: Node) : super(node) {
         binary = node.textContent
         val map = node.attributes

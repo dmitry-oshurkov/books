@@ -20,7 +20,7 @@ open class P : Element {
     //  </cite>
     //  <p>Об этом вы можете прочитать <a l:href="#n1">здесь</a>.</p>
     //  <p>text<a l:href="#n_2" type="note">[2]</a>
-    constructor() : super() {}
+    constructor() : super()
     constructor(image: Image) : super() {
         if (images == null) images = ArrayList()
         images!!.add(image)
@@ -59,5 +59,5 @@ open class P : Element {
         }
     }
 
-    constructor(p: String?) : super(p) {}
+    constructor(p: String?) : super(p)
 }

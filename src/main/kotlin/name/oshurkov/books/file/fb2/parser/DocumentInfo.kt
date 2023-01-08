@@ -23,7 +23,7 @@ class DocumentInfo {
     var date: Date? = null
         protected set
 
-    constructor() {}
+    constructor()
     internal constructor(document: Document) {
         val description = document.getElementsByTagName("document-info")
         for (item in 0 until description.length) {

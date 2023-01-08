@@ -12,7 +12,7 @@ open class Person {
     var homePages: ArrayList<String>? = null
     var emails: ArrayList<String>? = null
 
-    constructor() {}
+    constructor()
     internal constructor(node: Node) {
         val nodeList = node.childNodes
         for (i in 0 until nodeList.length) {

@@ -5,14 +5,12 @@ import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.autohead.*
-import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import name.oshurkov.books.*
 import name.oshurkov.books.book.*
 import name.oshurkov.books.catalog.*
-import name.oshurkov.books.core.*
 
 
 fun Application.configureRouting() {
@@ -20,10 +18,6 @@ fun Application.configureRouting() {
     install(AutoHeadResponse)
     install(StatusPages) {
         exception<Throwable> { call, cause -> call.respondText(text = "500: $cause", status = InternalServerError) }
-    }
-
-    dev {
-        install(CallLogging)
     }
 
     routing {

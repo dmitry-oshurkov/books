@@ -6,7 +6,7 @@ class Title {
     var paragraphs = ArrayList<P>()
         protected set
 
-    constructor() {}
+    constructor()
     internal constructor(root: Node) {
         val body = root.childNodes
         for (item in 0 until body.length) {

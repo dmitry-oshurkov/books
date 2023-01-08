@@ -122,6 +122,14 @@ paths:
       tags:
         - Книги
       description: "Выполняет экспорт книг в указанный каталог файловой системы."
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+            examples:
+              example-1:
+                value: /var/lib/books/export/
       responses:
         "200":
           description: "OK"
@@ -157,6 +165,14 @@ paths:
         - Книги
       description: "Выполняет импорт книг из указанного каталога файловой системы\
         . Файлы книг могут быть находиться во вложенных каталогах."
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+            examples:
+              example-1:
+                value: /var/lib/books/export/
       responses:
         "200":
           description: "OK"

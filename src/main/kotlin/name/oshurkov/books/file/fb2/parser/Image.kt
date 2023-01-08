@@ -13,5 +13,5 @@ class Image {
         value = node.attributes.item(0).nodeValue
     }
 
-    constructor() : super() {}
+    constructor() : super()
 }

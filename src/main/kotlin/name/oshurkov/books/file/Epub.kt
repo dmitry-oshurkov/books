@@ -5,7 +5,6 @@ import name.oshurkov.books.book.*
 import name.oshurkov.books.core.*
 import name.oshurkov.books.file.FileType.*
 import nl.siegmann.epublib.epub.*
-import org.slf4j.*
 import java.io.*
 
 

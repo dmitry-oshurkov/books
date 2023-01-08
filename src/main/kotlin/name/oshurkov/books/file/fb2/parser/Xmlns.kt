@@ -8,7 +8,7 @@ class Xmlns {
     var value: String? = null
         protected set
 
-    constructor() {}
+    constructor()
     internal constructor(node: Node) {
         name = node.nodeName
         value = node.nodeValue

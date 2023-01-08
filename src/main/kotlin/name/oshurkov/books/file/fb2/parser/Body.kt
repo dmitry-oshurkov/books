@@ -11,7 +11,7 @@ class Body {
     var sections = ArrayList<Section>()
     var epigraphs: ArrayList<Epigraph>? = null
 
-    constructor() {}
+    constructor()
     internal constructor(body: Node) {
         val attrs = body.attributes
         for (index in 0 until attrs.length) {

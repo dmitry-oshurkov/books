@@ -13,7 +13,7 @@ object Genres : NamedBksTable("genre")
 
 object BookGenres : SimpleTable("book_genre") {
     val book_id = int("book_id").primaryKey()
-    val genres_id = int("genres_id").primaryKey()
+    val genre_id = int("genre_id").primaryKey()
 }
 
 
@@ -38,7 +38,7 @@ fun selectGenres() = db
 
 fun selectBookGenres() = db
     .from(BookGenres)
-    .innerJoin(Genres, on = Genres.id eq BookGenres.genres_id)
+    .innerJoin(Genres, on = Genres.id eq BookGenres.genre_id)
     .select(BookGenres.book_id, Genres.name)
     .map { it[BookGenres.book_id]!! to it[Genres.name]!! }
     .groupedValues()

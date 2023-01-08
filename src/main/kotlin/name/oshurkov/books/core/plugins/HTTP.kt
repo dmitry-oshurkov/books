@@ -15,6 +15,14 @@ import io.ktor.server.routing.*
 
 fun Application.configureHTTP() {
 
+    install(Compression) {
+        gzip { priority = 1.0 }
+        deflate {
+            priority = 10.0
+            minimumSize(1024) // condition
+        }
+    }
+
     install(CORS) {
         allowMethod(Options)
         allowMethod(Put)
@@ -25,14 +33,6 @@ fun Application.configureHTTP() {
 
     install(DefaultHeaders) {
         header("X-Engine", "Books") // will send this header with each response
-    }
-
-    install(Compression) {
-        gzip { priority = 1.0 }
-        deflate {
-            priority = 10.0
-            minimumSize(1024) // condition
-        }
     }
 
     routing {

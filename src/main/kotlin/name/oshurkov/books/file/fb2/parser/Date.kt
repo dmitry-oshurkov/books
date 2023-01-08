@@ -8,7 +8,7 @@ class Date {
     var date: String? = null
         protected set
 
-    constructor() {}
+    constructor()
     internal constructor(node: Node) {
         val map = node.attributes
         for (index in 0 until map.length) {

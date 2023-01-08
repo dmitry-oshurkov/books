@@ -13,7 +13,7 @@ class Poem : Element {
     var date: String? = null
         protected set
 
-    constructor() {}
+    constructor()
     internal constructor(node: Node) {
         val nodeList = node.childNodes
         for (i in 0 until nodeList.length) {

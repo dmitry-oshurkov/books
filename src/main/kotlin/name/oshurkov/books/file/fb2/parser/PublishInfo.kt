@@ -16,7 +16,7 @@ class PublishInfo {
     var sequence: Sequence? = null
         protected set
 
-    constructor() {}
+    constructor()
     internal constructor(document: Document) {
         val description = document.getElementsByTagName("publish-info")
         for (item in 0 until description.length) {

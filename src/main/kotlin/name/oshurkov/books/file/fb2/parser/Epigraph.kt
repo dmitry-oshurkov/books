@@ -6,7 +6,7 @@ class Epigraph : IdElement {
     var elements = ArrayList<Element>()
     var textAuthor: ArrayList<TextAuthor>? = ArrayList()
 
-    constructor() {}
+    constructor()
     internal constructor(root: Node) {
         val map = root.attributes
         for (index in 0 until map.length) {

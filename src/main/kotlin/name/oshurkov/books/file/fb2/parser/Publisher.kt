@@ -5,7 +5,7 @@ import org.w3c.dom.*
 class Publisher : Person {
     var lang: String? = null
 
-    constructor() {}
+    constructor()
     constructor(node: Node) : super(node) {
         val map = node.attributes
         for (index in 0 until map.length) {
