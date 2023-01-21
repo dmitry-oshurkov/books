@@ -1,0 +1,6 @@
+root = true
+
+# noinspection EditorConfigKeyCorrectness
+[*.{kt,kts}]
+max_line_length = 900
+disabled_rules = no-wildcard-imports, no-consecutive-blank-lines

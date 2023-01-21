@@ -1,0 +1,45 @@
+body {
+    color: white;
+    font-family: Arial, serif;
+    background-color: dimgrey;
+}
+
+body::after {
+    background-image: url(back.jpg);
+    content: "";
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+.title {
+    font-size: xx-large;
+}
+
+.input-dir {
+    width: 500px !important;
+}
+
+.batch-import-list {
+    width: 900px !important;
+    height: 200px !important;
+}
+
+.demo-section {
+    max-width: 1000px !important;
+}
+
+.demo-section p {
+    width: 1000px;
+}

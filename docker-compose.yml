@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgres:15.1
+    volumes:
+      - ${STORAGE}/data:/var/lib/postgresql/data:delegated
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=books
+    ports:
+      - "5712:5432"
+    networks:
+      - back-tier
+
+
+volumes:
+  db-data:
+
+
+networks:
+  back-tier:
