@@ -14,7 +14,6 @@ plugins {
     id("io.ktor.plugin") version "2.2.1"
     id("com.github.gmazzo.buildconfig") version "3.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
-    id("org.unbroken-dome.xjc") version "2.0.0"
 }
 
 
@@ -58,20 +57,17 @@ dependencies {
     implementation("org.flywaydb:flyway-core:9.10.2")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("org.apache.commons:commons-compress:1.22")
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
+    implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
     implementation("com.positiondev.epublib:epublib-core:3.1") {
         exclude(group = "org.slf4j")
         exclude(group = "xmlpull")
     }
     runtimeOnly("org.tukaani:xz:1.9") // for commons-compress
-
-    implementation("javax.xml.ws:jaxws-api:2.3.1")
-    xjcClasspath("org.jvnet.jaxb2_commons:jaxb2-value-constructor:3.0")
 }
 
 
-
 sourceSets {
-    main { java.setSrcDirs(emptyList<Any>()) }
     test { java.setSrcDirs(emptyList<Any>()) }
 }
 
@@ -81,17 +77,6 @@ buildConfig {
     useKotlinOutput { topLevelConstants = true }
     buildConfigField("${project.group}.core.BuildMode", "BUILD_MODE", "BuildMode.$buildMode")
     buildConfigField("String", "BUILD_VERSION", "\"$version\"")
-}
-
-
-xjc {
-    packageLevelAnnotations.set(false)
-    extraArgs.add("-Xvalue-constructor")
-}
-
-
-sourceSets.main {
-    xjcTargetPackage.set("${project.group}.books.storage.fb2")
 }
 
 
