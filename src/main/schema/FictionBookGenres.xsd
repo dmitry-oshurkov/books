@@ -20,6 +20,7 @@
 			<xs:enumeration value="architecture_book"/>
 			<xs:enumeration value="auto_regulations"/>
 			<xs:enumeration value="banking"/>
+			<xs:enumeration value="beginning_authors"/>
 			<xs:enumeration value="child_adv"/>
 			<xs:enumeration value="child_det"/>
 			<xs:enumeration value="child_education"/>

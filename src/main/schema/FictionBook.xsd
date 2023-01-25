@@ -25,9 +25,9 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
 -->
-  <xs:import namespace="http://www.w3.org/1999/xlink" schemaLocation="fictionBookLinks.xsd"/>
-  <xs:import namespace="http://www.gribuser.ru/xml/fictionbook/2.0/genres" schemaLocation="fictionBookGenres.xsd"/>
-  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="fictionBookLang.xsd"/>
+  <xs:import namespace="http://www.w3.org/1999/xlink" schemaLocation="FictionBookLinks.xsd"/>
+  <xs:import namespace="http://www.gribuser.ru/xml/fictionbook/2.0/genres" schemaLocation="FictionBookGenres.xsd"/>
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="FictionBookLang.xsd"/>
   <xs:complexType name="bodyType">
     <xs:annotation>
       <xs:documentation>Main content of the book, multiple bodies are used for additional information, like footnotes, that do not appear in the main book flow (extended from this class). The first body is presented to the reader by default, and content in the other bodies should be accessible by hyperlinks.</xs:documentation>
@@ -50,23 +50,8 @@ SUCH DAMAGE.
       </xs:element>
       <xs:element name="section" type="sectionType" maxOccurs="unbounded"/>
     </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
     <xs:attribute ref="xml:lang"/>
-  </xs:complexType>
-  <xs:complexType name="notesBodyType">
-    <xs:annotation>
-      <xs:documentation>Body for footnotes, content is mostly similar to base type and may (!) be rendered in the pure environment "as is". Advanced reader should treat section[2]/section as endnotes, all other stuff as footnotes</xs:documentation>
-    </xs:annotation>
-    <xs:complexContent>
-      <xs:extension base="bodyType">
-        <xs:attribute name="name" use="optional">
-          <xs:simpleType>
-            <xs:restriction base="xs:token">
-              <xs:pattern value="notes"/>
-            </xs:restriction>
-          </xs:simpleType>
-        </xs:attribute>
-      </xs:extension>
-    </xs:complexContent>
   </xs:complexType>
   <xs:element name="FictionBook">
     <xs:annotation>
@@ -209,7 +194,7 @@ SUCH DAMAGE.
             <xs:documentation>Main content of the book, multiple bodies are used for additional information, like footnotes, that do not appear in the main book flow. The first body is presented to the reader by default, and content in the other bodies should be accessible by hyperlinks. Name attribute should describe the meaning of this body, this is optional for the main body.</xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="body2" type="notesBodyType" minOccurs="0">
+        <xs:element name="body" type="bodyType" minOccurs="0">
           <xs:annotation>
             <xs:documentation>Main content of the book, multiple bodies are used for additional information, like footnotes, that do not appear in the main book flow. The first body is presented to the reader by default, and content in the other bodies should be accessible by hyperlinks. Name attribute should describe the meaning of this body, this is optional for the main body.</xs:documentation>
           </xs:annotation>
@@ -265,7 +250,7 @@ SUCH DAMAGE.
     </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute name="value1" type="xs:date" use="optional"/>
+        <xs:attribute name="value" type="xs:date" use="optional"/>
         <xs:attribute ref="xml:lang"/>
       </xs:extension>
     </xs:simpleContent>
@@ -394,61 +379,23 @@ SUCH DAMAGE.
     <xs:attribute ref="xml:lang"/>
   </xs:complexType>
   <xs:complexType name="sectionType">
-    <xs:annotation>
-      <xs:documentation>A basic block of a book, can contain more child sections or textual content</xs:documentation>
-    </xs:annotation>
-    <xs:sequence minOccurs="0">
-      <xs:element name="title" type="titleType" minOccurs="0">
-        <xs:annotation>
-          <xs:documentation>Section's title</xs:documentation>
-        </xs:annotation>
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element type="citeType" name="cite"/>
+      <xs:element type="titleType" name="title"/>
+      <xs:element name="p">
+        <xs:complexType mixed="true">
+          <xs:sequence>
+            <xs:element type="xs:string" name="strong" minOccurs="0"/>
+            <xs:element type="xs:string" name="emphasis" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element type="linkType" name="a" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
       </xs:element>
-      <xs:element name="epigraph" type="epigraphType" minOccurs="0" maxOccurs="unbounded">
-        <xs:annotation>
-          <xs:documentation>Epigraph(s) for this section</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element name="image" type="imageType" minOccurs="0">
-        <xs:annotation>
-          <xs:documentation>Image to be displayed at the top of this section</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element name="annotation" type="annotationType" minOccurs="0">
-        <xs:annotation>
-          <xs:documentation>Annotation for this section, if any</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:choice>
-        <xs:sequence>
-          <xs:element name="section" type="sectionType" maxOccurs="unbounded">
-            <xs:annotation>
-              <xs:documentation>Child sections</xs:documentation>
-            </xs:annotation>
-          </xs:element>
-        </xs:sequence>
-        <xs:sequence>
-          <xs:choice>
-            <xs:element name="p" type="pType"/>
-            <xs:element name="poem" type="poemType"/>
-            <xs:element name="subtitle" type="pType"/>
-            <xs:element name="cite" type="citeType"/>
-            <xs:element name="empty-line"/>
-            <xs:element name="table" type="tableType"/>
-          </xs:choice>
-          <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="p" type="pType"/>
-            <xs:element name="image" type="imageType"/>
-            <xs:element name="poem" type="poemType"/>
-            <xs:element name="subtitle" type="pType"/>
-            <xs:element name="cite" type="citeType"/>
-            <xs:element name="empty-line"/>
-            <xs:element name="table" type="tableType"/>
-          </xs:choice>
-        </xs:sequence>
-      </xs:choice>
-    </xs:sequence>
-    <xs:attribute name="id" type="xs:ID" use="optional"/>
-    <xs:attribute ref="xml:lang"/>
+      <xs:element type="sectionType" name="section"/>
+      <xs:element type="poemType" name="poem"/>
+      <xs:element type="xs:string" name="empty-line"/>
+    </xs:choice>
+    <xs:attribute type="xs:string" name="id" use="optional"/>
   </xs:complexType>
   <xs:complexType name="styleType" mixed="true">
     <xs:annotation>
@@ -501,7 +448,7 @@ SUCH DAMAGE.
     </xs:choice>
     <xs:attribute ref="xlink:type" use="optional"/>
     <xs:attribute ref="xlink:href" use="required"/>
-    <xs:attribute name="type2" type="xs:token" use="optional"/>
+    <xs:attribute name="type" type="xs:token" use="optional"/>
   </xs:complexType>
   <xs:complexType name="styleLinkType" mixed="true">
     <xs:annotation>
@@ -680,7 +627,7 @@ SUCH DAMAGE.
   </xs:simpleType>
   <xs:complexType name="partShareInstructionType">
     <xs:annotation>
-      <xs:documentation>Pointer to cpecific document section, explaining how to deal with it</xs:documentation>
+      <xs:documentation>Pointer to specific document section, explaining how to deal with it</xs:documentation>
     </xs:annotation>
     <xs:attribute ref="xlink:type"/>
     <xs:attribute ref="xlink:href" use="required"/>
