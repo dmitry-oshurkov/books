@@ -40,8 +40,6 @@ fun bookFile(file: File, type: FileType, title: String, seqNo: Int?) = run {
             file.readBytes().let { zip(seqNo, title, it) to uuid(it) }
         else
             file.readBytes().let { it to uuid(it) }
-
-        else -> file.readBytes().let { it to uuid(it) }
     }
 
     val newType = if (type == FB2 && forceFb2CompressForStore)

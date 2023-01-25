@@ -59,10 +59,6 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.22")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
     implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
-    implementation("com.positiondev.epublib:epublib-core:3.1") {
-        exclude(group = "org.slf4j")
-        exclude(group = "xmlpull")
-    }
     runtimeOnly("org.tukaani:xz:1.9") // for commons-compress
 }
 

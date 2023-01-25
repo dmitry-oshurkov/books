@@ -56,7 +56,6 @@ fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
             when {
                 it.extension == "fb2" -> FB2
                 it.name.endsWith(".fb2.zip") -> FBZ
-                it.extension == "epub" -> EPUB
                 else -> null
             }
         }
@@ -64,19 +63,16 @@ fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
         .mapKeys { it.key!! }
 
     val fb2 = parseFb2(filesMap)
-    val epub = parseEpub(filesMap)
 
     val fb2Books = fb2ToBooks(fb2, afterSaveFile)
-    val epubBooks = epubToBooks(epub, afterSaveFile)
-    val books = fb2Books + epubBooks
 
-    insertBooksMetadata(books)
+    insertBooksMetadata(fb2Books)
 
     val authors = selectAuthors()
     val genres = selectGenres()
     val sequences = selectSequences()
 
-    books.forEach { insertBook(it, authors, genres, sequences) }
+    fb2Books.forEach { insertBook(it, authors, genres, sequences) }
 
     val stop = monotonic.markNow()
 
