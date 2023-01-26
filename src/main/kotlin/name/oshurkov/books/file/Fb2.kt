@@ -71,6 +71,7 @@ private fun importedBook(fb2: FictionBook, marshaller: Marshaller, file: File) =
         genres = bookGenres,
         files = listOf(bookFile),
         srcFile = file,
+        content = normalizedFb2,
     )
         .also {
             log.info("Parsed: ${it.title} [${file.absolutePath}]")

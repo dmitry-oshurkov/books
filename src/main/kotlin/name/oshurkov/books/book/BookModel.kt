@@ -46,4 +46,5 @@ class ImportedBook(
     val genres: List<String> = emptyList(),
     val files: List<ImportedBookFile> = emptyList(),
     val srcFile: File,
+    val content: String,
 )
