@@ -179,6 +179,7 @@
 			<xs:enumeration value="sf_humor"/>
 			<xs:enumeration value="sf_social"/>
 			<xs:enumeration value="sf_space"/>
+			<xs:enumeration value="sf_etc"/>
 			<xs:enumeration value="short_story"/>
 			<xs:enumeration value="sketch"/>
 			<xs:enumeration value="small_business"/>

@@ -558,6 +558,8 @@ public enum GenreType {
     SF_SOCIAL("sf_social"),
     @XmlEnumValue("sf_space")
     SF_SPACE("sf_space"),
+    @XmlEnumValue("sf_etc")
+    SF_ETC("sf_etc"),
     @XmlEnumValue("short_story")
     SHORT_STORY("short_story"),
     @XmlEnumValue("sketch")
