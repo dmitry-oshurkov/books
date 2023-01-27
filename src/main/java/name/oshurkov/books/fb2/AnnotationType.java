@@ -101,7 +101,7 @@ public class AnnotationType {
      * {@link JAXBElement }{@code <}{@link TableType }{@code >}
      * {@link JAXBElement }{@code <}{@link Object }{@code >}
      */
-    public List<JAXBElement<?>> getPSAndPoemsAndCites() {
+    public List<JAXBElement<?>> getContent() {
         if (psAndPoemsAndCites == null) {
             psAndPoemsAndCites = new ArrayList<JAXBElement<?>>();
         }

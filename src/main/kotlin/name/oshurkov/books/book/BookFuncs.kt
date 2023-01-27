@@ -51,28 +51,15 @@ fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
     val monotonic = TimeSource.Monotonic
     val start = monotonic.markNow()
 
-    val filesMap = files
-        .groupBy {
-            when {
-                it.extension == "fb2" -> FB2
-                it.name.endsWith(".fb2.zip") -> FBZ
-                else -> null
-            }
-        }
-        .filter { it.key != null }
-        .mapKeys { it.key!! }
+    val books = parseFb2(files)
 
-    val fb2 = parseFb2(filesMap)
-
-    val fb2Books = fb2ToBooks(fb2, afterSaveFile)
-
-    insertBooksMetadata(fb2Books)
+    insertBooksMetadata(books)
 
     val authors = selectAuthors()
     val genres = selectGenres()
     val sequences = selectSequences()
 
-    fb2Books.forEach { insertBook(it, authors, genres, sequences) }
+    books.forEach { insertBook(it, authors, genres, sequences, afterSaveFile) }
 
     val stop = monotonic.markNow()
 
@@ -113,7 +100,7 @@ fun exportBooks(targetDir: String) {
 
             val prefix = prefix(it, sequence)
             val newFileName = "$prefix${it.title}.${file.type.extension}"
-// todo check filename size 255 bytes
+            // todo check filename size 255 bytes
             File(newFileDir, newFileName).writeBytes(file.content)
         }
     }

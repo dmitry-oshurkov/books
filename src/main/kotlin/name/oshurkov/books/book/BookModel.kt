@@ -2,6 +2,7 @@ package name.oshurkov.books.book
 
 import name.oshurkov.books.author.*
 import name.oshurkov.books.file.*
+import java.io.*
 import java.time.*
 import java.util.*
 
@@ -26,7 +27,7 @@ class Book(
 )
 
 
-data class ImportedBook(
+class ImportedBook(
     val cover: ByteArray?,
     val coverContentType: String?,
     val hash: UUID,
@@ -41,7 +42,8 @@ data class ImportedBook(
     val title: String,
     val unread: Boolean,
     val verified: Boolean,
-    val authors: List<ImportedAuthor> = emptyList(),
+    val authors: List<Fb2Author> = emptyList(),
     val genres: List<String> = emptyList(),
     val files: List<ImportedBookFile> = emptyList(),
+    val srcFile: File,
 )

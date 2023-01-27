@@ -42,7 +42,7 @@ public class SequenceType {
     @XmlAttribute(name = "name", required = true)
     protected String name;
     @XmlAttribute(name = "number")
-    protected BigInteger number;
+    protected Integer number;
     @XmlAttribute(name = "lang", namespace = "http://www.w3.org/XML/1998/namespace")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlSchemaType(name = "language")
@@ -58,7 +58,7 @@ public class SequenceType {
     /**
      * Fully-initialising value constructor
      */
-    public SequenceType(final List<SequenceType> sequences, final String name, final BigInteger number, final String lang) {
+    public SequenceType(final List<SequenceType> sequences, final String name, final Integer number, final String lang) {
         this.sequences = sequences;
         this.name = name;
         this.number = number;
@@ -116,9 +116,9 @@ public class SequenceType {
      * Gets the value of the number property.
      *
      * @return possible object is
-     * {@link BigInteger }
+     * {@link Integer }
      */
-    public BigInteger getNumber() {
+    public Integer getNumber() {
         return number;
     }
 
@@ -126,9 +126,9 @@ public class SequenceType {
      * Sets the value of the number property.
      *
      * @param value allowed object is
-     *              {@link BigInteger }
+     *              {@link Integer }
      */
-    public void setNumber(BigInteger value) {
+    public void setNumber(Integer value) {
         this.number = value;
     }
 

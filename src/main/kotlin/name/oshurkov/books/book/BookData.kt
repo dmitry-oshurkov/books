@@ -10,6 +10,7 @@ import name.oshurkov.books.sequence.*
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
 import org.ktorm.support.postgresql.*
+import java.io.*
 
 
 object Books : BksTable("book") {
@@ -65,7 +66,7 @@ fun insertBooksMetadata(books: List<ImportedBook>) {
 }
 
 
-fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>) {
+fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>, afterSaveFile: (File) -> Unit) {
 
     try {
         db.useTransaction {
@@ -136,11 +137,13 @@ fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, s
                     }
                 }
 
-                log.info("Imported: ${book.title}")
+                afterSaveFile(book.srcFile)
+
+                log.info("Imported: ${book.title} [${book.srcFile.absolutePath}]")
             }
         }
     } catch (e: Exception) {
-        log.error("Error import: ${book.title}; ${e.message}")
+        log.error("Error import: ${book.title}; ${e.message} [${book.srcFile.absolutePath}]")
     }
 }
 

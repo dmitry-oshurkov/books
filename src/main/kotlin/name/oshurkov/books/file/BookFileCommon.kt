@@ -3,7 +3,6 @@ package name.oshurkov.books.file
 import name.oshurkov.books.author.*
 import name.oshurkov.books.book.*
 import name.oshurkov.books.core.*
-import name.oshurkov.books.file.FileType.*
 import name.oshurkov.books.sequence.*
 import java.io.*
 import java.nio.charset.*
@@ -24,31 +23,7 @@ fun lang(value: String) = when (value.lowercase()) {
 }
 
 
-fun bookHash(bookAuthors: List<ImportedAuthor>, title: String) = uuid("${bookAuthors.sortedBy { it.lastName }.joinToString()}$title".toByteArray())
-
-
-fun bookFile(file: File, type: FileType, title: String, seqNo: Int?) = run {
-
-    val (content, hash) = when (type) {
-
-        FBZ -> {
-            val bytes = unzip(file)
-            zip(seqNo, title, bytes) to uuid(bytes)
-        }
-
-        FB2 -> if (forceFb2CompressForStore)
-            file.readBytes().let { zip(seqNo, title, it) to uuid(it) }
-        else
-            file.readBytes().let { it to uuid(it) }
-    }
-
-    val newType = if (type == FB2 && forceFb2CompressForStore)
-        FBZ
-    else
-        type
-
-    ImportedBookFile(content, hash, newType)
-}
+fun bookHash(authors: List<Fb2Author>, title: String) = uuid("${authors.sortedBy { it.lastName }.joinToString { it.hash }}$title".toByteArray())
 
 
 fun String.isRecommended() = contains(RECOMMENDED_TAG)
@@ -83,23 +58,19 @@ fun unzip(file: File) =
         }!!
 
 
-private fun zip(seqNo: Int?, title: String, bytes: ByteArray) =
-    ByteArrayOutputStream().use {
-        ZipOutputStream(it).use { stream ->
-            stream.setLevel(BEST_COMPRESSION)
-            stream.putNextEntry(ZipEntry(if (seqNo != null) "[$seqNo] $title.fb2" else "$title.fb2"))
-            stream.write(bytes, 0, bytes.size)
-            stream.closeEntry()
-        }
-        it.toByteArray()
+fun zip(title: String, bytes: ByteArray, seqNo: Int?): ByteArray = ByteArrayOutputStream().use {
+    ZipOutputStream(it).use { stream ->
+        stream.setLevel(BEST_COMPRESSION)
+        stream.putNextEntry(ZipEntry("${if (seqNo != null) "[$seqNo] " else ""}$title.fb2"))
+        stream.write(bytes, 0, bytes.size)
+        stream.closeEntry()
     }
+    it.toByteArray()
+}
 
 
 private const val RECOMMENDED_TAG = "+"
 private const val UNREAD_TAG = "!"
 private const val NOT_VERIFIED_TAG = "^"
 
-private val attrReg = "^(?>\\[(?<ATTR>.+)\\])?.*".toRegex()
-
-
-private val forceFb2CompressForStore = true // todo create app param
+private val attrReg = "^(?>\\[(?<ATTR>.+)])?.*".toRegex()
