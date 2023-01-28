@@ -49,8 +49,8 @@ private fun importedBook(fb2: FictionBook, marshaller: Marshaller, file: File) =
     titleInfo.authors.clear()
     (titleInfo.authors as ArrayList<TitleInfoType.Author>).addAll(bookAuthors.map(Fb2Author::toTitleInfoAuthor))
     val normalizedFb2 = marshal(marshaller, fb2)
-    val normalizedFb2Bytes = zip(title, normalizedFb2.toByteArray(), sequenceType?.number) // todo store content as uncompressed for manual corrections
-    val bookFile = ImportedBookFile(normalizedFb2Bytes, uuid(normalizedFb2Bytes), FBZ)
+    val fbz = zip(title, sequenceType?.number, normalizedFb2.toByteArray())
+    val bookFile = ImportedBookFile(fbz, uuid(fbz), FBZ)
 
     ImportedBook(
         title = title,

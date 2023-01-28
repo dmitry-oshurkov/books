@@ -4,10 +4,12 @@ import name.oshurkov.books.author.*
 import name.oshurkov.books.book.*
 import name.oshurkov.books.core.*
 import name.oshurkov.books.sequence.*
+import org.apache.commons.compress.archivers.zip.*
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy.*
 import java.io.*
 import java.nio.charset.*
-import java.util.zip.*
 import java.util.zip.Deflater.*
+import java.util.zip.ZipFile
 
 
 fun summaryType(value: String?) = if (value?.contains("</p>") == true)
@@ -58,14 +60,20 @@ fun unzip(file: File) =
         }!!
 
 
-fun zip(title: String, bytes: ByteArray, seqNo: Int?): ByteArray = ByteArrayOutputStream().use {
-    ZipOutputStream(it).use { stream ->
-        stream.setLevel(BEST_COMPRESSION)
-        stream.putNextEntry(ZipEntry("${if (seqNo != null) "[$seqNo] " else ""}$title.fb2"))
-        stream.write(bytes, 0, bytes.size)
-        stream.closeEntry()
-    }
-    it.toByteArray()
+fun zip(title: String, seqNo: Int?, bytes: ByteArray): ByteArray = ByteArrayOutputStream().use { stream ->
+    ZipArchiveOutputStream(stream).use { write(it, seqNo, title, bytes) }
+    stream.toByteArray()
+}
+
+fun createZipFile(file: File, title: String, seqNo: Int?, bytes: ByteArray) = ZipArchiveOutputStream(file).use { write(it, seqNo, title, bytes) }
+
+
+private fun write(archive: ZipArchiveOutputStream, seqNo: Int?, title: String, bytes: ByteArray) {
+    archive.setLevel(BEST_COMPRESSION)
+    archive.setCreateUnicodeExtraFields(ALWAYS)
+    archive.putArchiveEntry(ZipArchiveEntry("${if (seqNo != null) "[$seqNo] " else ""}$title.fb2"))
+    archive.write(bytes)
+    archive.closeArchiveEntry()
 }
 
 
