@@ -12,29 +12,21 @@ import java.io.*
 import kotlin.text.Charsets.UTF_8
 
 
-fun parseFb2(files: List<File>) = run {
-
-    val bookContext = JAXBContext.newInstance(FictionBook::class.java)
-    val unmarshaller = bookContext.createUnmarshaller()
-    val marshaller = marshaller(bookContext)
-
-    files
-        .map {
-            when {
-                it.extension == "fb2" -> it.readBytes()
-                it.name.endsWith(".fb2.zip") -> unzip(it)
-                else -> null
-            } to it
-        }
-        .filter { (bytes) -> bytes != null }
-        .map { (bytes, file) ->
-            val fb2 = unmarshaller.unmarshal(bytes!!.inputStream()) as FictionBook
-            importedBook(fb2, marshaller, file)
-        }
-}
+fun parseFb2(files: List<File>) = files
+    .map {
+        when {
+            it.extension == "fb2" -> it.readBytes()
+            it.name.endsWith(".fb2.zip") -> unzip(it)
+            else -> null
+        } to it
+    }
+    .filter { (bytes) -> bytes != null }
+    .map { (bytes, file) -> importedBook(bytes!!, file) }
 
 
-private fun importedBook(fb2: FictionBook, marshaller: Marshaller, file: File) = run {
+private fun importedBook(bytes: ByteArray, file: File) = run {
+
+    val fb2 = fb2Unmarshaller.unmarshal(bytes.inputStream()) as FictionBook
 
     val titleInfo = fb2.description.titleInfo
     val sequenceType = titleInfo.sequences.firstOrNull()
@@ -48,7 +40,7 @@ private fun importedBook(fb2: FictionBook, marshaller: Marshaller, file: File) =
 
     titleInfo.authors.clear()
     (titleInfo.authors as ArrayList<TitleInfoType.Author>).addAll(bookAuthors.map(Fb2Author::toTitleInfoAuthor))
-    val normalizedFb2 = marshal(marshaller, fb2)
+    val normalizedFb2 = marshal(fb2Marshaller, fb2)
     val fbz = zip(title, sequenceType?.number, normalizedFb2.toByteArray())
     val bookFile = ImportedBookFile(fbz, uuid(fbz), FBZ)
 
@@ -71,7 +63,6 @@ private fun importedBook(fb2: FictionBook, marshaller: Marshaller, file: File) =
         genres = bookGenres,
         files = listOf(bookFile),
         srcFile = file,
-        content = normalizedFb2,
     )
         .also {
             log.info("Parsed: ${it.title} [${file.absolutePath}]")
@@ -246,6 +237,11 @@ private fun marshal(marshaller: Marshaller, obj: Any) = ByteArrayOutputStream().
         .replace(" xmlns:ns3=\"http://www.gribuser.ru/xml/fictionbook/2.0/markup\"", "")
         .trim()
 }
+
+
+private val fb2Context = JAXBContext.newInstance(FictionBook::class.java)!!
+private val fb2Unmarshaller = fb2Context.createUnmarshaller()!!
+private val fb2Marshaller = marshaller(fb2Context)!!
 
 
 private val toSelfClosed = """<[^>]*></([^>]*)>""".toRegex()
