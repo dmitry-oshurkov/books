@@ -14,6 +14,16 @@ class Author(
     override fun toString() = "$firstName$middle $lastName"
     fun toStringForList() = "$lastName, $firstName$middle"
 
+    fun toTitleInfoAuthor() = TitleInfoType.Author(
+        firstName.toTextField(),
+        middleName?.toTextField(),
+        lastName.toTextField(),
+        null,
+        null,
+        null,
+        null
+    )
+
     private val middle get() = if (middleName != null) " $middleName" else ""
 }
 
@@ -35,16 +45,6 @@ data class Fb2Author(
         homePages = value.homePages,
         emails = value.emails,
         id = value.id,
-    )
-
-    fun toTitleInfoAuthor() = TitleInfoType.Author(
-        firstName.toTextField(),
-        middleName?.toTextField(),
-        lastName.toTextField(),
-        nickname?.toTextField(),
-        homePages,
-        emails,
-        id
     )
 
     val hash

@@ -3,6 +3,7 @@ package name.oshurkov.books.book
 import name.oshurkov.books.*
 import name.oshurkov.books.author.*
 import name.oshurkov.books.core.*
+import name.oshurkov.books.fb2.*
 import name.oshurkov.books.file.*
 import name.oshurkov.books.file.FileType.*
 import name.oshurkov.books.genre.*

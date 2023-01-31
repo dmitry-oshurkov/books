@@ -24,10 +24,28 @@ fun parseFb2(files: List<File>) = files
     .map { (bytes, file) -> importedBook(bytes!!, file) }
 
 
+fun repackFb2(id: Int) {
+
+    val files = selectBookFiles()[id]
+
+    if (files != null) {
+
+        val authors = selectBookAuthors(id).map { it.toTitleInfoAuthor() }
+        val book = selectBook(id)!!
+
+        val fb2 = unmarshalFb2(unzip(files.first().content))
+        fb2.description.titleInfo.authors.clear()
+        (fb2.description.titleInfo.authors as ArrayList<TitleInfoType.Author>).addAll(authors)
+
+        val newFb2 = marshal(fb2Marshaller, fb2)
+        zip(book.title, book.sequenceNumber, newFb2.toByteArray())
+    }
+}
+
+
 private fun importedBook(bytes: ByteArray, file: File) = run {
 
-    val fb2 = fb2Unmarshaller.unmarshal(bytes.inputStream()) as FictionBook
-
+    val fb2 = unmarshalFb2(bytes)
     val titleInfo = fb2.description.titleInfo
     val sequenceType = titleInfo.sequences.firstOrNull()
 
@@ -37,12 +55,12 @@ private fun importedBook(bytes: ByteArray, file: File) = run {
     val summary = titleInfo.annotation?.content?.flatMap { it.value.asString() }?.joinToString("\n")
     val binary = fb2.binaries.firstOrNull { it.id == titleInfo.coverpage?.images?.firstOrNull()?.href?.trimStart('#') }
     val attrs = file.name.parseAttrs()
-
-    titleInfo.authors.clear()
-    (titleInfo.authors as ArrayList<TitleInfoType.Author>).addAll(bookAuthors.map(Fb2Author::toTitleInfoAuthor))
-    val normalizedFb2 = marshal(fb2Marshaller, fb2)
-    val fbz = zip(title, sequenceType?.number, normalizedFb2.toByteArray())
-    val bookFile = ImportedBookFile(fbz, uuid(fbz), FBZ)
+    val fbz = zip(title, sequenceType?.number, bytes)
+    val bookFile = ImportedBookFile(
+        content = fbz,
+        hash = uuid(fbz),
+        type = FBZ
+    )
 
     ImportedBook(
         title = title,
@@ -209,6 +227,21 @@ private fun fb2GenreToString(code: String?) = when (code) {
 }
 
 
+private fun unmarshalFb2(bytes: ByteArray) = fb2Unmarshaller.unmarshal(bytes.inputStream()) as FictionBook
+
+
+private fun marshal(marshaller: Marshaller, obj: Any) = ByteArrayOutputStream().use {
+
+    marshaller.marshal(obj, it)
+
+    it.toString(UTF_8.name())
+        .let { s -> toSelfClosed.replace(s, """<${'$'}1/>""") }
+        .let { s -> newLine.replace(s, """<p>""") }
+        .replace(" xmlns:ns3=\"http://www.gribuser.ru/xml/fictionbook/2.0/markup\"", "")
+        .trim()
+}
+
+
 private fun marshaller(context: JAXBContext, addXmlDeclaration: Boolean = true) = context.createMarshaller()
     .apply {
         setProperty(JAXB_FORMATTED_OUTPUT, true)
@@ -225,18 +258,6 @@ private fun marshaller(context: JAXBContext, addXmlDeclaration: Boolean = true) 
             }
         )
     }
-
-
-private fun marshal(marshaller: Marshaller, obj: Any) = ByteArrayOutputStream().use {
-
-    marshaller.marshal(obj, it)
-
-    it.toString(UTF_8.name())
-        .let { s -> toSelfClosed.replace(s, """<${'$'}1/>""") }
-        .let { s -> newLine.replace(s, """<p>""") }
-        .replace(" xmlns:ns3=\"http://www.gribuser.ru/xml/fictionbook/2.0/markup\"", "")
-        .trim()
-}
 
 
 private val fb2Context = JAXBContext.newInstance(FictionBook::class.java)!!

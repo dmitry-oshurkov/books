@@ -6,6 +6,7 @@ import name.oshurkov.books.core.*
 import name.oshurkov.books.sequence.*
 import org.apache.commons.compress.archivers.zip.*
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy.*
+import org.apache.commons.compress.utils.*
 import java.io.*
 import java.nio.charset.*
 import java.util.zip.Deflater.*
@@ -58,6 +59,12 @@ fun unzip(file: File) =
             val entry = it.entries().toList().first()
             it.getInputStream(entry).use { stream -> stream.readAllBytes() }
         }!!
+
+
+fun unzip(bytes: ByteArray) = ZipFile(SeekableInMemoryByteChannel(bytes)).use { zip ->
+    val entry = zip.entries.nextElement()
+    zip.getInputStream(entry).use { it.readAllBytes() }
+}!!
 
 
 fun zip(title: String, seqNo: Int?, bytes: ByteArray): ByteArray = ByteArrayOutputStream().use { stream ->
