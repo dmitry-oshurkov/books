@@ -11,13 +11,17 @@ import io.ktor.server.routing.*
 import name.oshurkov.books.*
 import name.oshurkov.books.book.*
 import name.oshurkov.books.catalog.*
+import name.oshurkov.books.core.*
 
 
 fun Application.configureRouting() {
 
     install(AutoHeadResponse)
     install(StatusPages) {
-        exception<Throwable> { call, cause -> call.respondText(text = "500: $cause", status = InternalServerError) }
+        exception<Throwable> { call, cause ->
+            call.respondText(text = "500: $cause", status = InternalServerError)
+            log1.error(cause)
+        }
     }
 
     routing {
@@ -38,3 +42,6 @@ fun Application.configureRouting() {
 
 
 suspend fun <T : Any> ApplicationCall.respondXml(message: T) = respondText(message.toXml(), ContentType.Application.Xml)
+
+
+private val log1 by logger()
