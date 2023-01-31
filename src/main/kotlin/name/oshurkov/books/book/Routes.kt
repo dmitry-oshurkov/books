@@ -63,6 +63,12 @@ fun Routing.books() {
             }
         }
 
+        post("move") {
+            val ids = call.receiveText().split(",")
+            moveBooksToOtherAuthor(ids[0].toInt(), ids[1].toInt())
+            call.respond(NoContent)
+        }
+
 
         /**
          * Загрузка файла книги.

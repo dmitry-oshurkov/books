@@ -180,6 +180,24 @@ paths:
             '*/*':
               schema:
                 type: "object"
+  /books/move:
+    post:
+      description: ""
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+            examples:
+              example-1:
+                value: 1,2
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
   /catalog:
     get:
       tags:

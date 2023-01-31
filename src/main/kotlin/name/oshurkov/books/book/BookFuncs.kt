@@ -3,12 +3,14 @@ package name.oshurkov.books.book
 import name.oshurkov.books.*
 import name.oshurkov.books.author.*
 import name.oshurkov.books.core.*
+import name.oshurkov.books.core.plugins.*
 import name.oshurkov.books.fb2.*
 import name.oshurkov.books.file.*
 import name.oshurkov.books.file.FileType.*
 import name.oshurkov.books.genre.*
 import name.oshurkov.books.sequence.*
 import org.apache.commons.compress.archivers.sevenz.*
+import org.ktorm.dsl.*
 import org.ktorm.support.postgresql.*
 import org.slf4j.*
 import java.io.*
@@ -153,6 +155,31 @@ fun bookImage(bookId: Int) = run {
         (book.coverContentType ?: "image/jpeg") to book.cover
     else
         "" to null
+}
+
+
+fun moveBooksToOtherAuthor(oldAuthor: Int, newAuthor: Int) = db.useTransaction {
+
+    log.info("Start moveBooksToOtherAuthor")
+
+    val updatingBooks = db.from(BookAuthors)
+        .select(BookAuthors.book_id)
+        .where { BookAuthors.author_id eq oldAuthor }
+        .map { it[BookAuthors.book_id]!! }
+
+    if (oldAuthor != newAuthor) {
+
+        db.update(BookAuthors) {
+            set(it.author_id, newAuthor)
+            where { it.author_id eq oldAuthor }
+        }
+
+        db.delete(Authors) { it.id eq oldAuthor }
+    }
+
+    updatingBooks.forEach(::repackFb2)
+
+    log.info("Finished moveBooksToOtherAuthor")
 }
 
 
