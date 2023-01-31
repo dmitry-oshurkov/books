@@ -37,32 +37,34 @@ fun insertBooksMetadata(books: List<ImportedBook>) {
     val importedGenres = books.flatMap { it.genres }.distinct()
     val importedSequences = books.mapNotNull { it.sequence }.distinct()
 
-
-    db.bulkInsertOrUpdate(Authors) {
-        importedAuthors.map { author ->
-            item {
-                set(it.last_name, author.lastName)
-                set(it.first_name, author.firstName)
-                set(it.middle_name, author.middleName)
+    if (importedAuthors.isNotEmpty())
+        db.bulkInsertOrUpdate(Authors) {
+            importedAuthors.map { author ->
+                item {
+                    set(it.last_name, author.lastName)
+                    set(it.first_name, author.firstName)
+                    set(it.middle_name, author.middleName)
+                }
             }
+
+            onConflict(it.last_name, it.first_name) { doNothing() }
         }
 
-        onConflict(it.last_name, it.first_name) { doNothing() }
-    }
-
-    db.bulkInsertOrUpdate(Genres) {
-        importedGenres.map { genre ->
-            item { set(it.name, genre) }
+    if (importedGenres.isNotEmpty())
+        db.bulkInsertOrUpdate(Genres) {
+            importedGenres.map { genre ->
+                item { set(it.name, genre) }
+            }
+            onConflict(it.name) { doNothing() }
         }
-        onConflict(it.name) { doNothing() }
-    }
 
-    db.bulkInsertOrUpdate(Sequences) {
-        importedSequences.map { sequence ->
-            item { set(it.name, sequence) }
+    if (importedSequences.isNotEmpty())
+        db.bulkInsertOrUpdate(Sequences) {
+            importedSequences.map { sequence ->
+                item { set(it.name, sequence) }
+            }
+            onConflict(it.name) { doNothing() }
         }
-        onConflict(it.name) { doNothing() }
-    }
 }
 
 
