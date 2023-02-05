@@ -10,7 +10,9 @@ import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.thymeleaf.*
 import name.oshurkov.books.*
+import name.oshurkov.books.author.*
 import name.oshurkov.books.book.*
 import name.oshurkov.books.catalog.*
 import name.oshurkov.books.core.*
@@ -32,6 +34,22 @@ fun Application.configureRouting() {
 
         static("/static") {
             resources("static")
+        }
+
+        get("/", {
+            info("главная страница веб-сайта")
+            response { ok("<!DOCTYPE html ><html></html>") { mediaType(Text.Html) } }
+        }) {
+            call.respond(
+                ThymeleafContent(
+                    "index",
+                    mapOf(
+                        "ver" to BUILD_VERSION,
+                        "booksCount" to selectBooksCount(),
+                        "authorsCount" to selectAuthorsCount(),
+                    )
+                )
+            )
         }
 
         get("about", {
