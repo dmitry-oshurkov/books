@@ -26,6 +26,8 @@ fun Application.configureRouting() {
 
     routing {
 
+        rapiDoc(pageTitle = "Книжный каталог | Программный интерфейс")
+
         static("/static") {
             resources("static")
         }
