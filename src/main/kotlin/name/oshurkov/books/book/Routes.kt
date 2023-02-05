@@ -27,13 +27,7 @@ fun Routing.books() {
                     noContent
                     notFound
                 }
-            }) {
-                val id: Int by call.parameters
-                if (deleteBook(id) == 1)
-                    call.respond(NoContent)
-                else
-                    call.respond(NotFound)
-            }
+            }) { noContentOrNotFound(::deleteBook) }
 
 
             route("image") {
@@ -78,6 +72,7 @@ fun Routing.books() {
                 }
             }
         }
+
 
         post("move", {
             info("изменение автора")

@@ -10,6 +10,7 @@ import io.ktor.util.*
 import io.ktor.util.pipeline.*
 import io.github.smiley4.ktorswaggerui.dsl.delete as delete1
 import io.github.smiley4.ktorswaggerui.dsl.get as get1
+import io.github.smiley4.ktorswaggerui.dsl.patch as patch1
 import io.github.smiley4.ktorswaggerui.dsl.post as post1
 
 
@@ -53,6 +54,12 @@ fun Route.post(builder: OpenApiRoute.() -> Unit = { }, body: PipelineInterceptor
 
 @KtorDsl
 fun Route.post(path: String, builder: OpenApiRoute.() -> Unit = { }, body: PipelineInterceptor<Unit, ApplicationCall>) = post1(path, builder, body)
+
+@KtorDsl
+fun Route.patch(builder: OpenApiRoute.() -> Unit = { }, body: PipelineInterceptor<Unit, ApplicationCall>) = patch1(builder, body)
+
+@KtorDsl
+fun Route.patch(path: String, builder: OpenApiRoute.() -> Unit = { }, body: PipelineInterceptor<Unit, ApplicationCall>) = patch1(path, builder, body)
 
 @KtorDsl
 fun Route.delete(builder: OpenApiRoute.() -> Unit = { }, body: PipelineInterceptor<Unit, ApplicationCall>) = delete1(builder, body)
