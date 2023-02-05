@@ -1,6 +1,6 @@
 package name.oshurkov.books.core.plugins
 
-import io.ktor.http.*
+import io.ktor.http.ContentType.Application.Xml
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
@@ -38,12 +38,12 @@ fun Application.configureRouting() {
         get("about") { call.respondText(BUILD_VERSION) }
 
         books()
-        catalog()
+        feeds()
     }
 }
 
 
-suspend fun <T : Any> ApplicationCall.respondXml(message: T) = respondText(message.toXml(), ContentType.Application.Xml)
+suspend fun <T : Any> ApplicationCall.respondXml(message: T) = respondText(message.toXml(), Xml)
 
 
 private val log1 by logger()

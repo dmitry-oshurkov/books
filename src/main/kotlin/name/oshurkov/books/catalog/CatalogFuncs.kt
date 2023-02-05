@@ -263,7 +263,6 @@ private fun Book.toEntry(
 )
 
 
-private fun Content.toPlainText() = Content(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
 private fun Summary.toPlainText() = Summary(content?.replace("<[^>]*>".toRegex(), ""), "text") // todo need to disable jackson html escaping
 
 private fun Boolean.asRus() = if (this) "да" else "нет"

@@ -17,7 +17,7 @@ import name.oshurkov.books.core.*
 import name.oshurkov.books.core.plugins.*
 
 
-fun Routing.catalog() {
+fun Routing.feeds() {
 
     route(catalog.value) {
 
