@@ -1,5 +1,6 @@
 package name.oshurkov.books.core.plugins
 
+import io.github.smiley4.ktorswaggerui.*
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Options
@@ -9,11 +10,18 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
-import io.ktor.server.plugins.swagger.*
-import io.ktor.server.routing.*
+import name.oshurkov.books.*
 
 
 fun Application.configureHTTP() {
+
+    install(Compression) {
+        gzip { priority = 1.0 }
+        deflate {
+            priority = 10.0
+            minimumSize(1024) // condition
+        }
+    }
 
     install(CORS) {
         allowMethod(Options)
@@ -27,17 +35,40 @@ fun Application.configureHTTP() {
         header("X-Engine", "Books") // will send this header with each response
     }
 
-    install(Compression) {
-        gzip { priority = 1.0 }
-        deflate {
-            priority = 10.0
-            minimumSize(1024) // condition
-        }
-    }
+    install(SwaggerUI) {
 
-    routing {
-        swaggerUI(path = "openapi") {
-            version = "4.15.5"
+        swagger {
+            swaggerUrl = "openapi"
+            forwardRoot = true
+        }
+
+        info {
+            title = "Books REST API"
+            version = BUILD_VERSION
+            description = "Программный интерфейс ядра приложения «Книжный каталог»"
+            license {
+                name = "MIT"
+                url = "https://raw.githubusercontent.com/dmitry-oshurkov/books/main/LICENSE"
+            }
+        }
+
+        server { url = "/" }
+
+        tag(BOOKS) { description = "Управление книгами" }
+        tag(CATALOG) { description = "Управление каталогом" }
+        tag(WEB) { description = "Управление веб-сайтом" }
+
+        automaticTagGenerator = {
+            when (it.firstOrNull()) {
+                "books" -> BOOKS
+                "catalog" -> CATALOG
+                else -> WEB
+            }
         }
     }
 }
+
+
+private const val BOOKS = "Книги"
+private const val CATALOG = "Каталог"
+private const val WEB = "Веб-сайт"

@@ -18,7 +18,7 @@ plugins {
 
 
 group = "name.oshurkov.books"
-version = "23.1.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
+version = "23.2.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
 java.sourceCompatibility = VERSION_17
 
 val buildMode by extra { (System.getenv("BUILD_MODE") ?: "DEV").also { println("Build mode: $it") } }
@@ -31,6 +31,7 @@ application {
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 
@@ -42,12 +43,13 @@ dependencies {
     implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-default-headers-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
-    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
     implementation("io.ktor:ktor-server-thymeleaf-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-html-builder:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-compression-jvm:$ktorVersion")
     implementation("io.ktor:ktor-utils:$ktorVersion")
+    implementation("io.github.smiley4:ktor-swagger-ui:1.1.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation("org.ktorm:ktorm-core:$ktormVersion")
@@ -57,16 +59,13 @@ dependencies {
     implementation("org.flywaydb:flyway-core:9.10.2")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("org.apache.commons:commons-compress:1.22")
-    implementation("com.positiondev.epublib:epublib-core:3.1") {
-        exclude(group = "org.slf4j")
-        exclude(group = "xmlpull")
-    }
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
+    implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
     runtimeOnly("org.tukaani:xz:1.9") // for commons-compress
 }
 
 
 sourceSets {
-    main { java.setSrcDirs(emptyList<Any>()) }
     test { java.setSrcDirs(emptyList<Any>()) }
 }
 

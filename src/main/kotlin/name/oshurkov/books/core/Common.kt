@@ -23,6 +23,8 @@ fun uuid(bytes: ByteArray) = run {
 
 fun uuid(value: String) = UUID.fromString(value)!!
 
+fun uuid() = UUID.randomUUID()!!
+
 
 fun Logger.debug(e: Throwable) = debug(e.message, e)
 fun Logger.info(e: Throwable) = info(e.message, e)

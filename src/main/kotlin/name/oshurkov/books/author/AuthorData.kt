@@ -16,19 +16,19 @@ object Authors : BksTable("author") {
 
 object BookAuthors : SimpleTable("book_author") {
     val book_id = int("book_id").primaryKey()
-    val authors_id = int("authors_id").primaryKey()
+    val author_id = int("author_id").primaryKey()
 }
 
 
 object AuthorSequences : SimpleTable("author_sequence") {
     val author_id = int("author_id").primaryKey()
-    val sequences_id = int("sequences_id").primaryKey()
+    val sequence_id = int("sequence_id").primaryKey()
 }
 
 
 fun selectBookAuthors() = db
     .from(BookAuthors)
-    .innerJoin(Authors, on = Authors.id eq BookAuthors.authors_id)
+    .innerJoin(Authors, on = Authors.id eq BookAuthors.author_id)
     .select(BookAuthors.book_id, *Authors.columns.toTypedArray())
     .map {
         it[BookAuthors.book_id]!! to Author(
@@ -44,7 +44,7 @@ fun selectBookAuthors() = db
 
 fun selectBookAuthors(bookId: Int) = db
     .from(BookAuthors)
-    .innerJoin(Authors, on = Authors.id eq BookAuthors.authors_id)
+    .innerJoin(Authors, on = Authors.id eq BookAuthors.author_id)
     .select(Authors.columns)
     .where { BookAuthors.book_id eq bookId }
     .map {

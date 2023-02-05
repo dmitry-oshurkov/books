@@ -10,6 +10,7 @@ import name.oshurkov.books.sequence.*
 import org.ktorm.dsl.*
 import org.ktorm.schema.*
 import org.ktorm.support.postgresql.*
+import java.io.*
 
 
 object Books : BksTable("book") {
@@ -36,36 +37,38 @@ fun insertBooksMetadata(books: List<ImportedBook>) {
     val importedGenres = books.flatMap { it.genres }.distinct()
     val importedSequences = books.mapNotNull { it.sequence }.distinct()
 
-
-    db.bulkInsertOrUpdate(Authors) {
-        importedAuthors.map { author ->
-            item {
-                set(it.last_name, author.lastName)
-                set(it.first_name, author.firstName)
-                set(it.middle_name, author.middleName)
+    if (importedAuthors.isNotEmpty())
+        db.bulkInsertOrUpdate(Authors) {
+            importedAuthors.map { author ->
+                item {
+                    set(it.last_name, author.lastName)
+                    set(it.first_name, author.firstName)
+                    set(it.middle_name, author.middleName)
+                }
             }
+
+            onConflict(it.last_name, it.first_name) { doNothing() }
         }
 
-        onConflict(it.last_name, it.first_name) { doNothing() }
-    }
-
-    db.bulkInsertOrUpdate(Genres) {
-        importedGenres.map { genre ->
-            item { set(it.name, genre) }
+    if (importedGenres.isNotEmpty())
+        db.bulkInsertOrUpdate(Genres) {
+            importedGenres.map { genre ->
+                item { set(it.name, genre) }
+            }
+            onConflict(it.name) { doNothing() }
         }
-        onConflict(it.name) { doNothing() }
-    }
 
-    db.bulkInsertOrUpdate(Sequences) {
-        importedSequences.map { sequence ->
-            item { set(it.name, sequence) }
+    if (importedSequences.isNotEmpty())
+        db.bulkInsertOrUpdate(Sequences) {
+            importedSequences.map { sequence ->
+                item { set(it.name, sequence) }
+            }
+            onConflict(it.name) { doNothing() }
         }
-        onConflict(it.name) { doNothing() }
-    }
 }
 
 
-fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>) {
+fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>, afterSaveFile: (File) -> Unit) {
 
     try {
         db.useTransaction {
@@ -100,14 +103,14 @@ fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, s
                             if (sequence != null)
                                 db.insertOrUpdate(AuthorSequences) {
                                     set(it.author_id, author.id)
-                                    set(it.sequences_id, sequence.id)
+                                    set(it.sequence_id, sequence.id)
                                     onConflict { doNothing() }
                                 }
                         }
                         .map { author ->
                             item {
                                 set(it.book_id, id)
-                                set(it.authors_id, author.id)
+                                set(it.author_id, author.id)
                             }
                         }
                 }
@@ -119,7 +122,7 @@ fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, s
                         .map { genre ->
                             item {
                                 set(it.book_id, id)
-                                set(it.genres_id, genre.id)
+                                set(it.genre_id, genre.id)
                             }
                         }
                 }
@@ -136,11 +139,13 @@ fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, s
                     }
                 }
 
-                log.info("Imported: ${book.title}")
+                afterSaveFile(book.srcFile)
+
+                log.info("Imported: ${book.title} [${book.srcFile.absolutePath}]")
             }
         }
     } catch (e: Exception) {
-        log.error("Error import: ${book.title}; ${e.message}")
+        log.error("Error import: ${book.title}; ${e.message} [${book.srcFile.absolutePath}]")
     }
 }
 
@@ -188,7 +193,7 @@ fun selectAuthorBooks(authorId: Int) = db
     .from(Books)
     .innerJoin(BookAuthors, on = BookAuthors.book_id eq Books.id)
     .select(Books.columns)
-    .where { BookAuthors.authors_id eq authorId }
+    .where { BookAuthors.author_id eq authorId }
     .orderBy(Books.sequence_id.asc(), Books.sequence_number.asc())
     .map(::book)
 
@@ -196,9 +201,9 @@ fun selectAuthorBooks(authorId: Int) = db
 fun selectSequenceBooks(sequenceId: Int) = db
     .from(Books)
     .innerJoin(BookAuthors, on = BookAuthors.book_id eq Books.id)
-    .innerJoin(AuthorSequences, on = AuthorSequences.author_id eq BookAuthors.authors_id)
+    .innerJoin(AuthorSequences, on = AuthorSequences.author_id eq BookAuthors.author_id)
     .select(Books.columns)
-    .where { AuthorSequences.sequences_id eq sequenceId }
+    .where { AuthorSequences.sequence_id eq sequenceId }
     .orderBy(Books.sequence_number.asc())
     .map(::book)
 
@@ -207,7 +212,7 @@ fun selectGenreBooks(genreId: Int) = db
     .from(Books)
     .innerJoin(BookGenres, on = BookGenres.book_id eq Books.id)
     .select(Books.columns)
-    .where { BookGenres.genres_id eq genreId }
+    .where { BookGenres.genre_id eq genreId }
     .orderBy(Books.sequence_id.asc(), Books.sequence_number.asc())
     .map(::book)
 

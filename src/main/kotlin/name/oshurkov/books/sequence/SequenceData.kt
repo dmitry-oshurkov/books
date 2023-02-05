@@ -15,7 +15,16 @@ class Sequence(
     val id: Int,
     val updated: OffsetDateTime,
     val name: String,
-)
+) {
+    companion object {
+
+        val example = Sequence(
+            id = 67,
+            updated = OffsetDateTime.now(),
+            name = "Властелин колец",
+        )
+    }
+}
 
 
 fun selectSequences() = db
@@ -32,7 +41,7 @@ fun selectSequences() = db
 
 fun selectSequences(authorId: Int) = db
     .from(Sequences)
-    .innerJoin(AuthorSequences, on = AuthorSequences.sequences_id eq Sequences.id)
+    .innerJoin(AuthorSequences, on = AuthorSequences.sequence_id eq Sequences.id)
     .select(Sequences.columns)
     .where { AuthorSequences.author_id eq authorId }
     .map {
