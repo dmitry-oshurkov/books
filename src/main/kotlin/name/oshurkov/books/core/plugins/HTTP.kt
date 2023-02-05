@@ -1,7 +1,6 @@
 package name.oshurkov.books.core.plugins
 
 import io.github.smiley4.ktorswaggerui.*
-import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Options
 import io.ktor.http.HttpMethod.Companion.Patch
@@ -24,11 +23,12 @@ fun Application.configureHTTP() {
     }
 
     install(CORS) {
-        allowMethod(Options)
         allowMethod(Put)
-        allowMethod(Delete)
         allowMethod(Patch)
-        allowHeader(Authorization)
+        allowMethod(Delete)
+        allowMethod(Options)
+
+        allowOrigins { true }
     }
 
     install(DefaultHeaders) {
