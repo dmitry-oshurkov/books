@@ -42,6 +42,8 @@ fun Route.rapiDoc(pageTitle: String = "Docs", path: String = "/docs", specUrl: S
                         show-method-in-nav-bar="as-colored-text"
                         persist-auth="true"
                         show-header="false"
+                        allow-server-selection="false"
+                        allow-authentication="false"
                         >
                         <div slot="nav-logo" style="display: flex; align-items: center; justify-content: left;"> 
                             <img src="static/favicon.svg" style="width:40px; margin-right: 20px; margin-bottom: 5px"><span style="color:#bebebe"><b>Книжный каталог</b></span>
