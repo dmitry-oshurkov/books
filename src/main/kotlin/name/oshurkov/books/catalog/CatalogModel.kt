@@ -155,3 +155,22 @@ data class Summary(
     @JacksonXmlProperty(isAttribute = true)
     val type: String? = "text"
 )
+
+
+class CatalogPath private constructor(
+    private val root: String,
+    val value: String,
+) {
+    val path get() = "$root$value"
+
+    companion object {
+        val catalog = CatalogPath("", "/catalog")
+        val recommended = CatalogPath(catalog.path, "/recommended")
+        val unread = CatalogPath(catalog.path, "/unread")
+        val recent = CatalogPath(catalog.path, "/recent")
+        val authors = CatalogPath(catalog.path, "/authors")
+        val sequences = CatalogPath(catalog.path, "/sequences")
+        val genres = CatalogPath(catalog.path, "/genres")
+        val unverified = CatalogPath(catalog.path, "/unverified")
+    }
+}
