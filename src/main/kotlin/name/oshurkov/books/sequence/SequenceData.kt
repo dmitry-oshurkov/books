@@ -15,7 +15,16 @@ class Sequence(
     val id: Int,
     val updated: OffsetDateTime,
     val name: String,
-)
+) {
+    companion object {
+
+        val example = Sequence(
+            id = 67,
+            updated = OffsetDateTime.now(),
+            name = "Властелин колец",
+        )
+    }
+}
 
 
 fun selectSequences() = db

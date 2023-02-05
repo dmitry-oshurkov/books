@@ -1,98 +1,122 @@
 package name.oshurkov.books.catalog
 
+import io.github.smiley4.ktorswaggerui.dsl.*
+import io.ktor.http.ContentType.Application.Xml
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import name.oshurkov.books.catalog.CatalogPath.Companion.authors
+import name.oshurkov.books.catalog.CatalogPath.Companion.catalog
+import name.oshurkov.books.catalog.CatalogPath.Companion.genres
+import name.oshurkov.books.catalog.CatalogPath.Companion.recent
+import name.oshurkov.books.catalog.CatalogPath.Companion.recommended
+import name.oshurkov.books.catalog.CatalogPath.Companion.sequences
+import name.oshurkov.books.catalog.CatalogPath.Companion.unread
+import name.oshurkov.books.catalog.CatalogPath.Companion.unverified
+import name.oshurkov.books.core.*
+import name.oshurkov.books.core.get
 import name.oshurkov.books.core.plugins.*
 
 
-fun Routing.catalog() {
+fun Routing.feeds() {
 
-    route("catalog") {
+    route(catalog.value) {
 
-        /**
-         * Книжный каталог.
-         */
-        get { call.respondXml(root()) }
-
-        /**
-         * Рекомендуемые книги.
-         */
-        get("recommended") { call.respondXml(recommended()) }
-
-        /**
-         * Непрочитанные книги.
-         */
-        get("unread") { call.respondXml(unread()) }
-
-        /**
-         * Недавно добавленные книги.
-         */
-        get("recent") { call.respondXml(recent()) }
-
-        /**
-         * Непроверенные книги.
-         */
-        get("unverified") { call.respondXml(unverified()) }
+        get({
+            info("каталог")
+            response { xml(Feed.rootExample) }
+        }) { call.respondXml(reedRoot()) }
 
 
-        route("authors") {
+        get(recommended.value, {
+            info("рекомендуемые")
+            response { xml(Feed.recommendedExample) }
+        }) { call.respondXml(reedRecommended()) }
 
-            /**
-             * По авторам.
-             */
-            get { call.respondXml(authors()) }
+
+        get(unread.value, {
+            info("непрочитанные")
+            response { xml(Feed.unreadExample) }
+        }) { call.respondXml(reedUnread()) }
+
+
+        get(recent.value, {
+            info("недавно добавленные")
+            response { xml(Feed.recentExample) }
+        }) { call.respondXml(reedRecent()) }
+
+
+        get(unverified.value, {
+            info("непроверенные")
+            response { xml(Feed.unverifiedExample) }
+        }) { call.respondXml(reedUnverified()) }
+
+
+        route(authors.value) {
+
+            get({
+                info("по авторам")
+                response { xml(Feed.authorsExample) }
+            }) { call.respondXml(reedAuthors()) }
 
             route("{id}") {
 
-                /**
-                 * Все книги автора.
-                 */
-                get("books") {
+                get("books", {
+                    info("все книги автора")
+                    request { id }
+                    response { xml(Feed.authorBooksExample) }
+                }) {
                     val id: Int by call.parameters
-                    call.respondXml(authorBooks(id))
+                    call.respondXml(reedAuthorBooks(id))
                 }
 
                 route("sequences") {
 
-                    /**
-                     * По сериям.
-                     */
-                    get {
+                    get({
+                        info("все книги автора по сериям")
+                        request { id }
+                        response { xml(Feed.authorBooksBySequenceExample) }
+                    }) {
                         val id: Int by call.parameters
-                        call.respondXml(authorSequences(id))
+                        call.respondXml(reedAuthorSequences(id))
                     }
                 }
             }
         }
 
 
-        route("sequences") {
+        route(sequences.value) {
 
-            /**
-             * Все книги серии.
-             */
-            get("{id}/books") {
+            get("{id}/books", {
+                info("все книги серии")
+                request { id }
+                response { xml(Feed.sequencesExample) }
+            }) {
                 val id: Int by call.parameters
-                call.respondXml(sequenceBooks(id))
+                call.respondXml(reedSequenceBooks(id))
             }
         }
 
 
-        route("genres") {
+        route(genres.value) {
 
-            /**
-             * По жанрам.
-             */
-            get { call.respondXml(genres()) }
+            get({
+                info("по жанрам")
+                response { xml(Feed.genresExample) }
+            }) { call.respondXml(reedGenres()) }
 
-            /**
-             * Все книги жанра.
-             */
-            get("{id}/books") {
+
+            get("{id}/books", {
+                info("все книги жанра")
+                request { id }
+                response { xml(Feed.booksByGenreExample) }
+            }) {
                 val id: Int by call.parameters
-                call.respondXml(genreBooks(id))
+                call.respondXml(reedGenreBooks(id))
             }
         }
     }
 }
+
+
+private fun OpenApiResponses.xml(example: Feed) = ok(example.toXml()) { mediaType(Xml) }

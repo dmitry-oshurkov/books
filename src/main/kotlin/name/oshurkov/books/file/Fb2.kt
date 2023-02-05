@@ -1,76 +1,105 @@
 package name.oshurkov.books.file
 
-import io.ktor.util.*
+import jakarta.xml.bind.*
+import jakarta.xml.bind.Marshaller.*
 import name.oshurkov.books.author.*
 import name.oshurkov.books.book.*
 import name.oshurkov.books.core.*
+import name.oshurkov.books.fb2.*
 import name.oshurkov.books.file.FileType.*
-import name.oshurkov.books.file.fb2.parser.*
+import org.glassfish.jaxb.runtime.marshaller.*
 import java.io.*
+import kotlin.text.Charsets.UTF_8
 
 
-fun parseFb2(files: Map<FileType, List<File>>) = run {
-
-    val fbz = files[FBZ].orEmpty()
-        .mapNotNull { file ->
-
-            runCatching {
-                val bytes = unzip(file)
-                FictionBook(null, bytes) to file and FBZ
-            }
-                .getOrNull()
-        }
-
-    val fb2plain = files[FB2].orEmpty()
-        .map { FictionBook(it, null) to it and FB2 }
-
-    fb2plain + fbz
-}
-
-
-fun fb2ToBooks(fb2: List<Triple<FictionBook, File, FileType>>, afterSaveFile: (File) -> Unit) = fb2.mapNotNull { (fb, file, type) ->
-
-    runCatching {
-
-        val bookAuthors = fb.description.titleInfo.authors.map { ImportedAuthor(lastName = it.lastName!!, firstName = it.firstName, middleName = it.middleName) }.distinct()
-        val bookGenres = fb.description.titleInfo.genres.map { fb2GenreToString(it) }.distinct()
-        val summary = fb.annotation?.annotations?.map { it.text }?.joinToString("\n")
-        val binary = fb.binaries[fb.description.titleInfo.coverPage.firstOrNull()?.value?.trimStart('#')]
-        val attrs = file.name.parseAttrs()
-
-        ImportedBook(
-            title = fb.title,
-            summary = summary,
-            summaryContentType = summaryType(summary),
-            language = lang(fb.lang),
-            issued = fb.description.titleInfo.date,
-            publisher = fb.description.publishInfo.publisher,
-            cover = binary?.binary?.decodeBase64Bytes(),
-            coverContentType = binary?.contentType,
-            recommended = attrs.isRecommended(),
-            verified = !attrs.isNotVerified(),
-            unread = attrs.isUnread(),
-            sequence = fb.description.titleInfo.sequence?.name,
-            sequenceNumber = fb.description.titleInfo.sequence?.number?.toInt(),
-            hash = bookHash(bookAuthors, fb.title),
-            authors = bookAuthors,
-            genres = bookGenres,
-            files = listOf(bookFile(file, type, fb.title, null)),
-        )
+fun parseFb2(files: List<File>) = files
+    .map {
+        when {
+            it.extension == "fb2" -> it.readBytes()
+            it.name.endsWith(".fb2.zip") -> unzip(it)
+            else -> null
+        } to it
     }
-        .onSuccess {
-            afterSaveFile(file)
-            log.info("Parsed: [${file.absolutePath}]")
-        }
-        .onFailure {
-            afterSaveFile(file)
-            log.error("Error import: [${file.absolutePath}] - message: ${it.message}")
-        }
-        .getOrNull()
+    .filter { (bytes) -> bytes != null }
+    .map { (bytes, file) -> importedBook(bytes!!, file) }
+
+
+fun repackFb2(id: Int) {
+
+    val files = selectBookFiles()[id]
+
+    if (files != null) {
+
+        val authors = selectBookAuthors(id).map { it.toTitleInfoAuthor() }
+        val book = selectBook(id)!!
+
+        val fb2 = unmarshalFb2(unzip(files.first().content))
+        fb2.description.titleInfo.authors.clear()
+        (fb2.description.titleInfo.authors as ArrayList<TitleInfoType.Author>).addAll(authors)
+
+        val newFb2 = marshal(fb2Marshaller, fb2)
+        zip(book.title, book.sequenceNumber, newFb2.toByteArray())
+    }
 }
 
 
-private fun fb2GenreToString(code: String) = when (code) {
+private fun importedBook(bytes: ByteArray, file: File) = run {
+
+    val fb2 = unmarshalFb2(bytes)
+    val titleInfo = fb2.description.titleInfo
+    val sequenceType = titleInfo.sequences.firstOrNull()
+
+    val title = titleInfo.bookTitle.value
+    val bookAuthors = titleInfo.authors.map { Fb2Author(it) }.distinct()
+    val bookGenres = titleInfo.genres.map { fb2GenreToString(it.value?.value()) }.distinct()
+    val summary = titleInfo.annotation?.content?.flatMap { it.value.asString() }?.joinToString("\n")
+    val binary = fb2.binaries.firstOrNull { it.id == titleInfo.coverpage?.images?.firstOrNull()?.href?.trimStart('#') }
+    val attrs = file.name.parseAttrs()
+    val fbz = zip(title, sequenceType?.number, bytes)
+    val bookFile = ImportedBookFile(
+        content = fbz,
+        hash = uuid(fbz),
+        type = FBZ
+    )
+
+    ImportedBook(
+        title = title,
+        summary = summary,
+        summaryContentType = summaryType(summary),
+        language = lang(titleInfo.lang),
+        issued = titleInfo.date?.value,
+        publisher = fb2.description.publishInfo?.publisher?.value,
+        cover = binary?.value,
+        coverContentType = binary?.contentType,
+        recommended = attrs.isRecommended(),
+        verified = !attrs.isNotVerified(),
+        unread = attrs.isUnread(),
+        sequence = sequenceType?.name,
+        sequenceNumber = sequenceType?.number,
+        hash = bookHash(bookAuthors, title),
+        authors = bookAuthors,
+        genres = bookGenres,
+        files = listOf(bookFile),
+        srcFile = file,
+    )
+        .also {
+            log.info("Parsed: ${it.title} [${file.absolutePath}]")
+        }
+}
+
+
+private fun Any.asString(): List<String> = when (this) {
+    is String -> listOf(this)
+    is JAXBElement<*> -> value.asString()
+    is StyleType -> content.flatMap { it.asString() }
+    is PoemType -> listOf("<**>")
+    is CiteType -> listOf("<**>")
+    is TableType -> listOf("<**>")
+    else -> listOf("<**>")
+}
+
+
+private fun fb2GenreToString(code: String?) = when (code) {
     "sf_history" -> "Альтернативная история"
     "sf_action" -> "Боевая фантастика"
     "sf_epic" -> "Эпическая фантастика"
@@ -197,5 +226,46 @@ private fun fb2GenreToString(code: String) = when (code) {
     }
 }
 
+
+private fun unmarshalFb2(bytes: ByteArray) = fb2Unmarshaller.unmarshal(bytes.inputStream()) as FictionBook
+
+
+private fun marshal(marshaller: Marshaller, obj: Any) = ByteArrayOutputStream().use {
+
+    marshaller.marshal(obj, it)
+
+    it.toString(UTF_8.name())
+        .let { s -> toSelfClosed.replace(s, """<${'$'}1/>""") }
+        .let { s -> newLine.replace(s, """<p>""") }
+        .replace(" xmlns:ns3=\"http://www.gribuser.ru/xml/fictionbook/2.0/markup\"", "")
+        .trim()
+}
+
+
+private fun marshaller(context: JAXBContext, addXmlDeclaration: Boolean = true) = context.createMarshaller()
+    .apply {
+        setProperty(JAXB_FORMATTED_OUTPUT, true)
+        setProperty("org.glassfish.jaxb.indentString", "  ")
+        setProperty("org.glassfish.jaxb.xmlDeclaration", false)
+        if (addXmlDeclaration) setProperty("org.glassfish.jaxb.xmlHeaders", """<?xml version="1.0" encoding="UTF-8"?>""")
+        setProperty(
+            "org.glassfish.jaxb.namespacePrefixMapper",
+            object : NamespacePrefixMapper() {
+                override fun getPreferredPrefix(namespaceUri: String?, suggestion: String?, requirePrefix: Boolean) = when (namespaceUri) {
+                    "http://www.w3.org/1999/xlink" -> "l"
+                    else -> suggestion ?: ""
+                }
+            }
+        )
+    }
+
+
+private val fb2Context = JAXBContext.newInstance(FictionBook::class.java)!!
+private val fb2Unmarshaller = fb2Context.createUnmarshaller()!!
+private val fb2Marshaller = marshaller(fb2Context)!!
+
+
+private val toSelfClosed = """<[^>]*></([^>]*)>""".toRegex()
+private val newLine = """<p>\n\s*""".toRegex()
 
 private val log by logger()

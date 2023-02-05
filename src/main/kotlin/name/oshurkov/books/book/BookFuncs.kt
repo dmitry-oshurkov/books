@@ -3,11 +3,14 @@ package name.oshurkov.books.book
 import name.oshurkov.books.*
 import name.oshurkov.books.author.*
 import name.oshurkov.books.core.*
+import name.oshurkov.books.core.plugins.*
+import name.oshurkov.books.fb2.*
 import name.oshurkov.books.file.*
 import name.oshurkov.books.file.FileType.*
 import name.oshurkov.books.genre.*
 import name.oshurkov.books.sequence.*
 import org.apache.commons.compress.archivers.sevenz.*
+import org.ktorm.dsl.*
 import org.ktorm.support.postgresql.*
 import org.slf4j.*
 import java.io.*
@@ -51,24 +54,7 @@ fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
     val monotonic = TimeSource.Monotonic
     val start = monotonic.markNow()
 
-    val filesMap = files
-        .groupBy {
-            when {
-                it.extension == "fb2" -> FB2
-                it.name.endsWith(".fb2.zip") -> FBZ
-                it.extension == "epub" -> EPUB
-                else -> null
-            }
-        }
-        .filter { it.key != null }
-        .mapKeys { it.key!! }
-
-    val fb2 = parseFb2(filesMap)
-    val epub = parseEpub(filesMap)
-
-    val fb2Books = fb2ToBooks(fb2, afterSaveFile)
-    val epubBooks = epubToBooks(epub, afterSaveFile)
-    val books = fb2Books + epubBooks
+    val books = parseFb2(files)
 
     insertBooksMetadata(books)
 
@@ -76,7 +62,7 @@ fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
     val genres = selectGenres()
     val sequences = selectSequences()
 
-    books.forEach { insertBook(it, authors, genres, sequences) }
+    books.forEach { insertBook(it, authors, genres, sequences, afterSaveFile) }
 
     val stop = monotonic.markNow()
 
@@ -117,7 +103,7 @@ fun exportBooks(targetDir: String) {
 
             val prefix = prefix(it, sequence)
             val newFileName = "$prefix${it.title}.${file.type.extension}"
-// todo check filename size 255 bytes
+            // todo check filename size 255 bytes
             File(newFileDir, newFileName).writeBytes(file.content)
         }
     }
@@ -169,6 +155,31 @@ fun bookImage(bookId: Int) = run {
         (book.coverContentType ?: "image/jpeg") to book.cover
     else
         "" to null
+}
+
+
+fun moveBooksToOtherAuthor(oldAuthor: Int, newAuthor: Int) = db.useTransaction {
+
+    log.info("Start moveBooksToOtherAuthor")
+
+    val updatingBooks = db.from(BookAuthors)
+        .select(BookAuthors.book_id)
+        .where { BookAuthors.author_id eq oldAuthor }
+        .map { it[BookAuthors.book_id]!! }
+
+    if (oldAuthor != newAuthor) {
+
+        db.update(BookAuthors) {
+            set(it.author_id, newAuthor)
+            where { it.author_id eq oldAuthor }
+        }
+
+        db.delete(Authors) { it.id eq oldAuthor }
+    }
+
+    updatingBooks.forEach(::repackFb2)
+
+    log.info("Finished moveBooksToOtherAuthor")
 }
 
 

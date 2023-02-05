@@ -21,7 +21,16 @@ class Genre(
     val id: Int,
     val updated: OffsetDateTime,
     val name: String,
-)
+) {
+    companion object {
+
+        val example = Genre(
+            id = 76,
+            updated = OffsetDateTime.now(),
+            name = "Триллер",
+        )
+    }
+}
 
 
 fun selectGenres() = db
