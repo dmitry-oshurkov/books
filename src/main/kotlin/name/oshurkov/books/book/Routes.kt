@@ -11,7 +11,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.ktor.util.pipeline.*
 import name.oshurkov.books.core.*
+import name.oshurkov.books.core.plugins.*
 
 
 fun Routing.books() {
@@ -19,6 +21,23 @@ fun Routing.books() {
     route("books") {
 
         route("{id}") {
+
+            patch({
+                info("изменение")
+                request {
+                    id
+                    body<PatchBook> {
+                        description = "вв"
+                        example("1: установить прочитанная", PatchBook.setUnreadExample)
+                        example("2: пример", PatchBook.example)
+                    }
+                }
+                response {
+                    noContent
+                    notFound
+                }
+            }) { noContentOrNotFound(::updateBook) }
+
 
             delete({
                 info("удаление")

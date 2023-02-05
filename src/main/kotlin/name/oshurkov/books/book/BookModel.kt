@@ -71,3 +71,25 @@ class ImportedBook(
     val files: List<ImportedBookFile> = emptyList(),
     val srcFile: File,
 )
+
+
+data class PatchBook(
+    val recommended: Boolean?,
+    val unread: Boolean?,
+    val verified: Boolean?,
+) {
+    companion object {
+
+        val setUnreadExample = PatchBook(
+            recommended = null,
+            unread = false,
+            verified = null,
+        )
+
+        val example = PatchBook(
+            recommended = false,
+            unread = false,
+            verified = false,
+        )
+    }
+}
