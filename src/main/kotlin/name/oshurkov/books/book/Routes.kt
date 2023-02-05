@@ -21,7 +21,7 @@ fun Routing.books() {
         route("{id}") {
 
             delete({
-                info("удаление книги")
+                info("удаление")
                 request { id }
                 response {
                     noContent
@@ -39,7 +39,7 @@ fun Routing.books() {
             route("image") {
 
                 get({
-                    info("обложка книги")
+                    info("обложка")
                     request { id }
                     response {
                         ok(byteArrayOf(1, 2, 3, 4, 5)) { mediaType(JPEG) }
@@ -59,7 +59,7 @@ fun Routing.books() {
 
 
                 get("thumbnail", {
-                    info("миниатюра обложки книги")
+                    info("миниатюра обложки")
                     request { id }
                     response {
                         ok(byteArrayOf(1, 2, 3, 4, 5)) { mediaType(JPEG) }
@@ -80,7 +80,7 @@ fun Routing.books() {
         }
 
         post("move", {
-            info("изменение автора книги")
+            info("изменение автора")
             request {
                 body<String> {
                     description = "идентификаторы старого и нового автора"
@@ -96,7 +96,7 @@ fun Routing.books() {
 
 
         get("files/{id}", {
-            info("выгрузка файла книги")
+            info("выгрузка файла")
             request { id }
             response {
                 ok(byteArrayOf(1, 2, 3, 4, 5)) {
@@ -125,11 +125,11 @@ fun Routing.books() {
 
 
         post("import", {
-            info("импорт книг | Выполняет импорт книг из указанного каталога файловой системы. Файлы книг могут быть находиться во вложенных каталогах.")
+            info("импорт | Выполняет импорт книг из указанного каталога файловой системы. Файлы книг могут находиться во вложенных каталогах.")
             request {
                 body<String> {
                     description = "каталог файловой системы с импортируемыми книгами"
-                    example("1", "/dir/books/import")
+                    example("1", "/var/lib/books/import/")
                 }
             }
             response { noContent }
@@ -141,7 +141,7 @@ fun Routing.books() {
 
 
         post("export", {
-            info("экспорт книг | Выполняет экспорт книг в указанный каталог файловой системы.")
+            info("экспорт | Выполняет экспорт книг в указанный каталог файловой системы.")
             request {
                 body<String> {
                     description = "каталог файловой системы для экспорта"
@@ -157,11 +157,11 @@ fun Routing.books() {
 
 
         post("backup", {
-            info("архивирование книг | Выполняет архивирование книг в указанный каталог файловой системы. Архив 7Z.")
+            info("архивирование | Выполняет архивирование книг в указанный каталог файловой системы. Архив 7Z.")
             request {
                 body<String> {
                     description = "каталог файловой системы для архива"
-                    example("1", "/dir/books/backup")
+                    example("1", "/var/lib/books/backup/")
                 }
             }
             response { noContent }

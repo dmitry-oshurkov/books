@@ -46,7 +46,7 @@ fun Application.configureTemplating() {
 
 
         get("/admin", {
-            info("страница администрирования")
+            info("администрирование")
             response { ok("<!DOCTYPE html ><html></html>") { mediaType(Text.Html) } }
         }) {
             call.respond(

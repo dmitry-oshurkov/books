@@ -23,31 +23,31 @@ fun Routing.feeds() {
     route(catalog.value) {
 
         get({
-            info("книжный каталог")
+            info("каталог")
             response { xml(Feed.rootExample) }
         }) { call.respondXml(reedRoot()) }
 
 
         get(recommended.value, {
-            info("рекомендуемые книги")
+            info("рекомендуемые")
             response { xml(Feed.recommendedExample) }
         }) { call.respondXml(reedRecommended()) }
 
 
         get(unread.value, {
-            info("непрочитанные книги")
+            info("непрочитанные")
             response { xml(Feed.unreadExample) }
         }) { call.respondXml(reedUnread()) }
 
 
         get(recent.value, {
-            info("недавно добавленные книги")
+            info("недавно добавленные")
             response { xml(Feed.recentExample) }
         }) { call.respondXml(reedRecent()) }
 
 
         get(unverified.value, {
-            info("непроверенные книги")
+            info("непроверенные")
             response { xml(Feed.unverifiedExample) }
         }) { call.respondXml(reedUnverified()) }
 
