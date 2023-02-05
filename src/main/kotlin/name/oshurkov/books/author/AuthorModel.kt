@@ -25,6 +25,17 @@ class Author(
     )
 
     private val middle get() = if (middleName != null) " $middleName" else ""
+
+    companion object {
+
+        val example = Author(
+            id = 234,
+            updated = OffsetDateTime.now(),
+            lastName = "Грибоедов",
+            firstName = "Александр",
+            middleName = "Сергеевич",
+        )
+    }
 }
 
 

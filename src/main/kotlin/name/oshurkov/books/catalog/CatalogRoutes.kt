@@ -14,6 +14,7 @@ import name.oshurkov.books.catalog.CatalogPath.Companion.sequences
 import name.oshurkov.books.catalog.CatalogPath.Companion.unread
 import name.oshurkov.books.catalog.CatalogPath.Companion.unverified
 import name.oshurkov.books.core.*
+import name.oshurkov.books.core.get
 import name.oshurkov.books.core.plugins.*
 
 
@@ -21,55 +22,61 @@ fun Routing.feeds() {
 
     route(catalog.value) {
 
-        /**
-         * Книжный каталог.
-         */
-        get { call.respondXml(reedRoot()) }
+        get({
+            info("книжный каталог")
+            response { xml(Feed.rootExample) }
+        }) { call.respondXml(reedRoot()) }
 
-        /**
-         * Рекомендуемые книги.
-         */
-        get(recommended.value) { call.respondXml(reedRecommended()) }
 
-        /**
-         * Непрочитанные книги.
-         */
-        get(unread.value) { call.respondXml(reedUnread()) }
+        get(recommended.value, {
+            info("рекомендуемые книги")
+            response { xml(Feed.recommendedExample) }
+        }) { call.respondXml(reedRecommended()) }
 
-        /**
-         * Недавно добавленные книги.
-         */
-        get(recent.value) { call.respondXml(reedRecent()) }
 
-        /**
-         * Непроверенные книги.
-         */
-        get(unverified.value) { call.respondXml(reedUnverified()) }
+        get(unread.value, {
+            info("непрочитанные книги")
+            response { xml(Feed.unreadExample) }
+        }) { call.respondXml(reedUnread()) }
+
+
+        get(recent.value, {
+            info("недавно добавленные книги")
+            response { xml(Feed.recentExample) }
+        }) { call.respondXml(reedRecent()) }
+
+
+        get(unverified.value, {
+            info("непроверенные книги")
+            response { xml(Feed.unverifiedExample) }
+        }) { call.respondXml(reedUnverified()) }
 
 
         route(authors.value) {
 
-            /**
-             * По авторам.
-             */
-            get { call.respondXml(reedAuthors()) }
+            get({
+                info("по авторам")
+                response { xml(Feed.authorsExample) }
+            }) { call.respondXml(reedAuthors()) }
 
             route("{id}") {
 
-                /**
-                 * Все книги автора.
-                 */
-                get("books") {
+                get("books", {
+                    info("все книги автора")
+                    request { id }
+                    response { xml(Feed.authorBooksExample) }
+                }) {
                     val id: Int by call.parameters
                     call.respondXml(reedAuthorBooks(id))
                 }
 
                 route("sequences") {
 
-                    /**
-                     * По сериям.
-                     */
-                    get {
+                    get({
+                        info("все книги автора по сериям")
+                        request { id }
+                        response { xml(Feed.authorBooksBySequenceExample) }
+                    }) {
                         val id: Int by call.parameters
                         call.respondXml(reedAuthorSequences(id))
                     }
@@ -80,10 +87,11 @@ fun Routing.feeds() {
 
         route(sequences.value) {
 
-            /**
-             * Все книги серии.
-             */
-            get("{id}/books") {
+            get("{id}/books", {
+                info("все книги серии")
+                request { id }
+                response { xml(Feed.sequencesExample) }
+            }) {
                 val id: Int by call.parameters
                 call.respondXml(reedSequenceBooks(id))
             }
@@ -92,18 +100,23 @@ fun Routing.feeds() {
 
         route(genres.value) {
 
-            /**
-             * По жанрам.
-             */
-            get { call.respondXml(reedGenres()) }
+            get({
+                info("по жанрам")
+                response { xml(Feed.genresExample) }
+            }) { call.respondXml(reedGenres()) }
 
-            /**
-             * Все книги жанра.
-             */
-            get("{id}/books") {
+
+            get("{id}/books", {
+                info("все книги жанра")
+                request { id }
+                response { xml(Feed.booksByGenreExample) }
+            }) {
                 val id: Int by call.parameters
                 call.respondXml(reedGenreBooks(id))
             }
         }
     }
 }
+
+
+private fun OpenApiResponses.xml(example: Feed) = ok(example.toXml()) { mediaType(Xml) }

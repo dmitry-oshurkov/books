@@ -1,8 +1,10 @@
 package name.oshurkov.books.core.plugins
 
+import io.ktor.http.ContentType.*
 import io.ktor.http.ContentType.Application.Xml
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.server.application.*
+import io.ktor.server.application.Application
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.statuspages.*
@@ -32,10 +34,10 @@ fun Application.configureRouting() {
             resources("static")
         }
 
-        /**
-         * Возвращает информацию о приложении.
-         */
-        get("about") { call.respondText(BUILD_VERSION) }
+        get("about", {
+            info("информация о приложении")
+            response { ok("23.1.02051229") { mediaType(Text.Plain) } }
+        }) { call.respondText(BUILD_VERSION) }
 
         books()
         feeds()

@@ -3,6 +3,7 @@ package name.oshurkov.books.book
 import io.ktor.http.*
 import io.ktor.http.ContentDisposition.Companion.Attachment
 import io.ktor.http.ContentDisposition.Parameters.FileNameAsterisk
+import io.ktor.http.ContentType.Image.JPEG
 import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.server.application.*
@@ -10,6 +11,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import name.oshurkov.books.core.*
 
 
 fun Routing.books() {
@@ -18,10 +20,14 @@ fun Routing.books() {
 
         route("{id}") {
 
-            /**
-             * Удаление книги.
-             */
-            delete {
+            delete({
+                info("удаление книги")
+                request { id }
+                response {
+                    noContent
+                    notFound
+                }
+            }) {
                 val id: Int by call.parameters
                 if (deleteBook(id) == 1)
                     call.respond(NoContent)
@@ -29,12 +35,17 @@ fun Routing.books() {
                     call.respond(NotFound)
             }
 
+
             route("image") {
 
-                /**
-                 * Обложка книги.
-                 */
-                get {
+                get({
+                    info("обложка книги")
+                    request { id }
+                    response {
+                        ok(byteArrayOf(1, 2, 3, 4, 5)) { mediaType(JPEG) }
+                        notFound
+                    }
+                }) {
 
                     val id: Int by call.parameters
                     val (contentType, cover) = bookImage(id)
@@ -46,10 +57,15 @@ fun Routing.books() {
                         call.respond(NotFound)
                 }
 
-                /**
-                 * Миниатюра обложки книги.
-                 */
-                get("thumbnail") {
+
+                get("thumbnail", {
+                    info("миниатюра обложки книги")
+                    request { id }
+                    response {
+                        ok(byteArrayOf(1, 2, 3, 4, 5)) { mediaType(JPEG) }
+                        notFound
+                    }
+                }) {
 
                     val id: Int by call.parameters
                     val (contentType, cover) = bookThumbnail(id)
@@ -63,17 +79,33 @@ fun Routing.books() {
             }
         }
 
-        post("move") {
+        post("move", {
+            info("изменение автора книги")
+            request {
+                body<String> {
+                    description = "идентификаторы старого и нового автора"
+                    example("1", "123,456")
+                }
+            }
+            response { noContent }
+        }) {
             val ids = call.receiveText().split(",")
             moveBooksToOtherAuthor(ids[0].toInt(), ids[1].toInt())
             call.respond(NoContent)
         }
 
 
-        /**
-         * Загрузка файла книги.
-         */
-        get("files/{id}") {
+        get("files/{id}", {
+            info("выгрузка файла книги")
+            request { id }
+            response {
+                ok(byteArrayOf(1, 2, 3, 4, 5)) {
+                    mediaType(ContentType("application", "fb2+zip"))
+                    mediaType(ContentType("application", "fb2"))
+                }
+                notFound
+            }
+        }) {
 
             val id: Int by call.parameters
             val userAgent = call.request.userAgent() ?: ""
@@ -92,28 +124,48 @@ fun Routing.books() {
         }
 
 
-        /**
-         * Выполняет импорт книг из указанного каталога файловой системы. Файлы книг могут быть находиться во вложенных каталогах.
-         */
-        post("import") {
+        post("import", {
+            info("импорт книг | Выполняет импорт книг из указанного каталога файловой системы. Файлы книг могут быть находиться во вложенных каталогах.")
+            request {
+                body<String> {
+                    description = "каталог файловой системы с импортируемыми книгами"
+                    example("1", "/dir/books/import")
+                }
+            }
+            response { noContent }
+        }) {
             val rootDir = call.receiveText()
             importBooks(rootDir)
             call.respond(NoContent)
         }
 
-        /**
-         * Выполняет экспорт книг в указанный каталог файловой системы.
-         */
-        post("export") {
+
+        post("export", {
+            info("экспорт книг | Выполняет экспорт книг в указанный каталог файловой системы.")
+            request {
+                body<String> {
+                    description = "каталог файловой системы для экспорта"
+                    example("1", "/var/lib/books/export/")
+                }
+            }
+            response { noContent }
+        }) {
             val targetDir = call.receiveText()
             exportBooks(targetDir)
             call.respond(NoContent)
         }
 
-        /**
-         * Выполняет архивирование книг в указанный каталог файловой системы. Архив 7Z.
-         */
-        post("backup") {
+
+        post("backup", {
+            info("архивирование книг | Выполняет архивирование книг в указанный каталог файловой системы. Архив 7Z.")
+            request {
+                body<String> {
+                    description = "каталог файловой системы для архива"
+                    example("1", "/dir/books/backup")
+                }
+            }
+            response { noContent }
+        }) {
             val targetDir = call.receiveText()
             backupBooks(targetDir)
             call.respond(NoContent)

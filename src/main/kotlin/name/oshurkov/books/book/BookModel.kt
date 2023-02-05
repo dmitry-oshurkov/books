@@ -1,6 +1,8 @@
 package name.oshurkov.books.book
 
+import io.ktor.http.ContentType.Image.JPEG
 import name.oshurkov.books.author.*
+import name.oshurkov.books.core.*
 import name.oshurkov.books.file.*
 import java.io.*
 import java.time.*
@@ -24,7 +26,29 @@ class Book(
     val title: String,
     val unread: Boolean,
     val verified: Boolean,
-)
+) {
+    companion object {
+
+        val example = Book(
+            id = 345,
+            updated = OffsetDateTime.now(),
+            cover = byteArrayOf(),
+            coverContentType = JPEG.contentType,
+            hash = uuid(),
+            issued = "1986",
+            language = "ru-RU",
+            publisher = "АСТ, АСТ Москва, Хранитель",
+            recommended = true,
+            sequenceId = 1521,
+            sequenceNumber = 11,
+            summary = "«Фиаско» – последний роман Станислава Лема",
+            summaryContentType = "text",
+            title = "Фиаско",
+            unread = false,
+            verified = false,
+        )
+    }
+}
 
 
 class ImportedBook(

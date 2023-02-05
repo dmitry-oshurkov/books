@@ -177,28 +177,28 @@ fun reedGenreBooks(genreId: Int) = Feed(
 )
 
 
-private fun linksAcqNavNav(self: String, up: String) = listOf(
+internal fun linksAcqNavNav(self: String, up: String) = listOf(
     Acquisition(rel = "self", href = self),
     Navigation(rel = "start", href = catalog.path),
     Navigation(rel = "up", href = up),
 )
 
 
-private fun linksNavImgThumb(subsection: String, img: String) = listOf(
+internal fun linksNavImgThumb(subsection: String, img: String) = listOf(
     Navigation(rel = "subsection", href = subsection),
     ImageThumbnail(href = img),
     Thumbnail(href = img),
 )
 
 
-private fun linksAcqImgThumb(subsection: String, img: String) = listOf(
+internal fun linksAcqImgThumb(subsection: String, img: String) = listOf(
     Acquisition(rel = "subsection", href = subsection),
     ImageThumbnail(href = img),
     Thumbnail(href = img),
 )
 
 
-private fun bookEntries(
+internal fun bookEntries(
     books: () -> List<Book>,
     includeSequenceNumber: Boolean = false,
     sequenceNumberForRecent: Boolean = false
