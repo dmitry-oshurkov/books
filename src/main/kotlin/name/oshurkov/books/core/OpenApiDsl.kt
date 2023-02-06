@@ -31,7 +31,7 @@ inline fun <reified TBody : Any> OpenApiResponses.ok(example: TBody, crossinline
     description = "выполнено успешно (с возможным телом сообщения)"
     body<TBody> {
         description = "результат операции"
-        example("1", example)
+        example("1: пример", example)
         init()
     }
 }

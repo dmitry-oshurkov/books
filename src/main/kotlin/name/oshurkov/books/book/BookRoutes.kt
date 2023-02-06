@@ -28,7 +28,7 @@ fun Routing.books() {
                     id
                     body<PatchBook> {
                         description = "вв"
-                        example("1: установить прочитанная", PatchBook.setUnreadExample)
+                        example("1: установить состояние: прочитанная", PatchBook.setUnreadExample)
                         example("2: пример", PatchBook.example)
                     }
                 }
@@ -98,7 +98,7 @@ fun Routing.books() {
             request {
                 body<String> {
                     description = "идентификаторы старого и нового автора"
-                    example("1", "123,456")
+                    example("1: пример", "123,456")
                 }
             }
             response { noContent }
@@ -143,7 +143,7 @@ fun Routing.books() {
             request {
                 body<String> {
                     description = "каталог файловой системы с импортируемыми книгами"
-                    example("1", "/var/lib/books/import/")
+                    example("1: пример", "/var/lib/books/import/")
                 }
             }
             response { noContent }
@@ -159,7 +159,7 @@ fun Routing.books() {
             request {
                 body<String> {
                     description = "каталог файловой системы для экспорта"
-                    example("1", "/var/lib/books/export/")
+                    example("1: пример", "/var/lib/books/export/")
                 }
             }
             response { noContent }
@@ -175,7 +175,7 @@ fun Routing.books() {
             request {
                 body<String> {
                     description = "каталог файловой системы для архива"
-                    example("1", "/var/lib/books/backup/")
+                    example("1: пример", "/var/lib/books/backup/")
                 }
             }
             response { noContent }

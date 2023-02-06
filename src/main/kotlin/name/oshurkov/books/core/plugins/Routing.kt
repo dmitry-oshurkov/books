@@ -41,9 +41,9 @@ fun Application.configureRouting() {
             resources("static")
         }
 
-        get("/", {
+        get({
             info("главная страница веб-сайта")
-            response { ok("<!DOCTYPE html ><html></html>") { mediaType(Text.Html) } }
+            response { ok("<!DOCTYPE html><html></html>") { mediaType(Text.Html) } }
         }) {
             call.respond(
                 ThymeleafContent(
