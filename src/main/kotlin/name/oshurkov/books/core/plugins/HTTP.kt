@@ -37,10 +37,7 @@ fun Application.configureHTTP() {
 
     install(SwaggerUI) {
 
-        swagger {
-            swaggerUrl = "openapi"
-            forwardRoot = true
-        }
+        swagger { swaggerUrl = "openapi" }
 
         info {
             title = "Books REST API"
@@ -56,19 +53,19 @@ fun Application.configureHTTP() {
 
         tag(BOOKS) { description = "Управление книгами" }
         tag(CATALOG) { description = "Управление каталогом" }
-        tag(WEB) { description = "Управление веб-сайтом" }
 
         automaticTagGenerator = {
             when (it.firstOrNull()) {
                 "books" -> BOOKS
                 "catalog" -> CATALOG
-                else -> WEB
+                else -> ""
             }
         }
+
+        pathFilter = { _, path -> path.isNotEmpty() && (path.first().startsWith("books") || path.first().startsWith("catalog")) }
     }
 }
 
 
 private const val BOOKS = "Книги"
 private const val CATALOG = "Каталог"
-private const val WEB = "Веб-сайт"
