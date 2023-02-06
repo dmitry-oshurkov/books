@@ -18,3 +18,4 @@ Online books catalog (OPDS). Written in Kotlin from the ground up.
 
 https://www.iconfinder.com/icons/1055107/bookshelf_books_library_icon  
 https://unsplash.com/photos/YLSwjSy7stw  
+https://www.texttool.com/ascii-font#p=display&f=Slant&t=Books
