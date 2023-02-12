@@ -1,6 +1,8 @@
 package name.oshurkov.books.core.plugins
 
 import io.github.smiley4.ktorswaggerui.*
+import io.ktor.http.HttpHeaders.Authorization
+import io.ktor.http.HttpHeaders.ContentType
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Options
 import io.ktor.http.HttpMethod.Companion.Patch
@@ -28,6 +30,8 @@ fun Application.configureHTTP() {
         allowMethod(Delete)
         allowMethod(Options)
 
+        allowHeader(ContentType)
+        allowHeader(Authorization)
         allowOrigins { true }
     }
 

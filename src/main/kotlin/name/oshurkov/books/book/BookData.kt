@@ -68,7 +68,7 @@ fun insertBooksMetadata(books: List<ImportedBook>) {
 }
 
 
-fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>, afterSaveFile: (File) -> Unit) {
+fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>, afterSaveFile: (File?) -> Unit) {
 
     try {
         db.useTransaction {
@@ -141,11 +141,11 @@ fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, s
 
                 afterSaveFile(book.srcFile)
 
-                log.info("Imported: ${book.title} [${book.srcFile.absolutePath}]")
+                log.info("Imported: ${book.title} [${book.srcFile?.absolutePath}]")
             }
         }
     } catch (e: Exception) {
-        log.error("Error import: ${book.title}; ${e.message} [${book.srcFile.absolutePath}]")
+        log.error("Error import: ${book.title}; ${e.message} [${book.srcFile?.absolutePath}]")
     }
 }
 

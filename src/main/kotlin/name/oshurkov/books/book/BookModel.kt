@@ -69,7 +69,7 @@ class ImportedBook(
     val authors: List<Fb2Author> = emptyList(),
     val genres: List<String> = emptyList(),
     val files: List<ImportedBookFile> = emptyList(),
-    val srcFile: File,
+    val srcFile: File?,
 )
 
 

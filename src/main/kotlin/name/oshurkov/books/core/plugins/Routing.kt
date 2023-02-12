@@ -29,7 +29,7 @@ fun Application.configureRouting() {
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             call.respondText(text = "500: $cause", status = InternalServerError)
-            log1.error(cause)
+            call.application.log.error(cause)
         }
     }
 
@@ -98,6 +98,3 @@ suspend fun <T : Any> ApplicationCall.respondXml(message: T) = respondText(messa
 
 @DslMarker
 annotation class RoutingDsl
-
-
-private val log1 by logger()

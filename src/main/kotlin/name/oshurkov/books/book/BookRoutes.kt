@@ -3,6 +3,7 @@ package name.oshurkov.books.book
 import io.ktor.http.*
 import io.ktor.http.ContentDisposition.Companion.Attachment
 import io.ktor.http.ContentDisposition.Parameters.FileNameAsterisk
+import io.ktor.http.ContentType.Application.OctetStream
 import io.ktor.http.ContentType.Image.JPEG
 import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.NotFound
@@ -19,6 +20,23 @@ import name.oshurkov.books.core.plugins.*
 fun Routing.books() {
 
     route("books") {
+
+        post({
+            info("импорт | Выполняет импорт книги.")
+            request {
+                body<ByteArray> {
+                    description = "файл книги"
+                    mediaType(OctetStream)
+                    example("1: пример", byteArrayOf(1, 2, 3))
+                }
+            }
+            response { noContent }
+        }) {
+            val bytes = call.receive<ByteArray>()
+            importBooks(bytes)
+            call.respond(NoContent)
+        }
+
 
         route("{id}") {
 
@@ -110,7 +128,7 @@ fun Routing.books() {
 
 
         get("files/{id}", {
-            info("выгрузка файла")
+            info("загрузка файла")
             request { id }
             response {
                 ok(byteArrayOf(1, 2, 3, 4, 5)) {
@@ -139,7 +157,7 @@ fun Routing.books() {
 
 
         post("import", {
-            info("импорт | Выполняет импорт книг из указанного каталога файловой системы. Файлы книг могут находиться во вложенных каталогах.")
+            info("импорт списка | Выполняет импорт книг из указанного каталога файловой системы. Файлы книг могут находиться во вложенных каталогах.")
             request {
                 body<String> {
                     description = "каталог файловой системы с импортируемыми книгами"
