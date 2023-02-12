@@ -69,5 +69,27 @@ class ImportedBook(
     val authors: List<Fb2Author> = emptyList(),
     val genres: List<String> = emptyList(),
     val files: List<ImportedBookFile> = emptyList(),
-    val srcFile: File,
+    val srcFile: File?,
 )
+
+
+data class PatchBook(
+    val recommended: Boolean?,
+    val unread: Boolean?,
+    val verified: Boolean?,
+) {
+    companion object {
+
+        val setUnreadExample = PatchBook(
+            recommended = null,
+            unread = false,
+            verified = null,
+        )
+
+        val example = PatchBook(
+            recommended = false,
+            unread = false,
+            verified = false,
+        )
+    }
+}

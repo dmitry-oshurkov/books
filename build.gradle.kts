@@ -17,11 +17,11 @@ plugins {
 }
 
 
-group = "name.oshurkov.books"
-version = "23.2.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}".also { println("Version: $it") }
-java.sourceCompatibility = VERSION_17
-
 val buildMode by extra { (System.getenv("BUILD_MODE") ?: "DEV").also { println("Build mode: $it") } }
+
+group = "name.oshurkov.books"
+version = "23.3.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}${if (buildMode == "DEV") "-dev" else ""}".also { println("Version: $it") }
+java.sourceCompatibility = VERSION_17
 
 
 application {

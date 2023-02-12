@@ -68,7 +68,7 @@ fun insertBooksMetadata(books: List<ImportedBook>) {
 }
 
 
-fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>, afterSaveFile: (File) -> Unit) {
+fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, sequences: List<Sequence>, afterSaveFile: (File?) -> Unit) {
 
     try {
         db.useTransaction {
@@ -141,11 +141,11 @@ fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, s
 
                 afterSaveFile(book.srcFile)
 
-                log.info("Imported: ${book.title} [${book.srcFile.absolutePath}]")
+                log.info("Imported: ${book.title} [${book.srcFile?.absolutePath}]")
             }
         }
     } catch (e: Exception) {
-        log.error("Error import: ${book.title}; ${e.message} [${book.srcFile.absolutePath}]")
+        log.error("Error import: ${book.title}; ${e.message} [${book.srcFile?.absolutePath}]")
     }
 }
 
@@ -154,6 +154,14 @@ fun selectBooks() = Books.select(db, transform = ::book)
 
 
 fun selectBook(id: Int) = Books.find(id, db, transform = ::book)
+
+
+fun updateBook(id: Int, model: PatchBook) = db.update(Books) {
+    if (model.recommended != null) set(it.recommended, model.recommended)
+    if (model.unread != null) set(it.unread, model.unread)
+    if (model.verified != null) set(it.verified, model.verified)
+    where { it.id eq id }
+}
 
 
 fun deleteBook(id: Int) = db.delete(Books) { it.id eq id }

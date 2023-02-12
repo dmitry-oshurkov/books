@@ -3,6 +3,7 @@ package name.oshurkov.books.book
 import io.ktor.http.*
 import io.ktor.http.ContentDisposition.Companion.Attachment
 import io.ktor.http.ContentDisposition.Parameters.FileNameAsterisk
+import io.ktor.http.ContentType.Application.OctetStream
 import io.ktor.http.ContentType.Image.JPEG
 import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.NotFound
@@ -11,14 +12,50 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.ktor.util.pipeline.*
 import name.oshurkov.books.core.*
+import name.oshurkov.books.core.plugins.*
 
 
 fun Routing.books() {
 
     route("books") {
 
+        post({
+            info("импорт | Выполняет импорт книги.")
+            request {
+                body<ByteArray> {
+                    description = "файл книги"
+                    mediaType(OctetStream)
+                    example("1: пример", byteArrayOf(1, 2, 3))
+                }
+            }
+            response { noContent }
+        }) {
+            val bytes = call.receive<ByteArray>()
+            importBooks(bytes)
+            call.respond(NoContent)
+        }
+
+
         route("{id}") {
+
+            patch({
+                info("изменение")
+                request {
+                    id
+                    body<PatchBook> {
+                        description = "вв"
+                        example("1: установить состояние: прочитанная", PatchBook.setUnreadExample)
+                        example("2: пример", PatchBook.example)
+                    }
+                }
+                response {
+                    noContent
+                    notFound
+                }
+            }) { noContentOrNotFound(::updateBook) }
+
 
             delete({
                 info("удаление")
@@ -27,13 +64,7 @@ fun Routing.books() {
                     noContent
                     notFound
                 }
-            }) {
-                val id: Int by call.parameters
-                if (deleteBook(id) == 1)
-                    call.respond(NoContent)
-                else
-                    call.respond(NotFound)
-            }
+            }) { noContentOrNotFound(::deleteBook) }
 
 
             route("image") {
@@ -79,12 +110,13 @@ fun Routing.books() {
             }
         }
 
+
         post("move", {
             info("изменение автора")
             request {
                 body<String> {
                     description = "идентификаторы старого и нового автора"
-                    example("1", "123,456")
+                    example("1: пример", "123,456")
                 }
             }
             response { noContent }
@@ -96,7 +128,7 @@ fun Routing.books() {
 
 
         get("files/{id}", {
-            info("выгрузка файла")
+            info("загрузка файла")
             request { id }
             response {
                 ok(byteArrayOf(1, 2, 3, 4, 5)) {
@@ -125,11 +157,11 @@ fun Routing.books() {
 
 
         post("import", {
-            info("импорт | Выполняет импорт книг из указанного каталога файловой системы. Файлы книг могут находиться во вложенных каталогах.")
+            info("импорт списка | Выполняет импорт книг из указанного каталога файловой системы. Файлы книг могут находиться во вложенных каталогах.")
             request {
                 body<String> {
                     description = "каталог файловой системы с импортируемыми книгами"
-                    example("1", "/var/lib/books/import/")
+                    example("1: пример", "/var/lib/books/import/")
                 }
             }
             response { noContent }
@@ -145,7 +177,7 @@ fun Routing.books() {
             request {
                 body<String> {
                     description = "каталог файловой системы для экспорта"
-                    example("1", "/var/lib/books/export/")
+                    example("1: пример", "/var/lib/books/export/")
                 }
             }
             response { noContent }
@@ -161,7 +193,7 @@ fun Routing.books() {
             request {
                 body<String> {
                     description = "каталог файловой системы для архива"
-                    example("1", "/var/lib/books/backup/")
+                    example("1: пример", "/var/lib/books/backup/")
                 }
             }
             response { noContent }

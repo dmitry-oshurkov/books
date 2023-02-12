@@ -1,6 +1,8 @@
 package name.oshurkov.books.core.plugins
 
 import io.github.smiley4.ktorswaggerui.*
+import io.ktor.http.HttpHeaders.Authorization
+import io.ktor.http.HttpHeaders.ContentType
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Options
 import io.ktor.http.HttpMethod.Companion.Patch
@@ -28,6 +30,8 @@ fun Application.configureHTTP() {
         allowMethod(Delete)
         allowMethod(Options)
 
+        allowHeader(ContentType)
+        allowHeader(Authorization)
         allowOrigins { true }
     }
 
@@ -37,10 +41,7 @@ fun Application.configureHTTP() {
 
     install(SwaggerUI) {
 
-        swagger {
-            swaggerUrl = "openapi"
-            forwardRoot = true
-        }
+        swagger { swaggerUrl = "openapi" }
 
         info {
             title = "Books REST API"
@@ -56,19 +57,19 @@ fun Application.configureHTTP() {
 
         tag(BOOKS) { description = "Управление книгами" }
         tag(CATALOG) { description = "Управление каталогом" }
-        tag(WEB) { description = "Управление веб-сайтом" }
 
         automaticTagGenerator = {
             when (it.firstOrNull()) {
                 "books" -> BOOKS
                 "catalog" -> CATALOG
-                else -> WEB
+                else -> ""
             }
         }
+
+        pathFilter = { _, path -> path.isNotEmpty() && (path.first().startsWith("books") || path.first().startsWith("catalog")) }
     }
 }
 
 
 private const val BOOKS = "Книги"
 private const val CATALOG = "Каталог"
-private const val WEB = "Веб-сайт"

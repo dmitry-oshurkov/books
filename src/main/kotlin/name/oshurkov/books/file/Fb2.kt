@@ -24,6 +24,9 @@ fun parseFb2(files: List<File>) = files
     .map { (bytes, file) -> importedBook(bytes!!, file) }
 
 
+fun parseFb2(bytes: ByteArray) = listOf(importedBook(bytes, null))
+
+
 fun repackFb2(id: Int) {
 
     val files = selectBookFiles()[id]
@@ -43,7 +46,7 @@ fun repackFb2(id: Int) {
 }
 
 
-private fun importedBook(bytes: ByteArray, file: File) = run {
+private fun importedBook(bytes: ByteArray, file: File?) = run {
 
     val fb2 = unmarshalFb2(bytes)
     val titleInfo = fb2.description.titleInfo
@@ -54,7 +57,7 @@ private fun importedBook(bytes: ByteArray, file: File) = run {
     val bookGenres = titleInfo.genres.map { fb2GenreToString(it.value?.value()) }.distinct()
     val summary = titleInfo.annotation?.content?.flatMap { it.value.asString() }?.joinToString("\n")
     val binary = fb2.binaries.firstOrNull { it.id == titleInfo.coverpage?.images?.firstOrNull()?.href?.trimStart('#') }
-    val attrs = file.name.parseAttrs()
+    val attrs = file?.name?.parseAttrs() ?: ""
     val fbz = zip(title, sequenceType?.number, bytes)
     val bookFile = ImportedBookFile(
         content = fbz,
@@ -83,7 +86,7 @@ private fun importedBook(bytes: ByteArray, file: File) = run {
         srcFile = file,
     )
         .also {
-            log.info("Parsed: ${it.title} [${file.absolutePath}]")
+            log.info("Parsed: ${it.title} [${file?.absolutePath}]")
         }
 }
 

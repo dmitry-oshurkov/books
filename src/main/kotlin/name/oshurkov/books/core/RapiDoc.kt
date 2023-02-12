@@ -1,7 +1,6 @@
 package name.oshurkov.books.core
 
 import io.ktor.http.*
-import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.server.application.*
 import io.ktor.server.html.*
 import io.ktor.server.routing.*
@@ -20,7 +19,7 @@ fun Route.rapiDoc(pageTitle: String = "Docs", path: String = "/docs", specUrl: S
 
     route(path) {
         get {
-            call.respondHtml(OK) {
+            call.respondHtml {
                 head {
                     title { +pageTitle }
                     link {

@@ -28,7 +28,7 @@ import kotlin.time.*
  * @param rootDir каталог файловой системы
  * @param afterSaveFile функция, выполняемая после импорта каждой книги
  */
-fun importBooks(rootDir: String, afterSaveFile: (File) -> Unit = {}) {
+fun importBooks(rootDir: String, afterSaveFile: (File?) -> Unit = {}) {
 
     log.info("Import: reading files")
 
@@ -47,7 +47,7 @@ fun importBooks(rootDir: String, afterSaveFile: (File) -> Unit = {}) {
  * @param afterSaveFile функция, выполняемая после импорта каждой книги
  */
 @OptIn(ExperimentalTime::class)
-fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
+fun importBooks(files: List<File>, afterSaveFile: (File?) -> Unit = {}) {
 
     log.info("Import started")
 
@@ -67,6 +67,20 @@ fun importBooks(files: List<File>, afterSaveFile: (File) -> Unit = {}) {
     val stop = monotonic.markNow()
 
     log.info("Import finished: ${stop - start}")
+}
+
+
+fun importBooks(bytes: ByteArray) {
+
+    val books = parseFb2(bytes)
+
+    insertBooksMetadata(books)
+
+    val authors = selectAuthors()
+    val genres = selectGenres()
+    val sequences = selectSequences()
+
+    books.forEach { insertBook(it, authors, genres, sequences, {}) }
 }
 
 
