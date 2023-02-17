@@ -178,7 +178,7 @@ fun selectUnreadBooks() = db
     .from(Books)
     .select(Books.columns)
     .where { Books.unread eq true }
-    .orderBy(Books.sequence_id.asc(), Books.sequence_number.asc()) // todo order by author
+    .orderBy(Books.updated.desc()) // todo order by author
     .map(::book)
 
 
