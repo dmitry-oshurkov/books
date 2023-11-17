@@ -25,7 +25,7 @@ fun Routing.books() {
             info("импорт | Выполняет импорт книги.")
             request {
                 body<ByteArray> {
-                    description = "файл книги"
+                    description = "файл книги (*.fb2)"
                     mediaType(OctetStream)
                     example("1: пример", byteArrayOf(1, 2, 3))
                 }

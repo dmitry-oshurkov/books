@@ -21,10 +21,10 @@ fun parseFb2(files: List<File>) = files
         } to it
     }
     .filter { (bytes) -> bytes != null }
-    .map { (bytes, file) -> importedBook(bytes!!, file) }
+    .map { (bytes, file) -> importedBook(bytes = bytes!!, file = file) }
 
 
-fun parseFb2(bytes: ByteArray) = listOf(importedBook(bytes, null))
+fun parseFb2(bytes: ByteArray) = listOf(importedBook(bytes = bytes, file = null, unread = true))
 
 
 fun repackFb2(id: Int) {
@@ -46,7 +46,7 @@ fun repackFb2(id: Int) {
 }
 
 
-private fun importedBook(bytes: ByteArray, file: File?) = run {
+private fun importedBook(bytes: ByteArray, file: File?, unread: Boolean? = null) = run {
 
     val fb2 = unmarshalFb2(bytes)
     val titleInfo = fb2.description.titleInfo
@@ -76,7 +76,7 @@ private fun importedBook(bytes: ByteArray, file: File?) = run {
         coverContentType = binary?.contentType,
         recommended = attrs.isRecommended(),
         verified = !attrs.isNotVerified(),
-        unread = attrs.isUnread(),
+        unread = unread ?: attrs.isUnread(), // todo пустые атрибуты всегда сохранять как [], при импорте будет явно видно их отсутствие
         sequence = sequenceType?.name,
         sequenceNumber = sequenceType?.number,
         hash = bookHash(bookAuthors, title),

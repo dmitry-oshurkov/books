@@ -1,18 +1,13 @@
 package name.oshurkov.books.book
 
-import name.oshurkov.books.*
 import name.oshurkov.books.author.*
 import name.oshurkov.books.core.*
 import name.oshurkov.books.core.plugins.*
-import name.oshurkov.books.fb2.*
 import name.oshurkov.books.file.*
-import name.oshurkov.books.file.FileType.*
 import name.oshurkov.books.genre.*
 import name.oshurkov.books.sequence.*
 import org.apache.commons.compress.archivers.sevenz.*
 import org.ktorm.dsl.*
-import org.ktorm.support.postgresql.*
-import org.slf4j.*
 import java.io.*
 import java.nio.file.*
 import java.text.*
@@ -28,26 +23,14 @@ import kotlin.time.*
  * @param rootDir каталог файловой системы
  * @param afterSaveFile функция, выполняемая после импорта каждой книги
  */
+@OptIn(ExperimentalTime::class)
 fun importBooks(rootDir: String, afterSaveFile: (File?) -> Unit = {}) {
 
     log.info("Import: reading files")
 
-    val files = Files.find(Path(rootDir), 10, { path, _ -> path.extension in listOf("fb2", "epub") || path.name.endsWith(".fb2.zip") })
+    val files = Files.find(Path(rootDir), 10, { path, _ -> path.extension == "fb2" || path.name.endsWith(".fb2.zip") })
         .map { it.toFile() }
         .toList()
-
-    importBooks(files, afterSaveFile)
-}
-
-
-/**
- * Выполняет импорт книг из указанных файлов.
- *
- * @param files файлы книг
- * @param afterSaveFile функция, выполняемая после импорта каждой книги
- */
-@OptIn(ExperimentalTime::class)
-fun importBooks(files: List<File>, afterSaveFile: (File?) -> Unit = {}) {
 
     log.info("Import started")
 
@@ -55,6 +38,21 @@ fun importBooks(files: List<File>, afterSaveFile: (File?) -> Unit = {}) {
     val start = monotonic.markNow()
 
     val books = parseFb2(files)
+    importBooks(books, afterSaveFile)
+
+    val stop = monotonic.markNow()
+
+    log.info("Import finished: ${stop - start}")
+}
+
+
+fun importBooks(bytes: ByteArray, afterSaveFile: (File?) -> Unit = {}) {
+    val books = parseFb2(bytes)
+    importBooks(books, afterSaveFile)
+}
+
+
+private fun importBooks(books: List<ImportedBook>, afterSaveFile: (File?) -> Unit) {
 
     insertBooksMetadata(books)
 
@@ -63,24 +61,6 @@ fun importBooks(files: List<File>, afterSaveFile: (File?) -> Unit = {}) {
     val sequences = selectSequences()
 
     books.forEach { insertBook(it, authors, genres, sequences, afterSaveFile) }
-
-    val stop = monotonic.markNow()
-
-    log.info("Import finished: ${stop - start}")
-}
-
-
-fun importBooks(bytes: ByteArray) {
-
-    val books = parseFb2(bytes)
-
-    insertBooksMetadata(books)
-
-    val authors = selectAuthors()
-    val genres = selectGenres()
-    val sequences = selectSequences()
-
-    books.forEach { insertBook(it, authors, genres, sequences, {}) }
 }
 
 

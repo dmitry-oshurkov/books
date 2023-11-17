@@ -2,10 +2,21 @@ version: "3.8"
 
 services:
 
+  books:
+    image: skylabdev/books:23.4
+    volumes:
+      - /public/services/books:/var/lib/books
+    ports:
+      - "8091:8080"
+    networks:
+      - back-tier
+    restart: unless-stopped
+
+
   postgres:
     image: postgres:15.1
     volumes:
-      - ${STORAGE}/data:/var/lib/postgresql/data:delegated
+      - /public/services/books/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -14,10 +25,7 @@ services:
       - "5712:5432"
     networks:
       - back-tier
-
-
-volumes:
-  db-data:
+    restart: unless-stopped
 
 
 networks:
