@@ -21,7 +21,7 @@ fun parseFb2(files: List<File>) = files
         } to it
     }
     .filter { (bytes) -> bytes != null }
-    .map { (bytes, file) -> importedBook(bytes!!, file) }
+    .map { (bytes, file) -> importedBook(bytes = bytes!!, file = file) }
 
 
 fun parseFb2(bytes: ByteArray) = listOf(importedBook(bytes = bytes, file = null, unread = true))
@@ -76,7 +76,7 @@ private fun importedBook(bytes: ByteArray, file: File?, unread: Boolean? = null)
         coverContentType = binary?.contentType,
         recommended = attrs.isRecommended(),
         verified = !attrs.isNotVerified(),
-        unread = unread ?: attrs.isUnread(),
+        unread = unread ?: attrs.isUnread(), // todo пустые атрибуты всегда сохранять как [], при импорте будет явно видно их отсутствие
         sequence = sequenceType?.name,
         sequenceNumber = sequenceType?.number,
         hash = bookHash(bookAuthors, title),
