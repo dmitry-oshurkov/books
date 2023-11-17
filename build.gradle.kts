@@ -20,7 +20,7 @@ plugins {
 val buildMode by extra { (System.getenv("BUILD_MODE") ?: "DEV").also { println("Build mode: $it") } }
 
 group = "name.oshurkov.books"
-version = "23.4.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}${if (buildMode == "DEV") "-dev" else ""}".also { println("Version: $it") }
+version = "23.5.${ZonedDateTime.now(ZoneId.of("Europe/Moscow"))!!.format(ofPattern("MMddHHmm"))}${if (buildMode == "DEV") "-dev" else ""}".also { println("Version: $it") }
 java.sourceCompatibility = VERSION_17
 
 
