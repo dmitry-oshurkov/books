@@ -150,10 +150,10 @@ fun insertBook(book: ImportedBook, authors: List<Author>, genres: List<Genre>, s
 }
 
 
-fun selectBooks() = Books.select(db, transform = ::book)
+fun selectBooks() = Books.select(db, transform = ::Book)
 
 
-fun selectBook(id: Int) = Books.find(id, db, transform = ::book)
+fun selectBook(id: Int) = Books.find(id, db, transform = ::Book)
 
 
 fun updateBook(id: Int, model: PatchBook) = db.update(Books) {
@@ -171,7 +171,7 @@ fun selectRecommendedBooks() = db
     .from(Books)
     .select(Books.columns)
     .where { Books.recommended eq true }
-    .map(::book)
+    .map(::Book)
 
 
 fun selectUnreadBooks() = db
@@ -179,7 +179,7 @@ fun selectUnreadBooks() = db
     .select(Books.columns)
     .where { Books.unread eq true }
     .orderBy(Books.updated.desc()) // todo order by author
-    .map(::book)
+    .map(::Book)
 
 
 fun selectRecentBooks() = db
@@ -187,14 +187,14 @@ fun selectRecentBooks() = db
     .select(Books.columns)
     .limit(10)
     .orderBy(Books.updated.desc())
-    .map(::book)
+    .map(::Book)
 
 
 fun selectUnverifiedBooks() = db
     .from(Books)
     .select(Books.columns)
     .where { Books.verified eq false } // todo order by author
-    .map(::book)
+    .map(::Book)
 
 
 fun selectAuthorBooks(authorId: Int) = db
@@ -203,7 +203,7 @@ fun selectAuthorBooks(authorId: Int) = db
     .select(Books.columns)
     .where { BookAuthors.author_id eq authorId }
     .orderBy(Books.sequence_id.asc(), Books.sequence_number.asc())
-    .map(::book)
+    .map(::Book)
 
 
 fun selectSequenceBooks(sequenceId: Int) = db
@@ -213,7 +213,7 @@ fun selectSequenceBooks(sequenceId: Int) = db
     .select(Books.columns)
     .where { AuthorSequences.sequence_id eq sequenceId }
     .orderBy(Books.sequence_number.asc())
-    .map(::book)
+    .map(::Book)
 
 
 fun selectGenreBooks(genreId: Int) = db
@@ -222,13 +222,13 @@ fun selectGenreBooks(genreId: Int) = db
     .select(Books.columns)
     .where { BookGenres.genre_id eq genreId }
     .orderBy(Books.sequence_id.asc(), Books.sequence_number.asc())
-    .map(::book)
+    .map(::Book)
 
 
 fun selectBooksCount() = Books.count(db)
 
 
-private fun book(row: QueryRowSet) = Book(
+private fun Book(row: QueryRowSet) = Book(
     id = row[Books.id]!!,
     updated = row[Books.updated]!!.atMoscowOffset(),
     cover = row[Books.cover],

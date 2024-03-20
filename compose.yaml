@@ -13,7 +13,7 @@ services:
     restart: unless-stopped
 
 
-  postgres:
+  pgsql:
     image: postgres:15.1
     volumes:
       - /public/services/books/data:/var/lib/postgresql/data
