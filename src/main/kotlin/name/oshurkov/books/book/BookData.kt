@@ -208,10 +208,8 @@ fun selectAuthorBooks(authorId: Int) = db
 
 fun selectSequenceBooks(sequenceId: Int) = db
     .from(Books)
-    .innerJoin(BookAuthors, on = BookAuthors.book_id eq Books.id)
-    .innerJoin(AuthorSequences, on = AuthorSequences.author_id eq BookAuthors.author_id)
     .select(Books.columns)
-    .where { AuthorSequences.sequence_id eq sequenceId }
+    .where { Books.sequence_id eq sequenceId }
     .orderBy(Books.sequence_number.asc())
     .map(::Book)
 
